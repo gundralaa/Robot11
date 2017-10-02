@@ -1,0 +1,71 @@
+Port and Button Assignments.
+
+CAN Ports
+Port	Device			Description
+-----------------------------------------------------------------------------------
+1		CanTalon		Left front drive motor.
+2		CanTalon		Left rear drive motor.
+3		CanTalon		Right front drive motor.
+4		CanTalon		Right rear drive motor.
+5		CanTalon		Left slave drive motor (slaved to port 1).
+6		CanTalon		Right slave drive motor (slaved to port 3).
+
+
+PWM Ports
+Port	Device			Description
+-----------------------------------------------------------------------------------
+
+
+PCM 0 Ports
+Port	Device blk-pos	Description
+-----------------------------------------------------------------------------------
+                                                                                                       
+
+PCM 1 Ports
+Port	Device blk-pos	Description
+-----------------------------------------------------------------------------------
+
+
+Digital I/O Ports
+Port	Device			Description
+-----------------------------------------------------------------------------------
+
+
+Analog I/O Ports
+Port	Device			Description
+-----------------------------------------------------------------------------------
+
+
+Left Joystick
+Button Name				Function
+-----------------------------------------------------------------------------------
+
+
+Right Joystick
+Button Name				Function
+-----------------------------------------------------------------------------------
+
+
+Utility Joystick
+Button Name				Function
+-----------------------------------------------------------------------------------
+
+
+LaunchPad
+Button Name				Function
+-----------------------------------------------------------------------------------
+
+
+Dashboard Indicators/Controls
+Name					Type			Description
+-----------------------------------------------------------------------------------
+AutoTarget				boolean			True when targeting code is running.
+TargetLocked			boolean			True when targeting completed with target
+                                        detected.
+Disabled				boolean			True when robot is disabled.
+Auto Mode				boolean			True when robot is in autonomous mode.
+Teleop Mode				boolean			True when robot is in tele-operated mode.
+FMS						boolean			True when robot is connected to the FMS.
+Overload				boolean			True when steering assist is on.
+AirPressure				Number			Is set to the current air pressure in psi.
+		  
