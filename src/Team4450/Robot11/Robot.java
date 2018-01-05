@@ -2,11 +2,6 @@
  * 2018 competition robot code.
  *
  * For Robot "TBA" built for FRC game "FIRST POWER UP".
- * 
- * This version has all physical devices defined in a new static class
- * called Devices. This puts all the devices and their port assignments
- * in one place. This means devices get created as they are accessed and
- * continue to exist until the code is stopped.
 */
 
 package Team4450.Robot11;
@@ -28,7 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "SWF11-10.1.17-01";
+  static final String  	PROGRAM_NAME = "SWF11-1.4.18-01";
 
   public Properties		robotProperties;
   

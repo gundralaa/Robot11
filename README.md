@@ -17,6 +17,13 @@ Operates the robot "TBA" for FRC game "FIRST POWER UP".
 3) Right click on the project in Eclipse and select "Refresh"
 
 ****************************************************************************************************************
+Version 11.1
+
+* Update to work with 2018 plugins.
+
+S. Flo
+January 4, 2018
+
 Version 11.0
 
 *	Cloned from Robot10. 2017 specific code removed, cleaned up in preparation for 2018 season.
