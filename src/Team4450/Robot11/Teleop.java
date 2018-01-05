@@ -126,7 +126,7 @@ class Teleop
 			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilX=%.4f", leftY, rightY, utilX);
 			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), Devices.navx.getTotalYaw(), 
 					Devices.navx.getYawRate(), Devices.navx.getHeading());
-			LCD.printLine(8, "pressureV=%.2f  psi=%d", robot.monitorCompressorThread.getVoltate(), robot.monitorCompressorThread.getPressure());
+			LCD.printLine(8, "pressureV=%.2f  psi=%d", robot.monitorCompressorThread.getVoltage(), robot.monitorCompressorThread.getPressure());
 
 			// Set wheel motors.
 			// Do not feed JS input to robotDrive if we are controlling the motors in automatic functions.
@@ -162,7 +162,7 @@ class Teleop
 						// right so we set the turn value to - because - is a turn left which corrects our right
 						// drift.
 
-						Devices.robotDrive.drive(rightY, -angle * gain);
+						Devices.robotDrive.curvatureDrive(rightY, -angle * gain, true);
 
 						steeringAssistMode = true;
 					}
@@ -201,8 +201,8 @@ class Teleop
 		return false;
 	}
 
-	// Custom base logrithim.
-	// Returns logrithim base of the value.
+	// Custom base logarithm.
+	// Returns logarithm base of the value.
 
 	private double baseLog(double base, double value)
 	{
@@ -210,7 +210,7 @@ class Teleop
 	}
 
 	// Map joystick y value of 0.0 to 1.0 to the motor working power range of approx 0.5 to 1.0 using
-	// logrithmic curve.
+	// logarithmic curve.
 
 	private double stickLogCorrection(double joystickValue)
 	{
@@ -287,8 +287,6 @@ class Teleop
 
 		public void ButtonDown(JoyStickEvent joyStickEvent) 
 		{
-			int angle;
-
 			JoyStickButton	button = joyStickEvent.button;
 
 			Util.consoleLog("%s, latchedState=%b", button.id.name(),  button.latchedState);
@@ -301,7 +299,7 @@ class Teleop
 				
 			//Example of Joystick Button case:
 			/*
-			case TRIGGER:
+			case BUTTON_NAME_HERE:
 				if (button.latchedState)
 					DoOneThing();
 				else
@@ -333,7 +331,7 @@ class Teleop
 			{
 			//Example of Joystick Button case:
 			/*
-			case TRIGGER:
+			case BUTTON_NAME_HERE:
 				if (button.latchedState)
 					DoOneThing();
 				else
@@ -365,7 +363,7 @@ class Teleop
 			{
 			//Example of Joystick Button case:
 			/*
-			case TRIGGER:
+			case BUTTON_NAME_HERE:
 				if (button.latchedState)
 					DoOneThing();
 				else

@@ -1,31 +1,24 @@
 package Team4450.Robot11;
 
-import com.ctre.CANTalon;
-import com.ctre.CANTalon.TalonControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.*;
 
 import Team4450.Lib.NavX;
 import Team4450.Lib.Util;
-import Team4450.Lib.ValveDA;
-
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
-import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.Spark;
-import edu.wpi.first.wpilibj.Talon;
-import edu.wpi.first.wpilibj.CounterBase.EncodingType;
-import edu.wpi.first.wpilibj.Ultrasonic;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 public class Devices
 {
 	  // Motor CAN ID/PWM port assignments (1=left-front, 2=left-rear, 3=right-front, 4=right-rear)
-	  private static CANTalon	LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon, LSlaveCanTalon, RSlaveCanTalon;
+	  private static WPI_TalonSRX	LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon, LSlaveCanTalon, RSlaveCanTalon;
 	  
-	  public static RobotDrive	robotDrive;
+	  public static DifferentialDrive	robotDrive;
 
 	  public final static Joystick      utilityStick = new Joystick(2);	
 	  public final static Joystick      leftStick = new Joystick(0);	
@@ -48,14 +41,12 @@ public class Devices
 	  {
 		  Util.consoleLog();
 
-		  LFCanTalon = new CANTalon(1);
-		  LRCanTalon = new CANTalon(2);
-		  RFCanTalon = new CANTalon(3);
-		  RRCanTalon = new CANTalon(4);
-		  LSlaveCanTalon = new CANTalon(5);
-		  RSlaveCanTalon = new CANTalon(6);
-		  
-		  robotDrive = new RobotDrive(LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon);
+		  LFCanTalon = new WPI_TalonSRX(1);
+		  LRCanTalon = new WPI_TalonSRX(2);
+		  RFCanTalon = new WPI_TalonSRX(3);
+		  RRCanTalon = new WPI_TalonSRX(4);
+		  LSlaveCanTalon = new WPI_TalonSRX(5);
+		  RSlaveCanTalon = new WPI_TalonSRX(6);
 
 	      // Initialize CAN Talons and write status to log so we can verify
 	      // all the talons are connected.
@@ -66,29 +57,36 @@ public class Devices
 	      InitializeCANTalon(LSlaveCanTalon);
 	      InitializeCANTalon(RSlaveCanTalon);
 	      
-	      // Configure slave CAN Talons to follow the front L & R Talons.
-	      LSlaveCanTalon.changeControlMode(TalonControlMode.Follower);
-	      LSlaveCanTalon.set(LFCanTalon.getDeviceID());
-	      LSlaveCanTalon.reverseOutput(true);
-
-	      RSlaveCanTalon.changeControlMode(TalonControlMode.Follower);
-	      RSlaveCanTalon.set(RFCanTalon.getDeviceID());
-	      RSlaveCanTalon.reverseOutput(true);
+	      // Configure CAN Talons with correct inversions.
+	      LFCanTalon.setInverted(true);
+		  LRCanTalon.setInverted(true);
+		  
+		  RFCanTalon.setInverted(true);
+		  RRCanTalon.setInverted(true);
+		  
+		  LSlaveCanTalon.setInverted(true);
+		  RSlaveCanTalon.setInverted(true);
 	      
 	      // Turn on brake mode for CAN Talons.
 	      SetCANTalonBrakeMode(true);
+	      
+	      // Setup the SpeedControllerGroups for the left and right set of motors.
+	      SpeedControllerGroup LeftGroup = new SpeedControllerGroup(LFCanTalon,LSlaveCanTalon,LRCanTalon);
+		  SpeedControllerGroup RightGroup = new SpeedControllerGroup(RFCanTalon,RSlaveCanTalon,RRCanTalon);
+		  
+		  robotDrive = new DifferentialDrive(LeftGroup, RightGroup);
 	  }
 
 	  // Initialize and Log status indication from CANTalon. If we see an exception
 	  // or a talon has low voltage value, it did not get recognized by the RR on start up.
 	  
-	  public static void InitializeCANTalon(CANTalon talon)
+	  public static void InitializeCANTalon(WPI_TalonSRX talon)
 	  {
 		  Util.consoleLog("talon init: %s   voltage=%.1f", talon.getDescription(), talon.getBusVoltage());
 
-		  talon.clearStickyFaults();
-		  talon.enableControl();
-		  talon.changeControlMode(TalonControlMode.PercentVbus);
+		  talon.clearStickyFaults(0); //0ms means no blocking.
+		  //talon.enableControl();
+		  //talon.changeControlMode(ControlMode.PercentOutput); //TODO Find PercentVbus
 	  }
 	  
 	  // Set neutral behavior of CAN Talons. True = brake mode, false = coast mode.
@@ -97,16 +95,25 @@ public class Devices
 	  {
 		  Util.consoleLog("brakes on=%b", brakeMode);
 		  
-		  LFCanTalon.enableBrakeMode(brakeMode);
-		  LRCanTalon.enableBrakeMode(brakeMode);
-		  RFCanTalon.enableBrakeMode(brakeMode);
-		  RRCanTalon.enableBrakeMode(brakeMode);
-		  LSlaveCanTalon.enableBrakeMode(brakeMode);
-		  RSlaveCanTalon.enableBrakeMode(brakeMode);
+		  NeutralMode newMode;
+		  if (brakeMode) {
+			  newMode = NeutralMode.Brake;
+		  } else {
+			  newMode = NeutralMode.Coast;
+		  }
+		  
+		  LFCanTalon.setNeutralMode(newMode);
+		  LRCanTalon.setNeutralMode(newMode);
+		  RFCanTalon.setNeutralMode(newMode);
+		  RRCanTalon.setNeutralMode(newMode);
+		  LSlaveCanTalon.setNeutralMode(newMode);
+		  RSlaveCanTalon.setNeutralMode(newMode);
 	  }
 	  
 	  // Set CAN Talon voltage ramp rate. Rate is volts/sec and can be 2-12v.
 	  
+	  /*
+	   * As of right now I'm unable to find a replacement function.
 	  public static void SetCANTalonRampRate(double rate)
 	  {
 		  Util.consoleLog("%f", rate);
@@ -118,18 +125,19 @@ public class Devices
 		  LSlaveCanTalon.setVoltageRampRate(rate);
 		  RSlaveCanTalon.setVoltageRampRate(rate);
 	  }
+	  */
 	  
 	  // Return voltage and current draw for each CAN Talon.
 	  
 	  public static String GetCANTalonStatus()
 	  {
 		  return String.format("%.1f/%.1f  %.1f/%.1f  %.1f/%.1f  %.1f/%.1f  %.1f/%.1f  %.1f/%.1f", 
-				  LFCanTalon.getOutputVoltage(), LFCanTalon.getOutputCurrent(),
-				  LRCanTalon.getOutputVoltage(), LRCanTalon.getOutputCurrent(),
-				  RFCanTalon.getOutputVoltage(), RFCanTalon.getOutputCurrent(),
-				  RRCanTalon.getOutputVoltage(), RRCanTalon.getOutputCurrent(),
-				  LSlaveCanTalon.getOutputVoltage(), LSlaveCanTalon.getOutputCurrent(),
-				  RSlaveCanTalon.getOutputVoltage(), RSlaveCanTalon.getOutputCurrent());
+				  LFCanTalon.getMotorOutputVoltage(), LFCanTalon.getOutputCurrent(),
+				  LRCanTalon.getMotorOutputVoltage(), LRCanTalon.getOutputCurrent(),
+				  RFCanTalon.getMotorOutputVoltage(), RFCanTalon.getOutputCurrent(),
+				  RRCanTalon.getMotorOutputVoltage(), RRCanTalon.getOutputCurrent(),
+				  LSlaveCanTalon.getMotorOutputVoltage(), LSlaveCanTalon.getOutputCurrent(),
+				  RSlaveCanTalon.getMotorOutputVoltage(), RSlaveCanTalon.getOutputCurrent());
 	  }
 
 }

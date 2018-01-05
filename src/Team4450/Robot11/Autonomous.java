@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Autonomous
 {
 	private final Robot	robot;
-	private final int	program = (int) SmartDashboard.getNumber("AutoProgramSelect");
+	private final int	program = (int) SmartDashboard.getNumber("AutoProgramSelect",0);
 	
 	Autonomous(Robot robot)
 	{

@@ -16,7 +16,6 @@ import java.util.Properties;
 import Team4450.Lib.*;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -101,16 +100,7 @@ public class Robot extends SampleRobot
    		Devices.robotDrive.stopMotor();
    		Devices.robotDrive.setSafetyEnabled(false);
    		Devices.robotDrive.setExpiration(0.1);
-        
-        // Reverse motors so they all turn on the right direction to match "forward"
-        // as we define it for the robot.
-
-   		Devices.robotDrive.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, true);
-   		Devices.robotDrive.setInvertedMotor(RobotDrive.MotorType.kRearLeft, true);
-    
-   		Devices.robotDrive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
-   		Devices.robotDrive.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
-     
+             
    		// Create NavX object here so it has time to calibrate before we
    		// use it. Takes 10 seconds. Must appear before CamerFeed is created.
    		
@@ -120,7 +110,7 @@ public class Robot extends SampleRobot
 
    		// Start the battery, compressor, PDP and camera feed monitoring Tasks.
 
-   		monitorBatteryThread = MonitorBattery.getInstance(Devices.ds);
+   		monitorBatteryThread = MonitorBattery.getInstance();
    		monitorBatteryThread.start();
 
    		monitorCompressorThread = MonitorCompressor.getInstance(Devices.pressureSensor);
