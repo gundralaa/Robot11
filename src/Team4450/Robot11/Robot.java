@@ -2,11 +2,6 @@
  * 2018 competition robot code.
  *
  * For Robot "TBA" built for FRC game "FIRST POWER UP".
- * 
- * This version has all physical devices defined in a new static class
- * called Devices. This puts all the devices and their port assignments
- * in one place. This means devices get created as they are accessed and
- * continue to exist until the code is stopped.
 */
 
 package Team4450.Robot11;
@@ -16,7 +11,6 @@ import java.util.Properties;
 import Team4450.Lib.*;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -29,7 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "SWF11-10.1.17-01";
+  static final String  	PROGRAM_NAME = "SWF11-1.4.18-01";
 
   public Properties		robotProperties;
   
@@ -101,16 +95,7 @@ public class Robot extends SampleRobot
    		Devices.robotDrive.stopMotor();
    		Devices.robotDrive.setSafetyEnabled(false);
    		Devices.robotDrive.setExpiration(0.1);
-        
-        // Reverse motors so they all turn on the right direction to match "forward"
-        // as we define it for the robot.
-
-   		Devices.robotDrive.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, true);
-   		Devices.robotDrive.setInvertedMotor(RobotDrive.MotorType.kRearLeft, true);
-    
-   		Devices.robotDrive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
-   		Devices.robotDrive.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
-     
+             
    		// Create NavX object here so it has time to calibrate before we
    		// use it. Takes 10 seconds. Must appear before CamerFeed is created.
    		
@@ -120,7 +105,7 @@ public class Robot extends SampleRobot
 
    		// Start the battery, compressor, PDP and camera feed monitoring Tasks.
 
-   		monitorBatteryThread = MonitorBattery.getInstance(Devices.ds);
+   		monitorBatteryThread = MonitorBattery.getInstance();
    		monitorBatteryThread.start();
 
    		monitorCompressorThread = MonitorCompressor.getInstance(Devices.pressureSensor);
