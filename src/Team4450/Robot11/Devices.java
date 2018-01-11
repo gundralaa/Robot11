@@ -49,7 +49,7 @@ public class Devices
 		  RSlaveCanTalon = new WPI_TalonSRX(6);
 
 	      // Initialize CAN Talons and write status to log so we can verify
-	      // all the talons are connected.
+	      // all the Talons are connected.
 	      InitializeCANTalon(LFCanTalon);
 	      InitializeCANTalon(LRCanTalon);
 	      InitializeCANTalon(RFCanTalon);
@@ -64,8 +64,8 @@ public class Devices
 		  RFCanTalon.setInverted(true);
 		  RRCanTalon.setInverted(true);
 		  
-		  LSlaveCanTalon.setInverted(true);
-		  RSlaveCanTalon.setInverted(true);
+		  LSlaveCanTalon.setInverted(false);
+		  RSlaveCanTalon.setInverted(false);
 	      
 	      // Turn on brake mode for CAN Talons.
 	      SetCANTalonBrakeMode(true);
