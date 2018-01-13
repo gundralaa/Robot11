@@ -2,6 +2,7 @@
 package Team4450.Robot11;
 
 import Team4450.Lib.*;
+import Team4450.Robot11.Devices;
 //import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 //import edu.wpi.first.wpilibj.CounterBase.EncodingType;
@@ -31,10 +32,10 @@ public class Autonomous
 
 	public void execute()
 	{
-		Util.consoleLog("Alliance=%s, Location=%d, Program=%d, FMS=%b", robot.alliance.name(), robot.location, program, 
-				Devices.ds.isFMSAttached());
-		LCD.printLine(2, "Alliance=%s, Location=%d, FMS=%b, Program=%d", robot.alliance.name(), robot.location, 
-				Devices.ds.isFMSAttached(), program);
+		Util.consoleLog("Alliance=%s, Location=%d, Program=%d, FMS=%b, msg=%s", robot.alliance.name(), robot.location, program, 
+				Devices.ds.isFMSAttached(), robot.gameMessage);
+		LCD.printLine(2, "Alliance=%s, Location=%d, FMS=%b, Program=%d, msg=%s", robot.alliance.name(), robot.location, 
+				Devices.ds.isFMSAttached(), program, robot.gameMessage);
 
 		Devices.robotDrive.setSafetyEnabled(false);
 

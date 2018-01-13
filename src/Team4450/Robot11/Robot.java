@@ -9,6 +9,7 @@ package Team4450.Robot11;
 import java.util.Properties;
 
 import Team4450.Lib.*;
+import Team4450.Robot11.Devices;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SampleRobot;
@@ -23,14 +24,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "SWF11-1.4.18-01";
+  static final String  	PROGRAM_NAME = "RAC11-01.12.18-01";
 
   public Properties		robotProperties;
   
   public boolean		isClone = false, isComp = false;
     	
   DriverStation.Alliance	alliance;
-  int                       location;
+  int                       location, matchNumber;
+  String					eventName, gameMessage;
     
   Thread               	monitorBatteryThread, monitorPDPThread;
   MonitorCompressor		monitorCompressorThread;
@@ -171,6 +173,9 @@ public class Robot extends SampleRobot
         
     	  alliance = Devices.ds.getAlliance();
     	  location = Devices.ds.getLocation();
+    	  eventName = Devices.ds.getEventName();
+    	  matchNumber = Devices.ds.getMatchNumber();
+    	  gameMessage = Devices.ds.getGameSpecificMessage();
 
     	  // This code turns off the automatic compressor management if requested by DS.
     	  Devices.compressor.setClosedLoopControl(SmartDashboard.getBoolean("CompressorEnabled", true));
@@ -209,8 +214,13 @@ public class Robot extends SampleRobot
         
       	  alliance = Devices.ds.getAlliance();
       	  location = Devices.ds.getLocation();
+    	  eventName = Devices.ds.getEventName();
+    	  matchNumber = Devices.ds.getMatchNumber();
+    	  gameMessage = Devices.ds.getGameSpecificMessage();
         
-          Util.consoleLog("Alliance=%s, Location=%d, FMS=%b", alliance.name(), location, Devices.ds.isFMSAttached());
+          Util.consoleLog("Alliance=%s, Location=%d, FMS=%b event=%s match=%d msg=%s", 
+        		  		   alliance.name(), location, Devices.ds.isFMSAttached(), eventName, matchNumber, 
+        		  		   gameMessage);
 
     	  // Reset persistent fault flags in control system modules.
           Devices.PDP.clearStickyFaults();
