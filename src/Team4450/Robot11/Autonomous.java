@@ -3,20 +3,20 @@ package Team4450.Robot11;
 
 import Team4450.Lib.*;
 import Team4450.Robot11.Devices;
-//import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
-//import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Autonomous
 {
 	private final Robot	robot;
 	private final int	program = (int) SmartDashboard.getNumber("AutoProgramSelect",0);
-	
+
 	Autonomous(Robot robot)
 	{
 		Util.consoleLog();
-		
+
 		this.robot = robot;		
 	}
 
@@ -24,7 +24,7 @@ public class Autonomous
 	{
 		Util.consoleLog();
 	}
-	
+
 	private boolean isAutoActive()
 	{
 		return robot.isEnabled() && robot.isAutonomous();
@@ -39,94 +39,217 @@ public class Autonomous
 
 		Devices.robotDrive.setSafetyEnabled(false);
 
-		//TODO Encoder likely used, so just commenting out.
 		// Initialize encoder.
-		//Devices.encoder.reset();
-        
+		Devices.encoder.reset();
+
 		//TODO NavX likely used, so just commenting out.
-        // Set gyro/NavX to heading 0.
-        //robot.gyro.reset();
-		//Devices.navx.resetYaw();
-		
-        // Wait to start motors so gyro will be zero before first movement.
-        //Timer.delay(.50);
+		// Set gyro/NavX to heading 0.
+		//robot.gyro.reset();
+		Devices.navx.resetYaw();
+
+		// Wait to start motors so gyro will be zero before first movement.
+		Timer.delay(.50);
 
 		switch (program)
 		{
-			case 0:		// No auto program.
+		case 0:		// No auto program.
+			break;
+		case 1:     // Move forward side, No Score.
+			moveForwardSide();
+			break;
+		case 2:     // Move forward center, No Score.
+			moveForwardCenter();
+			break;
+		case 3:     // Center Score
+			switch (robot.gameMessage.charAt(0)) {
+			case 'L':
+				scoreCenterLeft();
 				break;
+			case 'R':
+				scoreCenterRight();
+				break;
+			default:
+				moveForwardCenter();
+				break;
+			}
+			break;
+		case 4:     //Left Score
+			switch(robot.gameMessage.charAt(0)) {
+			case 'L':
+				scoreLeftSwitch();
+				break;
+			case 'R':
+				if (robot.gameMessage.charAt(1) == 'L') {
+					scoreLeftScale();
+				} else {
+					moveForwardSide();
+				}
+				break;
+			default:
+				moveForwardSide();
+			}
+			break;
+		case 5:     //Right Score
+			switch(robot.gameMessage.charAt(0)) {
+			case 'R':
+				scoreRightSwitch();
+				break;
+			case 'L':
+				if (robot.gameMessage.charAt(1) == 'R') {
+					scoreRightScale();
+				} else {
+					moveForwardSide();
+				}
+				break;
+			default:
+				moveForwardSide();
+			}
+			break;
 		}
-		
+
 		Util.consoleLog("end");
+	}
+	
+	private void scoreCenterLeft() {
+		raiseLift(false);
+		autoDrive(.5,250,true); //Move out a little
+		autoRotate(.5, 90); //Turn to the left
+		autoDrive(.5, 500, true); //Align with switch
+		autoRotate(-.5, 90); //Face switch
+		autoDrive(.5, 350, true); //Go to switch
+		ejectCube(); //... Take a guess
+	}
+	
+	private void scoreCenterRight() {
+		raiseLift(false);
+		autoDrive(.5,250,true); //Move out a little
+		autoRotate(-.5, 90); //Turn to the right
+		autoDrive(.5, 500, true); //Align with switch
+		autoRotate(.5, 90); //Face switch
+		autoDrive(.5, 350, true); //Go to switch
+		ejectCube(); //... Take a guess
+	}
+	
+	private void scoreLeftSwitch() {
+		raiseLift(false);
+		autoDrive(.5, 1500, true); //Move out to line up with switch
+		autoRotate(-.5, 90); //Face switch
+		autoDrive(.25, 200, true); //TODO Figure out if needed //Go towards switch
+		ejectCube();
+	}
+	
+	private void scoreLeftScale() {
+		raiseLift(true);
+		autoDrive(.5, 3500, true); //Move out to line up with switch
+		autoRotate(-.5, 90); //Face scale
+		autoDrive(.25, 200, true); //TODO Figure out if needed //Go towards scale
+		ejectCube();
+	}
+	
+	private void scoreRightSwitch() {
+		raiseLift(false);
+		autoDrive(.5, 1500, true); //Move out to line up with switch
+		autoRotate(.5, 90); //Face switch
+		autoDrive(.25, 200, true); //TODO Figure out if needed //Go towards switch
+		ejectCube();
+	}
+	
+	private void scoreRightScale() {
+		raiseLift(true);
+		autoDrive(.5, 3500, true); //Move out to line up with switch
+		autoRotate(.5, 90); //Face scale
+		autoDrive(.25, 200, true); //TODO Figure out if needed //Go towards scale
+		ejectCube();
+	}
+
+	private void moveForwardSide() {
+		autoDrive(.5, 2000, true); //FIXME Power and encoder counts need checking.
+	}
+	
+	private void moveForwardCenter() {
+		autoDrive(.5, 250, true); //Move out a little
+		autoRotate(-.5, 45); //Turn a little to the right
+		autoDrive(.25, 1000, true); //Cross the line
+	}
+	
+	private void ejectCube() {	
+		Devices.grabber.set(-1);
+		Timer.delay(1);
+		Devices.grabber.set(0);
+	}
+	
+	private void raiseLift(boolean scaleHeight) {
+		Devices.liftMotor.set(.5);
+		Timer.delay((scaleHeight ? 1 : 2));
+		Devices.liftMotor.set(0);
 	}
 
 	//TODO May likely be used, will need modification to work.
-	/*
+
 	// Auto drive in set direction and power for specified encoder count. Stops
 	// with or without brakes on CAN bus drive system. Uses gyro/NavX to go straight.
-	
+
 	private void autoDrive(double power, int encoderCounts, boolean enableBrakes)
 	{
 		int		angle;
 		double	gain = .03;
-		
+
 		Util.consoleLog("pwr=%.2f, count=%d, brakes=%b", power, encoderCounts, enableBrakes);
 
 		if (robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
 
 		Devices.encoder.reset();
 		Devices.navx.resetYaw();
-		
+
 		while (isAutoActive() && Math.abs(Devices.encoder.get()) < encoderCounts) 
 		{
 			LCD.printLine(4, "encoder=%d", Devices.encoder.get());
-			
+
 			// Angle is negative if robot veering left, positive if veering right when going forward.
 			// It is opposite when going backward. Note that for this robot, - power means forward and
 			// + power means backward.
-			
+
 			//angle = (int) robot.gyro.getAngle();
 			angle = (int) Devices.navx.getYaw();
 
 			LCD.printLine(5, "angle=%d", angle);
-			
+
 			// Invert angle for backwards.
-			
+
 			if (power > 0) angle = -angle;
-			
+
 			//Util.consoleLog("angle=%d", angle);
-			
+
 			// Note we invert sign on the angle because we want the robot to turn in the opposite
 			// direction than it is currently going to correct it. So a + angle says robot is veering
 			// right so we set the turn value to - because - is a turn left which corrects our right
 			// drift.
-			
-			Devices.robotDrive.drive(power, -angle * gain);
-			
+
+			Devices.robotDrive.curvatureDrive(power, -angle * gain, false);
+
 			Timer.delay(.020);
 		}
 
 		Devices.robotDrive.tankDrive(0, 0, true);				
-		
+
 		Util.consoleLog("end: actual count=%d", Math.abs(Devices.encoder.get()));
 	}
-	
+
 	// Auto rotate left or right the specified angle. Left/right from robots forward view.
 	// Turn right, power is -
 	// Turn left, power is +
 	// angle of rotation is always +.
-	
+
 	private void autoRotate(double power, int angle)
 	{
 		Util.consoleLog("pwr=%.2f  angle=%d", power, angle);
-		
+
 		Devices.navx.resetYaw();
-		
+
 		Devices.robotDrive.tankDrive(power, -power);
 
 		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) {Timer.delay(.020);} 
-		
+
 		Devices.robotDrive.tankDrive(0, 0);
 	}
-	*/
 }

@@ -7,7 +7,9 @@ import Team4450.Lib.NavX;
 import Team4450.Lib.Util;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -20,6 +22,8 @@ public class Devices
 	  
 	  public static DifferentialDrive	robotDrive;
 
+	  public static WPI_TalonSRX        liftMotor, grabber;
+	  
 	  public final static Joystick      utilityStick = new Joystick(2);	
 	  public final static Joystick      leftStick = new Joystick(0);	
 	  public final static Joystick		rightStick = new Joystick(1);	
@@ -34,7 +38,13 @@ public class Devices
 	  public final static DriverStation				ds = DriverStation.getInstance();
 
 	  public static NavX				navx;
+	  
+	  // Wheel encoder is plugged into dio port 3 - orange=+5v blue=signal, dio port 4 black=gnd yellow=signal. 
+	  public final static Encoder		encoder = new Encoder(3, 4, true, EncodingType.k4X);
 
+	  // Encoder ribbon cable to dio ports: ribbon wire 2 = orange, 5 = yellow, 7 = blue, 10 = black
+	  // not used.
+	  
 	  // Create RobotDrive object for CAN Talon controllers.
 	  
 	  public static void InitializeCANTalonDrive()
