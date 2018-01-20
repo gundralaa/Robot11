@@ -12,12 +12,13 @@ public class Autonomous
 {
 	private final Robot	robot;
 	private final int	program = (int) SmartDashboard.getNumber("AutoProgramSelect",0);
+	private PlateStates	plateState;
 	
 	Autonomous(Robot robot)
 	{
 		Util.consoleLog();
 		
-		this.robot = robot;		
+		this.robot = robot;
 	}
 
 	public void dispose()
@@ -36,34 +37,175 @@ public class Autonomous
 				Devices.ds.isFMSAttached(), robot.gameMessage);
 		LCD.printLine(2, "Alliance=%s, Location=%d, FMS=%b, Program=%d, msg=%s", robot.alliance.name(), robot.location, 
 				Devices.ds.isFMSAttached(), program, robot.gameMessage);
+		
+		// Get the randomized scoring plate state.
+		plateState = PlateStates.valueOf(robot.gameMessage);
 
 		Devices.robotDrive.setSafetyEnabled(false);
 
-		//TODO Encoder likely used, so just commenting out.
 		// Initialize encoder.
-		//Devices.encoder.reset();
+		Devices.wheelEncoder.reset();
         
-		//TODO NavX likely used, so just commenting out.
-        // Set gyro/NavX to heading 0.
-        //robot.gyro.reset();
-		//Devices.navx.resetYaw();
-		
-        // Wait to start motors so gyro will be zero before first movement.
-        //Timer.delay(.50);
+        // Set NavX to heading 0.
+		Devices.navx.resetYaw();
 
+		// Determine which auto program to run as indicated by driver station.
 		switch (program)
 		{
 			case 0:		// No auto program.
+				break;
+
+			case 1:		// Start outside (either side) no scoring.
+				startOutsideNoScore();
+				break;
+			
+			case 2:		// Start center no scoring.
+				startCenterNoScore();
+				break;
+			
+			case 3:		// Start center score cube.
+				startCenterScore();
+				break;
+			
+			case 4:		// Start left outside score cube.
+				startOutsideScore(true);
+				break;
+
+			case 5:		// Start right outside score cube.
+				startOutsideScore(false);
 				break;
 		}
 		
 		Util.consoleLog("end");
 	}
 
-	//TODO May likely be used, will need modification to work.
-	/*
+	// Start from left or right and just drive across the line.
+	private void startOutsideNoScore()
+	{
+		Util.consoleLog();
+		
+		autoDrive(.50, 0, true);
+	}
+
+	// Start from center (offset right). Move forward a bit to get off the wall. 
+	// Turn right 45, drive forward to break the line and stop.
+ 
+	private void startCenterNoScore()
+	{
+		Util.consoleLog();
+		
+		autoDrive(.50, 1000, true);
+		
+		autoRotate(.50, -45);
+		
+		autoDrive(.50, 1000, true);
+	}
+
+	// Start from center (offset right). Evaluate game information. Determine which switch we
+	// should score on. Navigate by moving a bit off the wall, turn 90 in correct direction, 
+	// drive forward correct amount, turn 90 in correct direction, raise cube, drive forward 
+	// to the switch wall, dump cube.
+
+	private void startCenterScore()
+	{
+		Util.consoleLog(plateState.toString());
+		
+		autoDrive(.50, 1000, true);
+		
+		switch (plateState)
+		{
+			case UNDEFINED:
+				startCenterNoScore();
+				return;
+				
+			case LLL: case LRL:
+				autoRotate(.50, 90);
+				autoDrive(.50, 1000, true);
+				autoRotate(.50, -90);
+				autoDrive(.50, 1000, true);
+				break;
+				
+			case RRR: case RLR:
+				autoRotate(.50, -90);
+				autoDrive(.50, 1000, true);
+				autoRotate(.50, 90);
+				autoDrive(.50, 1000, true);
+				break;
+		}
+		
+		// Dump cube.
+	}
+
+	// Start left or right. Evaluate game information. Determine if we should score on the switch, 
+	// scale, or not at all. For not at all, drive forward until aligned with the platform area, 
+	// turn right 90, drive forward into the platform area as far as we can get toward the scale on 
+	// opposite side of the field. For score scale drive forward raising cube until aligned with scale
+	// front, turn right 90, drive to scale drop position, drop cube. For score switch drive forward
+	// raising cube until aligned with switch front, turn right 90, drive to switch wall, drop cube.
+
+	private void startOutsideScore(boolean startingLeft)
+	{
+		Util.consoleLog("start left=%b, plate=%s", startingLeft, plateState.toString());
+		
+		if (startingLeft) 
+		{
+			switch (plateState)
+			{
+				case UNDEFINED:
+					break;
+					
+				case LLL: case RLR:	// Scale available.
+					autoDrive(.50, 1000, true);
+					autoRotate(.50, -90);
+					autoDrive(.50, 1000, true);
+					break;
+					
+				case RRR:	// No plate available.
+					autoDrive(.50, 1000, true);
+					autoRotate(.50, -90);
+					autoDrive(.50, 1000, true);
+					return;
+					
+				case LRL:	// Switch available.
+					autoDrive(.50, 1000, true);
+					autoRotate(.50, -90);
+					autoDrive(.50, 1000, true);
+					break;
+		}
+		}
+		else
+		{
+			switch (plateState)
+			{
+				case UNDEFINED:
+					break;
+					
+				case LLL:	// No plate available.
+					autoDrive(.50, 1000, true);
+					autoRotate(.50, 90);
+					autoDrive(.50, 1000, true);
+					return;
+
+					
+				case RRR: case LRL:	// Scale available.
+					autoDrive(.50, 1000, true);
+					autoRotate(.50, 90);
+					autoDrive(.50, 1000, true);
+					break;
+					
+				case RLR:	// Switch available.
+					autoDrive(.50, 1000, true);
+					autoRotate(.50, 90);
+					autoDrive(.50, 1000, true);
+					break;
+			}
+		}
+		
+		// Dump cube.
+	}
+	
 	// Auto drive in set direction and power for specified encoder count. Stops
-	// with or without brakes on CAN bus drive system. Uses gyro/NavX to go straight.
+	// with or without brakes on CAN bus drive system. Uses NavX to go straight.
 	
 	private void autoDrive(double power, int encoderCounts, boolean enableBrakes)
 	{
@@ -74,18 +216,17 @@ public class Autonomous
 
 		if (robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
 
-		Devices.encoder.reset();
+		Devices.wheelEncoder.reset();
 		Devices.navx.resetYaw();
 		
-		while (isAutoActive() && Math.abs(Devices.encoder.get()) < encoderCounts) 
+		while (isAutoActive() && Math.abs(Devices.wheelEncoder.get()) < encoderCounts) 
 		{
-			LCD.printLine(4, "encoder=%d", Devices.encoder.get());
+			LCD.printLine(4, "encoder=%d", Devices.wheelEncoder.get());
 			
 			// Angle is negative if robot veering left, positive if veering right when going forward.
 			// It is opposite when going backward. Note that for this robot, - power means forward and
 			// + power means backward.
 			
-			//angle = (int) robot.gyro.getAngle();
 			angle = (int) Devices.navx.getYaw();
 
 			LCD.printLine(5, "angle=%d", angle);
@@ -101,14 +242,14 @@ public class Autonomous
 			// right so we set the turn value to - because - is a turn left which corrects our right
 			// drift.
 			
-			Devices.robotDrive.drive(power, -angle * gain);
+			Devices.robotDrive.curvatureDrive(power, -angle * gain, false);
 			
 			Timer.delay(.020);
 		}
 
 		Devices.robotDrive.tankDrive(0, 0, true);				
 		
-		Util.consoleLog("end: actual count=%d", Math.abs(Devices.encoder.get()));
+		Util.consoleLog("end: actual count=%d", Math.abs(Devices.wheelEncoder.get()));
 	}
 	
 	// Auto rotate left or right the specified angle. Left/right from robots forward view.
@@ -128,5 +269,13 @@ public class Autonomous
 		
 		Devices.robotDrive.tankDrive(0, 0);
 	}
-	*/
+	
+	private enum PlateStates
+	{
+		UNDEFINED,
+		LLL,
+		RRR,
+		LRL,
+		RLR;
+ 	}
 }

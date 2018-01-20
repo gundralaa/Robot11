@@ -96,11 +96,10 @@ class Teleop
 		// of the rocker switch.
 		if (robot.isComp) Devices.SetCANTalonBrakeMode(lpControl.latchedState);
 
-		// Set gyro/Navx to heading 0.
-		//robot.gyro.reset();
+		// Set Navx to heading 0.
 		Devices.navx.resetYaw();
 
-		Devices.navx.setHeading(90);
+		Devices.navx.setHeading(0);
 
 		// Reset encoder.
 		//Devices.encoder.reset();
@@ -162,7 +161,7 @@ class Teleop
 						// right so we set the turn value to - because - is a turn left which corrects our right
 						// drift.
 
-						Devices.robotDrive.curvatureDrive(rightY, -angle * gain, true);
+						Devices.robotDrive.curvatureDrive(rightY, -angle * gain, false);
 
 						steeringAssistMode = true;
 					}
