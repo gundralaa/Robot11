@@ -39,8 +39,12 @@ public class Autonomous
 				Devices.ds.isFMSAttached(), program, robot.gameMessage);
 		
 		// Get the randomized scoring plate state.
-		plateState = PlateStates.valueOf(robot.gameMessage);
-
+		try
+		{
+			plateState = PlateStates.valueOf(robot.gameMessage);
+		}
+		catch (Exception e) { plateState = PlateStates.UNDEFINED; }
+		
 		Devices.robotDrive.setSafetyEnabled(false);
 
 		// Initialize encoder.
@@ -152,7 +156,7 @@ public class Autonomous
 			switch (plateState)
 			{
 				case UNDEFINED:
-					break;
+					return;
 					
 				case LLL: case RLR:	// Scale available.
 					autoDrive(.50, 1000, true);
@@ -171,14 +175,14 @@ public class Autonomous
 					autoRotate(.50, -90);
 					autoDrive(.50, 1000, true);
 					break;
-		}
+			}
 		}
 		else
 		{
 			switch (plateState)
 			{
 				case UNDEFINED:
-					break;
+					return;
 					
 				case LLL:	// No plate available.
 					autoDrive(.50, 1000, true);
@@ -214,42 +218,42 @@ public class Autonomous
 		
 		Util.consoleLog("pwr=%.2f, count=%d, brakes=%b", power, encoderCounts, enableBrakes);
 
-		if (robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
-
-		Devices.wheelEncoder.reset();
-		Devices.navx.resetYaw();
-		
-		while (isAutoActive() && Math.abs(Devices.wheelEncoder.get()) < encoderCounts) 
-		{
-			LCD.printLine(4, "encoder=%d", Devices.wheelEncoder.get());
-			
-			// Angle is negative if robot veering left, positive if veering right when going forward.
-			// It is opposite when going backward. Note that for this robot, - power means forward and
-			// + power means backward.
-			
-			angle = (int) Devices.navx.getYaw();
-
-			LCD.printLine(5, "angle=%d", angle);
-			
-			// Invert angle for backwards.
-			
-			if (power > 0) angle = -angle;
-			
-			//Util.consoleLog("angle=%d", angle);
-			
-			// Note we invert sign on the angle because we want the robot to turn in the opposite
-			// direction than it is currently going to correct it. So a + angle says robot is veering
-			// right so we set the turn value to - because - is a turn left which corrects our right
-			// drift.
-			
-			Devices.robotDrive.curvatureDrive(power, -angle * gain, false);
-			
-			Timer.delay(.020);
-		}
-
-		Devices.robotDrive.tankDrive(0, 0, true);				
-		
-		Util.consoleLog("end: actual count=%d", Math.abs(Devices.wheelEncoder.get()));
+//		if (robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
+//
+//		Devices.wheelEncoder.reset();
+//		Devices.navx.resetYaw();
+//		
+//		while (isAutoActive() && Math.abs(Devices.wheelEncoder.get()) < encoderCounts) 
+//		{
+//			LCD.printLine(4, "encoder=%d", Devices.wheelEncoder.get());
+//			
+//			// Angle is negative if robot veering left, positive if veering right when going forward.
+//			// It is opposite when going backward. Note that for this robot, - power means forward and
+//			// + power means backward.
+//			
+//			angle = (int) Devices.navx.getYaw();
+//
+//			LCD.printLine(5, "angle=%d", angle);
+//			
+//			// Invert angle for backwards.
+//			
+//			if (power > 0) angle = -angle;
+//			
+//			//Util.consoleLog("angle=%d", angle);
+//			
+//			// Note we invert sign on the angle because we want the robot to turn in the opposite
+//			// direction than it is currently going to correct it. So a + angle says robot is veering
+//			// right so we set the turn value to - because - is a turn left which corrects our right
+//			// drift.
+//			
+//			Devices.robotDrive.curvatureDrive(power, -angle * gain, false);
+//			
+//			Timer.delay(.020);
+//		}
+//
+//		Devices.robotDrive.tankDrive(0, 0, true);				
+//		
+//		Util.consoleLog("end: actual count=%d", Math.abs(Devices.wheelEncoder.get()));
 	}
 	
 	// Auto rotate left or right the specified angle. Left/right from robots forward view.
@@ -261,13 +265,13 @@ public class Autonomous
 	{
 		Util.consoleLog("pwr=%.2f  angle=%d", power, angle);
 		
-		Devices.navx.resetYaw();
-		
-		Devices.robotDrive.tankDrive(power, -power);
-
-		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) {Timer.delay(.020);} 
-		
-		Devices.robotDrive.tankDrive(0, 0);
+//		Devices.navx.resetYaw();
+//		
+//		Devices.robotDrive.tankDrive(power, -power);
+//
+//		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) {Timer.delay(.020);} 
+//		
+//		Devices.robotDrive.tankDrive(0, 0);
 	}
 	
 	private enum PlateStates
