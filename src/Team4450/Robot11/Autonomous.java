@@ -42,7 +42,6 @@ public class Autonomous
 		// Initialize encoder.
 		Devices.encoder.reset();
 
-		//TODO NavX likely used, so just commenting out.
 		// Set gyro/NavX to heading 0.
 		//robot.gyro.reset();
 		Devices.navx.resetYaw();
@@ -54,13 +53,13 @@ public class Autonomous
 		{
 		case 0:		// No auto program.
 			break;
-		case 1:     // Move forward side, No Score.
+		case 1:     // Move forward side, w/o scoring.
 			moveForwardSide();
 			break;
-		case 2:     // Move forward center, No Score.
+		case 2:     // Move forward center, w/o scoring.
 			moveForwardCenter();
 			break;
-		case 3:     // Center Score
+		case 3:     // Center w/scoring.
 			switch (robot.gameMessage.charAt(0)) {
 			case 'L':
 				scoreCenterLeft();
@@ -73,7 +72,7 @@ public class Autonomous
 				break;
 			}
 			break;
-		case 4:     //Left Score
+		case 4:     //Left w/scoring.
 			switch(robot.gameMessage.charAt(0)) {
 			case 'L':
 				scoreLeftSwitch();
@@ -89,7 +88,7 @@ public class Autonomous
 				moveForwardSide();
 			}
 			break;
-		case 5:     //Right Score
+		case 5:     //Right w/scoring.
 			switch(robot.gameMessage.charAt(0)) {
 			case 'R':
 				scoreRightSwitch();
@@ -110,7 +109,7 @@ public class Autonomous
 		Util.consoleLog("end");
 	}
 	
-	private void scoreCenterLeft() {
+	private void scoreCenterLeft() { //FIXME Power and encoder counts need configuring.
 		raiseLift(false);
 		autoDrive(.5,250,true); //Move out a little
 		autoRotate(.5, 90); //Turn to the left
@@ -120,7 +119,7 @@ public class Autonomous
 		ejectCube(); //... Take a guess
 	}
 	
-	private void scoreCenterRight() {
+	private void scoreCenterRight() { //FIXME Power and encoder counts need configuring.
 		raiseLift(false);
 		autoDrive(.5,250,true); //Move out a little
 		autoRotate(-.5, 90); //Turn to the right
@@ -130,43 +129,43 @@ public class Autonomous
 		ejectCube(); //... Take a guess
 	}
 	
-	private void scoreLeftSwitch() {
+	private void scoreLeftSwitch() { //FIXME Power and encoder counts need configuring.
 		raiseLift(false);
 		autoDrive(.5, 1500, true); //Move out to line up with switch
 		autoRotate(-.5, 90); //Face switch
-		autoDrive(.25, 200, true); //TODO Figure out if needed //Go towards switch
+		autoDrive(.25, 200, true); //Go towards switch //TODO Figure out if needed
 		ejectCube();
 	}
 	
-	private void scoreLeftScale() {
+	private void scoreLeftScale() { //FIXME Power and encoder counts need configuring.
 		raiseLift(true);
 		autoDrive(.5, 3500, true); //Move out to line up with switch
 		autoRotate(-.5, 90); //Face scale
-		autoDrive(.25, 200, true); //TODO Figure out if needed //Go towards scale
+		autoDrive(.25, 200, true); //Go towards scale //TODO Figure out if needed
 		ejectCube();
 	}
 	
-	private void scoreRightSwitch() {
+	private void scoreRightSwitch() { //FIXME Power and encoder counts need configuring.
 		raiseLift(false);
 		autoDrive(.5, 1500, true); //Move out to line up with switch
 		autoRotate(.5, 90); //Face switch
-		autoDrive(.25, 200, true); //TODO Figure out if needed //Go towards switch
+		autoDrive(.25, 200, true); //Go towards switch //TODO Figure out if needed
 		ejectCube();
 	}
 	
-	private void scoreRightScale() {
+	private void scoreRightScale() { //FIXME Power and encoder counts need configuring.
 		raiseLift(true);
 		autoDrive(.5, 3500, true); //Move out to line up with switch
 		autoRotate(.5, 90); //Face scale
-		autoDrive(.25, 200, true); //TODO Figure out if needed //Go towards scale
+		autoDrive(.25, 200, true); //Go towards scale //TODO Figure out if needed
 		ejectCube();
 	}
 
-	private void moveForwardSide() {
-		autoDrive(.5, 2000, true); //FIXME Power and encoder counts need checking.
+	private void moveForwardSide() { //FIXME Power and encoder counts need configuring.
+		autoDrive(.5, 2000, true); 
 	}
 	
-	private void moveForwardCenter() {
+	private void moveForwardCenter() { //FIXME Power and encoder counts need configuring.
 		autoDrive(.5, 250, true); //Move out a little
 		autoRotate(-.5, 45); //Turn a little to the right
 		autoDrive(.25, 1000, true); //Cross the line
@@ -174,17 +173,17 @@ public class Autonomous
 	
 	private void ejectCube() {	
 		Devices.grabber.set(-1);
-		Timer.delay(1);
+		Timer.delay(1); //TODO Configure delay.
 		Devices.grabber.set(0);
 	}
 	
 	private void raiseLift(boolean scaleHeight) {
 		Devices.liftMotor.set(.5);
-		Timer.delay((scaleHeight ? 1 : 2));
+		Timer.delay((scaleHeight ? 1 : 2)); //FIXME Configure delay.
 		Devices.liftMotor.set(0);
 	}
 
-	//TODO May likely be used, will need modification to work.
+	//TODO Will need modification to work.
 
 	// Auto drive in set direction and power for specified encoder count. Stops
 	// with or without brakes on CAN bus drive system. Uses gyro/NavX to go straight.

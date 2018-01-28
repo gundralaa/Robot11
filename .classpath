@@ -15,5 +15,6 @@
 			<attribute name="javadoc_location" value="jar:file:/C:/Users/sean/wpilib/user/java/lib/RobotLib.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="var" path="USERLIBS_DIR/RobotLib-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
