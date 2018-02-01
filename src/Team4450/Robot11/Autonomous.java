@@ -172,12 +172,14 @@ public class Autonomous
 	}
 	
 	private void ejectCube() {	
+		Util.consoleLog("Eject Cube");
 		Devices.grabber.set(-1);
 		Timer.delay(1); //TODO Configure delay.
 		Devices.grabber.set(0);
 	}
 	
 	private void raiseLift(boolean scaleHeight) {
+		Util.consoleLog("Raise lift " + scaleHeight);
 		Devices.liftMotor.set(.5);
 		Timer.delay((scaleHeight ? 1 : 2)); //FIXME Configure delay.
 		Devices.liftMotor.set(0);
@@ -199,7 +201,7 @@ public class Autonomous
 
 		Devices.encoder.reset();
 		Devices.navx.resetYaw();
-
+		
 		while (isAutoActive() && Math.abs(Devices.encoder.get()) < encoderCounts) 
 		{
 			LCD.printLine(4, "encoder=%d", Devices.encoder.get());
@@ -228,7 +230,7 @@ public class Autonomous
 
 			Timer.delay(.020);
 		}
-
+		
 		Devices.robotDrive.tankDrive(0, 0, true);				
 
 		Util.consoleLog("end: actual count=%d", Math.abs(Devices.encoder.get()));
@@ -245,10 +247,12 @@ public class Autonomous
 
 		Devices.navx.resetYaw();
 
+		Util.consoleLog("AutoRotate: " + power);
 		Devices.robotDrive.tankDrive(power, -power);
 
 		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) {Timer.delay(.020);} 
 
+		Util.consoleLog("AutoRotate: Stop");
 		Devices.robotDrive.tankDrive(0, 0);
 	}
 }
