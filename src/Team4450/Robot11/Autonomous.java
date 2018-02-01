@@ -13,17 +13,22 @@ public class Autonomous
 	private final Robot	robot;
 	private final int	program = (int) SmartDashboard.getNumber("AutoProgramSelect",0);
 	private PlateStates	plateState;
+	private final Lift	lift;
 	
 	Autonomous(Robot robot)
 	{
 		Util.consoleLog();
 		
 		this.robot = robot;
+		
+		lift = new Lift(robot);
 	}
 
 	public void dispose()
 	{
 		Util.consoleLog();
+		
+		lift.dispose();
 	}
 	
 	private boolean isAutoActive()
@@ -114,6 +119,10 @@ public class Autonomous
 	{
 		Util.consoleLog(plateState.toString());
 		
+		// May need initial cube lift or lift to scoring height.
+		// lift.setHeight(500);
+		// delay?
+		
 		autoDrive(.50, 1000, true);
 		
 		switch (plateState)
@@ -151,6 +160,8 @@ public class Autonomous
 	{
 		Util.consoleLog("start left=%b, plate=%s", startingLeft, plateState.toString());
 		
+		// May need initial cube lift.
+		
 		if (startingLeft) 
 		{
 			switch (plateState)
@@ -159,6 +170,8 @@ public class Autonomous
 					return;
 					
 				case LLL: case RLR:	// Scale available.
+					// Lift cube to scoring height. Assume async.
+					// lift.setHeight(2000);
 					autoDrive(.50, 1000, true);
 					autoRotate(.50, -90);
 					autoDrive(.50, 1000, true);
@@ -171,6 +184,7 @@ public class Autonomous
 					return;
 					
 				case LRL:	// Switch available.
+					// Lift cube to scoring height. Assume async.
 					autoDrive(.50, 1000, true);
 					autoRotate(.50, -90);
 					autoDrive(.50, 1000, true);
@@ -192,12 +206,14 @@ public class Autonomous
 
 					
 				case RRR: case LRL:	// Scale available.
+					// Lift cube to scoring height. Assume async.
 					autoDrive(.50, 1000, true);
 					autoRotate(.50, 90);
 					autoDrive(.50, 1000, true);
 					break;
 					
 				case RLR:	// Switch available.
+					// Lift cube to scoring height. Assume async.
 					autoDrive(.50, 1000, true);
 					autoRotate(.50, 90);
 					autoDrive(.50, 1000, true);
