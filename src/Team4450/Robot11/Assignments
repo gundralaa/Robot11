@@ -49,12 +49,20 @@ Button Name				Function
 Utility Joystick
 Button Name				Function
 -----------------------------------------------------------------------------------
-
+TRIGGER					Toggle Claw Fingers gripping the Power Cube.
+TOP_MIDDLE				Manually toggle Claw motors in ejecting direction.
+TOP_ BACK				Manually toggle Claw motors in the intakeing direction.
 
 LaunchPad
 Button Name				Function
 -----------------------------------------------------------------------------------
-
+BUTTON_BLUE				Deploy forklift arms.
+BUTTON_RED_RIGHT		Toggle wrist folding in or out.
+BUTTON_RED				Shift gears.
+BUTTON_BLUE_RIGHT		Toggle Claw intake automation.
+BUTTON_YELLOW			Switch whiches
+ROCKER_LEFT_FRONT		Switch Cameras
+ROCKER_RIGHT			Switch Cameras
 
 Dashboard Indicators/Controls
 Name					Type			Description

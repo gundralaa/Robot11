@@ -22,7 +22,8 @@ public class Devices
 	  
 	  public static DifferentialDrive	robotDrive;
 
-	  public static WPI_TalonSRX        liftMotor, grabber;
+	  public static WPI_TalonSRX        liftMotor, grabberMotor1, grabberMotor2;
+	  public static SpeedControllerGroup grabberMotors;
 	  
 	  public final static Joystick      utilityStick = new Joystick(2);	
 	  public final static Joystick      leftStick = new Joystick(0);	
@@ -57,6 +58,9 @@ public class Devices
 		  RRCanTalon = new WPI_TalonSRX(4);
 		  LSlaveCanTalon = new WPI_TalonSRX(5);
 		  RSlaveCanTalon = new WPI_TalonSRX(6);
+		  
+		  grabberMotor1 = new WPI_TalonSRX(7);
+		  grabberMotor2 = new WPI_TalonSRX(8);
 
 	      // Initialize CAN Talons and write status to log so we can verify
 	      // all the Talons are connected.
@@ -67,6 +71,9 @@ public class Devices
 	      InitializeCANTalon(LSlaveCanTalon);
 	      InitializeCANTalon(RSlaveCanTalon);
 	      
+	      InitializeCANTalon(grabberMotor1);
+	      InitializeCANTalon(grabberMotor2);
+	      
 	      // Configure CAN Talons with correct inversions.
 	      LFCanTalon.setInverted(true);
 		  LRCanTalon.setInverted(true);
@@ -76,13 +83,18 @@ public class Devices
 		  
 		  LSlaveCanTalon.setInverted(false);
 		  RSlaveCanTalon.setInverted(false);
+		  
+		  grabberMotor1.setInverted(false); //TODO Check these
+		  grabberMotor2.setInverted(true);
 	      
+		  grabberMotors = new SpeedControllerGroup(grabberMotor1, grabberMotor2);
+		  
 	      // Turn on brake mode for CAN Talons.
 	      SetCANTalonBrakeMode(true);
 	      
 	      // Setup the SpeedControllerGroups for the left and right set of motors.
-	      SpeedControllerGroup LeftGroup = new SpeedControllerGroup(LFCanTalon,LSlaveCanTalon,LRCanTalon);
-		  SpeedControllerGroup RightGroup = new SpeedControllerGroup(RFCanTalon,RSlaveCanTalon,RRCanTalon);
+	      SpeedControllerGroup LeftGroup = new SpeedControllerGroup(LFCanTalon, LSlaveCanTalon, LRCanTalon);
+		  SpeedControllerGroup RightGroup = new SpeedControllerGroup(RFCanTalon, RSlaveCanTalon, RRCanTalon);
 		  
 		  robotDrive = new DifferentialDrive(LeftGroup, RightGroup);
 	  }

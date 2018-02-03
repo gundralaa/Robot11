@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "SWF11-01.31.18-01";
+  static final String  	PROGRAM_NAME = "SWF11-02.2.18-01";
 
   public Properties		robotProperties;
   
@@ -69,7 +69,7 @@ public class Robot extends SampleRobot
 
    		LCD.clearAll();
    		LCD.printLine(1, "Mode: RobotInit");
-      
+   		
    		// Read properties file from RoboRio "disk".
       
    		robotProperties = Util.readProperties();

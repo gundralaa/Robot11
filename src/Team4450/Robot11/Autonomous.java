@@ -3,9 +3,8 @@ package Team4450.Robot11;
 
 import Team4450.Lib.*;
 import Team4450.Robot11.Devices;
-import edu.wpi.first.wpilibj.Encoder;
+import Team4450.Robot11.Lift.LiftHeight;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Autonomous
@@ -173,15 +172,12 @@ public class Autonomous
 	
 	private void ejectCube() {	
 		Util.consoleLog("Eject Cube");
-		Devices.grabber.set(-1);
-		Timer.delay(1); //TODO Configure delay.
-		Devices.grabber.set(0);
+		Lift.getInstance(robot).ejectCube();
 	}
 	
 	private void raiseLift(boolean scaleHeight) {
 		Util.consoleLog("Raise lift " + scaleHeight);
-		Devices.liftMotor.set(.5);
-		Timer.delay((scaleHeight ? 1 : 2)); //FIXME Configure delay.
+		Lift.getInstance(robot).setLiftHeight((scaleHeight ? LiftHeight.SCALE : LiftHeight.SWITCH));
 		Devices.liftMotor.set(0);
 	}
 
