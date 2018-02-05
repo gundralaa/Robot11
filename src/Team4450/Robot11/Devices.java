@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.*;
 
 import Team4450.Lib.NavX;
 import Team4450.Lib.Util;
+import Team4450.Lib.ValveDA;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -27,7 +28,10 @@ public class Devices
 	  public final static Joystick		rightStick = new Joystick(1);	
 	  public final static Joystick		launchPad = new Joystick(3);
 
-	  public final static Compressor	compressor = new Compressor(0);	// Compressor class represents the PCM. There are 2.
+	  public final static Compressor	compressor = new Compressor(0);	// Compressor class represents the PCM.
+	  
+	  public final static ValveDA		highLowValve = new ValveDA(0);
+	  public final static ValveDA		grabberValve = new ValveDA(2);
 	  
 	  public final static AnalogInput	pressureSensor = new AnalogInput(0);
 	  
@@ -37,9 +41,13 @@ public class Devices
 
 	  public static NavX				navx;
 
-	  // Wheel encoder is plugged into dio port 3 - orange=+5v blue=signal, dio port 4 black=gnd yellow=signal. 
-	  public final static Encoder		wheelEncoder = new Encoder(3, 4, true, EncodingType.k4X);
-
+	  // Wheel encoder is plugged into dio port 0 - orange=+5v blue=signal, dio port 1 black=gnd yellow=signal. 
+	  public final static Encoder		wheelEncoder = new Encoder(0, 1, true, EncodingType.k4X);
+	  public final static Encoder		winchEncoder = new Encoder(2, 3, true, EncodingType.k4X);
+	  
+	  public final static WPI_TalonSRX	intakeMotor1 = new WPI_TalonSRX(5);
+	  public final static WPI_TalonSRX	intakeMotor2 = new WPI_TalonSRX(6);
+	  
 	  // Create RobotDrive object for CAN Talon controllers.
 	  
 	  public static void InitializeCANTalonDrive()
@@ -57,6 +65,11 @@ public class Devices
 	      InitializeCANTalon(LRCanTalon);
 	      InitializeCANTalon(RFCanTalon);
 	      InitializeCANTalon(RRCanTalon);
+
+	      InitializeCANTalon(intakeMotor1);
+	      intakeMotor1.setNeutralMode(NeutralMode.Brake);
+	      InitializeCANTalon(intakeMotor2);
+	      intakeMotor2.setNeutralMode(NeutralMode.Brake);
 	      
 	      // Configure CAN Talons with correct inversions.
 	      LFCanTalon.setInverted(true);
@@ -94,11 +107,11 @@ public class Devices
 		  Util.consoleLog("brakes on=%b", brakeMode);
 		  
 		  NeutralMode newMode;
-		  if (brakeMode) {
+		  
+		  if (brakeMode) 
 			  newMode = NeutralMode.Brake;
-		  } else {
+		  else 
 			  newMode = NeutralMode.Coast;
-		  }
 		  
 		  LFCanTalon.setNeutralMode(newMode);
 		  LRCanTalon.setNeutralMode(newMode);

@@ -10,10 +10,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Autonomous
 {
-	private final Robot	robot;
-	private final int	program = (int) SmartDashboard.getNumber("AutoProgramSelect",0);
-	private PlateStates	plateState;
-	private final Lift	lift;
+	private final Robot		robot;
+	private final int		program = (int) SmartDashboard.getNumber("AutoProgramSelect",0);
+	private PlateStates		plateState;
+	private final Lift		lift;
+	private final Grabber	grabber;
 	
 	Autonomous(Robot robot)
 	{
@@ -22,13 +23,16 @@ public class Autonomous
 		this.robot = robot;
 		
 		lift = new Lift(robot);
+		
+		grabber = new Grabber(robot);
 	}
 
 	public void dispose()
 	{
 		Util.consoleLog();
 		
-		lift.dispose();
+		if (lift != null) lift.dispose();
+		if (grabber != null) grabber.dispose();
 	}
 	
 	private boolean isAutoActive()

@@ -16,6 +16,9 @@ class Teleop
 	public  LaunchPad			launchPad;
 	private boolean				autoTarget, invertDrive, altDriveMode;
 	private Vision				vision;
+	private GearBox				gearBox;
+	private Lift				lift;
+	private Grabber				grabber;
 
 	// Constructor.
 
@@ -25,6 +28,12 @@ class Teleop
 
 		this.robot = robot;
 
+		gearBox = new  GearBox(robot);
+		
+		lift = new Lift(robot);
+		
+		grabber = new Grabber(robot);
+		
 		vision = Vision.getInstance(robot);
 	}
 
@@ -38,6 +47,9 @@ class Teleop
 		if (rightStick != null) rightStick.dispose();
 		if (utilityStick != null) utilityStick.dispose();
 		if (launchPad != null) launchPad.dispose();
+		if (gearBox != null) gearBox.dispose();
+		if (lift != null) lift.dispose();
+		if (grabber != null) grabber.dispose();
 	}
 
 	void OperatorControl()
@@ -138,7 +150,7 @@ class Teleop
 			{
 				if (altDriveMode)
 				{	// normal tank with straight drive assist when sticks within 10% of each other.
-					if (leftRightEqual(leftY, rightY, 10) && Math.abs(rightY) > .50)
+					if (isLeftRightEqual(leftY, rightY, 10) && Math.abs(rightY) > .50)
 					{
 						if (!steeringAssistMode) Devices.navx.resetYaw();
 
@@ -191,7 +203,7 @@ class Teleop
 		Util.consoleLog("end");
 	}
 
-	private boolean leftRightEqual(double left, double right, double percent)
+	private boolean isLeftRightEqual(double left, double right, double percent)
 	{
 		//if (left == right) return true;
 
@@ -292,9 +304,9 @@ class Teleop
 
 			switch(button.id)
 			{
-			case TRIGGER:
-				altDriveMode = !altDriveMode;
-				break;
+				case TRIGGER:
+					altDriveMode = !altDriveMode;
+					break;
 				
 			//Example of Joystick Button case:
 			/*
@@ -305,8 +317,8 @@ class Teleop
 					DoOtherThing();
 				break;
 			 */
-			default:
-				break;
+				default:
+					break;
 			}
 		}
 
@@ -328,17 +340,16 @@ class Teleop
 
 			switch(button.id)
 			{
-			//Example of Joystick Button case:
-			/*
-			case BUTTON_NAME_HERE:
-				if (button.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-			 */
-			default:
-				break;
+				case TRIGGER:
+					if (button.latchedState)
+	    				gearBox.highSpeed();
+	    			else
+	    				gearBox.lowSpeed();
+
+					break;
+					
+				default:
+					break;
 			}
 		}
 
