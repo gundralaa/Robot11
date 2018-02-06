@@ -202,12 +202,12 @@ class Teleop
 		Util.consoleLog("end");
 	}
 	
-	public void highGear() {
-		//TODO Add high gear
+	public void lowGear() {
+		Devices.gearShifter.SetA();
 	}
 	
-	public void lowGear() {
-		//TODO Add low gear
+	public void highGear() {
+		Devices.gearShifter.SetB();
 	}
 
 	private boolean leftRightEqual(double left, double right, double percent)

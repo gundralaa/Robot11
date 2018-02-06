@@ -12,20 +12,22 @@ public class Lift {
 		return instance;
 	}
 
-	//---------------------------------------------------
+	//-----------------------------------------------------------------------------------------------
 
 	private Robot robot;
 	private PIDController pidController;
 	private Lift(Robot robot) {
 		this.robot = robot;
-		pidController = new PIDController(0.1, 0.01, 0, Devices.encoder, Devices.liftMotor); //TODO Set correct encoder
+		pidController = new PIDController(0.1, 0.01, 0, Devices.winchEncoder, Devices.liftMotor);
 	}
 
 	public void extendWrist() {
+		Devices.grabberWristValve.SetB();
 		Util.consoleLog();
 	}
 
 	public void retractWrist() {
+		Devices.grabberWristValve.SetA();
 		Util.consoleLog();
 	}
 
@@ -93,8 +95,8 @@ class EjectThread extends Thread {
 
 	public void run() {
 		if (robot.isEnabled()) {
-			Devices.grabberMotors.set(-1);
-			Timer.delay(0.5);
+			Devices.grabberMotors.set(-1); //TODO Adjust eject speed
+			Timer.delay(0.5); //TODO Adjust eject time delay
 			Lift.getInstance(robot).openClaw();
 			Devices.grabberMotors.set(0);
 		}
@@ -111,7 +113,7 @@ class IntakeThread extends Thread {
 		if (robot.isEnabled()) {
 			Lift.getInstance(robot).openClaw();
 			Devices.grabberMotors.set(1);
-			while (Devices.grabberMotor1.getOutputCurrent() < 12 && !isInterrupted())Timer.delay(0.02);
+			while (Devices.grabberMotor1.getOutputCurrent() < 12 && !isInterrupted()) { Timer.delay(0.02); } //TODO Determine correct output current value
 			Lift.getInstance(robot).closeClaw();
 			Devices.grabberMotors.set(0);
 			Lift.getInstance(robot).clearIntakeThread();
@@ -126,7 +128,7 @@ class PIDChecker extends Thread {
 	}
 	
 	public void run() {
-		while (Math.abs(pid.getSetpoint()-Devices.encoder.get()) > 50 && pid.get() > 0.3 && !isInterrupted()) { Timer.delay(0.2); }
+		while (Math.abs(pid.getSetpoint()-Devices.winchEncoder.get()) > 50 && pid.get() > 0.3 && !isInterrupted()) { Timer.delay(0.2); } //TODO Determine correct tolerances.
 		pid.disable();
 	}
 }

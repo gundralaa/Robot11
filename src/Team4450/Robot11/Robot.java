@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "SWF11-02.2.18-01";
+  static final String  	PROGRAM_NAME = "SWF11-02.3.18-01";
 
   public Properties		robotProperties;
   

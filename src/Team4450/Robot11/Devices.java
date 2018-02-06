@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.*;
 
 import Team4450.Lib.NavX;
 import Team4450.Lib.Util;
+import Team4450.Lib.ValveDA;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
@@ -18,7 +19,7 @@ import edu.wpi.first.wpilibj.SpeedControllerGroup;
 public class Devices
 {
 	  // Motor CAN ID/PWM port assignments (1=left-front, 2=left-rear, 3=right-front, 4=right-rear)
-	  private static WPI_TalonSRX	LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon, LSlaveCanTalon, RSlaveCanTalon;
+	  private static WPI_TalonSRX	LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon;
 	  
 	  public static DifferentialDrive	robotDrive;
 
@@ -32,6 +33,10 @@ public class Devices
 
 	  public final static Compressor	compressor = new Compressor(0);	// Compressor class represents the PCM. There are 2.
 	  
+	  public final static ValveDA		gearShifter = new ValveDA(0);
+	  public final static ValveDA		grabberGrabValve = new ValveDA(2);
+	  public final static ValveDA		grabberWristValve = new ValveDA(4);
+	  
 	  public final static AnalogInput	pressureSensor = new AnalogInput(0);
 	  
 	  public final static PowerDistributionPanel	PDP = new PowerDistributionPanel();
@@ -40,8 +45,11 @@ public class Devices
 
 	  public static NavX				navx;
 	  
-	  // Wheel encoder is plugged into dio port 3 - orange=+5v blue=signal, dio port 4 black=gnd yellow=signal. 
-	  public final static Encoder		encoder = new Encoder(3, 4, true, EncodingType.k4X);
+	  // Wheel encoder is plugged into dio port 0 - orange=+5v blue=signal, dio port 1 black=gnd yellow=signal. 
+	  public final static Encoder		driveEncoder = new Encoder(0, 1, true, EncodingType.k4X);
+	  
+	  // Winch encoder is plugged into dio port 2 - orange=+5v blue=signal, dio port 3 black=gnd yellow=signal. 
+	  public final static Encoder		winchEncoder = new Encoder(2, 3, true, EncodingType.k4X);
 
 	  // Encoder ribbon cable to dio ports: ribbon wire 2 = orange, 5 = yellow, 7 = blue, 10 = black
 	  // not used.
@@ -56,11 +64,9 @@ public class Devices
 		  LRCanTalon = new WPI_TalonSRX(2);
 		  RFCanTalon = new WPI_TalonSRX(3);
 		  RRCanTalon = new WPI_TalonSRX(4);
-		  LSlaveCanTalon = new WPI_TalonSRX(5);
-		  RSlaveCanTalon = new WPI_TalonSRX(6);
 		  
-		  grabberMotor1 = new WPI_TalonSRX(7);
-		  grabberMotor2 = new WPI_TalonSRX(8);
+		  grabberMotor1 = new WPI_TalonSRX(5);
+		  grabberMotor2 = new WPI_TalonSRX(6);
 
 	      // Initialize CAN Talons and write status to log so we can verify
 	      // all the Talons are connected.
@@ -68,8 +74,6 @@ public class Devices
 	      InitializeCANTalon(LRCanTalon);
 	      InitializeCANTalon(RFCanTalon);
 	      InitializeCANTalon(RRCanTalon);
-	      InitializeCANTalon(LSlaveCanTalon);
-	      InitializeCANTalon(RSlaveCanTalon);
 	      
 	      InitializeCANTalon(grabberMotor1);
 	      InitializeCANTalon(grabberMotor2);
@@ -81,9 +85,6 @@ public class Devices
 		  RFCanTalon.setInverted(true);
 		  RRCanTalon.setInverted(true);
 		  
-		  LSlaveCanTalon.setInverted(false);
-		  RSlaveCanTalon.setInverted(false);
-		  
 		  grabberMotor1.setInverted(false); //TODO Check these
 		  grabberMotor2.setInverted(true);
 	      
@@ -93,8 +94,8 @@ public class Devices
 	      SetCANTalonBrakeMode(true);
 	      
 	      // Setup the SpeedControllerGroups for the left and right set of motors.
-	      SpeedControllerGroup LeftGroup = new SpeedControllerGroup(LFCanTalon, LSlaveCanTalon, LRCanTalon);
-		  SpeedControllerGroup RightGroup = new SpeedControllerGroup(RFCanTalon, RSlaveCanTalon, RRCanTalon);
+	      SpeedControllerGroup LeftGroup = new SpeedControllerGroup(LFCanTalon, LRCanTalon);
+		  SpeedControllerGroup RightGroup = new SpeedControllerGroup(RFCanTalon, RRCanTalon);
 		  
 		  robotDrive = new DifferentialDrive(LeftGroup, RightGroup);
 	  }
@@ -128,8 +129,6 @@ public class Devices
 		  LRCanTalon.setNeutralMode(newMode);
 		  RFCanTalon.setNeutralMode(newMode);
 		  RRCanTalon.setNeutralMode(newMode);
-		  LSlaveCanTalon.setNeutralMode(newMode);
-		  RSlaveCanTalon.setNeutralMode(newMode);
 	  }
 	  
 	  // Set CAN Talon voltage ramp rate. Rate is volts/sec and can be 2-12v.
@@ -153,13 +152,11 @@ public class Devices
 	  
 	  public static String GetCANTalonStatus()
 	  {
-		  return String.format("%.1f/%.1f  %.1f/%.1f  %.1f/%.1f  %.1f/%.1f  %.1f/%.1f  %.1f/%.1f", 
+		  return String.format("%.1f/%.1f  %.1f/%.1f  %.1f/%.1f  %.1f/%.1f", 
 				  LFCanTalon.getMotorOutputVoltage(), LFCanTalon.getOutputCurrent(),
 				  LRCanTalon.getMotorOutputVoltage(), LRCanTalon.getOutputCurrent(),
 				  RFCanTalon.getMotorOutputVoltage(), RFCanTalon.getOutputCurrent(),
-				  RRCanTalon.getMotorOutputVoltage(), RRCanTalon.getOutputCurrent(),
-				  LSlaveCanTalon.getMotorOutputVoltage(), LSlaveCanTalon.getOutputCurrent(),
-				  RSlaveCanTalon.getMotorOutputVoltage(), RSlaveCanTalon.getOutputCurrent());
+				  RRCanTalon.getMotorOutputVoltage(), RRCanTalon.getOutputCurrent());
 	  }
 
 }

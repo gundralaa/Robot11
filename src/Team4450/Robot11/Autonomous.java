@@ -39,7 +39,8 @@ public class Autonomous
 		Devices.robotDrive.setSafetyEnabled(false);
 
 		// Initialize encoder.
-		Devices.encoder.reset();
+		Devices.driveEncoder.reset();
+		Devices.winchEncoder.reset();
 
 		// Set gyro/NavX to heading 0.
 		//robot.gyro.reset();
@@ -109,7 +110,7 @@ public class Autonomous
 	}
 	
 	private void scoreCenterLeft() { //FIXME Power and encoder counts need configuring.
-		raiseLift(false);
+		raiseLift(LiftHeight.SWITCH);
 		autoDrive(.5,250,true); //Move out a little
 		autoRotate(.5, 90); //Turn to the left
 		autoDrive(.5, 500, true); //Align with switch
@@ -119,7 +120,7 @@ public class Autonomous
 	}
 	
 	private void scoreCenterRight() { //FIXME Power and encoder counts need configuring.
-		raiseLift(false);
+		raiseLift(LiftHeight.SWITCH);
 		autoDrive(.5,250,true); //Move out a little
 		autoRotate(-.5, 90); //Turn to the right
 		autoDrive(.5, 500, true); //Align with switch
@@ -129,7 +130,7 @@ public class Autonomous
 	}
 	
 	private void scoreLeftSwitch() { //FIXME Power and encoder counts need configuring.
-		raiseLift(false);
+		raiseLift(LiftHeight.SWITCH);
 		autoDrive(.5, 1500, true); //Move out to line up with switch
 		autoRotate(-.5, 90); //Face switch
 		autoDrive(.25, 200, true); //Go towards switch //TODO Figure out if needed
@@ -137,7 +138,7 @@ public class Autonomous
 	}
 	
 	private void scoreLeftScale() { //FIXME Power and encoder counts need configuring.
-		raiseLift(true);
+		raiseLift(LiftHeight.SCALE);
 		autoDrive(.5, 3500, true); //Move out to line up with switch
 		autoRotate(-.5, 90); //Face scale
 		autoDrive(.25, 200, true); //Go towards scale //TODO Figure out if needed
@@ -145,7 +146,7 @@ public class Autonomous
 	}
 	
 	private void scoreRightSwitch() { //FIXME Power and encoder counts need configuring.
-		raiseLift(false);
+		raiseLift(LiftHeight.SWITCH);
 		autoDrive(.5, 1500, true); //Move out to line up with switch
 		autoRotate(.5, 90); //Face switch
 		autoDrive(.25, 200, true); //Go towards switch //TODO Figure out if needed
@@ -153,7 +154,7 @@ public class Autonomous
 	}
 	
 	private void scoreRightScale() { //FIXME Power and encoder counts need configuring.
-		raiseLift(true);
+		raiseLift(LiftHeight.SCALE);
 		autoDrive(.5, 3500, true); //Move out to line up with switch
 		autoRotate(.5, 90); //Face scale
 		autoDrive(.25, 200, true); //Go towards scale //TODO Figure out if needed
@@ -175,9 +176,9 @@ public class Autonomous
 		Lift.getInstance(robot).ejectCube();
 	}
 	
-	private void raiseLift(boolean scaleHeight) {
-		Util.consoleLog("Raise lift " + scaleHeight);
-		Lift.getInstance(robot).setLiftHeight((scaleHeight ? LiftHeight.SCALE : LiftHeight.SWITCH));
+	private void raiseLift(LiftHeight height) {
+		Util.consoleLog("Raise lift " + height.name());
+		Lift.getInstance(robot).setLiftHeight(height);
 		Devices.liftMotor.set(0);
 	}
 
@@ -195,12 +196,12 @@ public class Autonomous
 
 		if (robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
 
-		Devices.encoder.reset();
+		Devices.driveEncoder.reset();
 		Devices.navx.resetYaw();
 		
-		while (isAutoActive() && Math.abs(Devices.encoder.get()) < encoderCounts) 
+		while (isAutoActive() && Math.abs(Devices.driveEncoder.get()) < encoderCounts) 
 		{
-			LCD.printLine(4, "encoder=%d", Devices.encoder.get());
+			LCD.printLine(4, "encoder=%d", Devices.driveEncoder.get());
 
 			// Angle is negative if robot veering left, positive if veering right when going forward.
 			// It is opposite when going backward. Note that for this robot, - power means forward and
@@ -229,7 +230,7 @@ public class Autonomous
 		
 		Devices.robotDrive.tankDrive(0, 0, true);				
 
-		Util.consoleLog("end: actual count=%d", Math.abs(Devices.encoder.get()));
+		Util.consoleLog("end: actual count=%d", Math.abs(Devices.driveEncoder.get()));
 	}
 
 	// Auto rotate left or right the specified angle. Left/right from robots forward view.
