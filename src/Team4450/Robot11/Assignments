@@ -19,7 +19,9 @@ Port	Device blk-pos	Description
 0		ValveDA 0		A side high/low speed shifter. Set Low speed. 
 1		ValveDA	0		B side high/low speed shifter. Set High speed.
 2		ValveDA 1		A side grabber. Open grabber.
-3		ValveDA 1		B side grabber. Close grabber
+3		ValveDA 1		B side grabber. Close grabber.
+4		ValveDA 2		A side grabber deploy (in).
+5		ValveDA	2		B side grabber deploy (out).
                                                                                                    
 
 PCM 1 Ports
