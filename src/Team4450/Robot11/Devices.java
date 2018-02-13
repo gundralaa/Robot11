@@ -79,11 +79,11 @@ public class Devices
 	      InitializeCANTalon(grabberMotor2);
 	      
 	      // Configure CAN Talons with correct inversions.
-	      LFCanTalon.setInverted(true);
-		  LRCanTalon.setInverted(true);
+	      LFCanTalon.setInverted(false);
+		  LRCanTalon.setInverted(false);
 		  
-		  RFCanTalon.setInverted(true);
-		  RRCanTalon.setInverted(true);
+		  RFCanTalon.setInverted(false);
+		  RRCanTalon.setInverted(false);
 		  
 		  grabberMotor1.setInverted(false); //TODO Check these
 		  grabberMotor2.setInverted(true);
