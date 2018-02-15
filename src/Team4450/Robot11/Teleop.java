@@ -135,6 +135,7 @@ class Teleop
 			utilX = utilityStick.GetX();
 
 			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilX=%.4f", leftY, rightY, utilX);
+			LCD.printLine(5, "Wheel=%d  wheel2=%d", Devices.wheelEncoder.get(), Devices.wheelEncoder2.get());
 			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), Devices.navx.getTotalYaw(), 
 					Devices.navx.getYawRate(), Devices.navx.getHeading());
 			LCD.printLine(8, "pressureV=%.2f  psi=%d", robot.monitorCompressorThread.getVoltage(), robot.monitorCompressorThread.getPressure());

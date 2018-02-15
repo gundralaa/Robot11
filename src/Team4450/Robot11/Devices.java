@@ -43,7 +43,8 @@ public class Devices
 
 	  // Wheel encoder is plugged into dio port 0 - orange=+5v blue=signal, dio port 1 black=gnd yellow=signal. 
 	  public final static Encoder		wheelEncoder = new Encoder(0, 1, true, EncodingType.k4X);
-	  public final static Encoder		winchEncoder = new Encoder(2, 3, true, EncodingType.k4X);
+	  public final static Encoder		wheelEncoder2 = new Encoder(2, 3, true, EncodingType.k4X);
+	  public final static Encoder		winchEncoder = new Encoder(4, 5, true, EncodingType.k4X);
 	  
 	  public final static WPI_TalonSRX	intakeMotor1 = new WPI_TalonSRX(5);
 	  public final static WPI_TalonSRX	intakeMotor2 = new WPI_TalonSRX(6);
@@ -72,11 +73,11 @@ public class Devices
 	      intakeMotor2.setNeutralMode(NeutralMode.Brake);
 	      
 	      // Configure CAN Talons with correct inversions.
-	      LFCanTalon.setInverted(true);
-		  LRCanTalon.setInverted(true);
+	      LFCanTalon.setInverted(false);
+		  LRCanTalon.setInverted(false);
 		  
-		  RFCanTalon.setInverted(true);
-		  RRCanTalon.setInverted(true);
+		  RFCanTalon.setInverted(false);
+		  RRCanTalon.setInverted(false);
 	      
 	      // Turn on brake mode for CAN Talons.
 	      SetCANTalonBrakeMode(true);
