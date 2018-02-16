@@ -12,6 +12,12 @@ public class Grabber
 		Util.consoleLog();
 				
 		this.robot = robot;
+		
+		this.stop();
+		
+		this.retract();
+		
+		this.open();
 	}
 
 	public void dispose()
@@ -32,29 +38,40 @@ public class Grabber
 		
 		Devices.grabberValve.SetB();
 	}
-
+	
+	public void retract()
+	{
+		Util.consoleLog();
+		
+		Devices.grabberValve.SetA();
+	}
+	
+	public void extend()
+	{
+		Util.consoleLog();
+		
+		Devices.grabberValve.SetB();
+	}
+	
 	public void motorsIn(double power)
 	{
 		Util.consoleLog("%.2f", power);
 		
-		Devices.intakeMotor1.set(power);
-		Devices.intakeMotor2.set(power);
+		Devices.grabberGroup.set(power);
 	}
 
 	public void motorsOut(double power)
 	{
 		Util.consoleLog("%.2f", power);
 		
-		Devices.intakeMotor1.set(-power);
-		Devices.intakeMotor2.set(-power);
+		Devices.grabberGroup.set(-power);
 	}
 	
-	public void motorStop()
+	public void stop()
 	{
 		Util.consoleLog();
 		
-		Devices.intakeMotor1.set(0);
-		Devices.intakeMotor2.set(0);
+		Devices.grabberGroup.set(0);
 	}
 }
 

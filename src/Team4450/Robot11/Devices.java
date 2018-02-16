@@ -32,6 +32,7 @@ public class Devices
 	  
 	  public final static ValveDA		highLowValve = new ValveDA(0);
 	  public final static ValveDA		grabberValve = new ValveDA(2);
+	  public final static ValveDA		deployValve = new ValveDA(4);
 	  
 	  public final static AnalogInput	pressureSensor = new AnalogInput(0);
 	  
@@ -46,8 +47,10 @@ public class Devices
 	  public final static Encoder		wheelEncoder2 = new Encoder(2, 3, true, EncodingType.k4X);
 	  public final static Encoder		winchEncoder = new Encoder(4, 5, true, EncodingType.k4X);
 	  
-	  public final static WPI_TalonSRX	intakeMotor1 = new WPI_TalonSRX(5);
-	  public final static WPI_TalonSRX	intakeMotor2 = new WPI_TalonSRX(6);
+	  public final static WPI_TalonSRX	intakeMotorL = new WPI_TalonSRX(5);
+	  public final static WPI_TalonSRX	intakeMotorR = new WPI_TalonSRX(6);
+	  
+	  public final static SpeedControllerGroup grabberGroup = new SpeedControllerGroup(intakeMotorL, intakeMotorR);
 	  
 	  // Create RobotDrive object for CAN Talon controllers.
 	  
@@ -67,10 +70,10 @@ public class Devices
 	      InitializeCANTalon(RFCanTalon);
 	      InitializeCANTalon(RRCanTalon);
 
-	      InitializeCANTalon(intakeMotor1);
-	      intakeMotor1.setNeutralMode(NeutralMode.Brake);
-	      InitializeCANTalon(intakeMotor2);
-	      intakeMotor2.setNeutralMode(NeutralMode.Brake);
+	      InitializeCANTalon(intakeMotorL);
+	      intakeMotorL.setNeutralMode(NeutralMode.Brake);
+	      InitializeCANTalon(intakeMotorR);
+	      intakeMotorR.setNeutralMode(NeutralMode.Brake);
 	      
 	      // Configure CAN Talons with correct inversions.
 	      LFCanTalon.setInverted(false);
@@ -79,7 +82,7 @@ public class Devices
 		  RFCanTalon.setInverted(false);
 		  RRCanTalon.setInverted(false);
 	      
-	      // Turn on brake mode for CAN Talons.
+	      // Turn on brake mode for drive CAN Talons.
 	      SetCANTalonBrakeMode(true);
 	      
 	      // Setup the SpeedControllerGroups for the left and right set of motors.

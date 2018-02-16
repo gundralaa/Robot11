@@ -7,13 +7,14 @@ Port	Device			Description
 2		CanTalon		Left rear drive motor.
 3		CanTalon		Right front drive motor.
 4		CanTalon		Right rear drive motor.
-5		CanTalon		Cube intake motor 1.
-6		CanTalon		Cube intake motor 2.
+5		CanTalon		Cube intake motor left.
+6		CanTalon		Cube intake motor right.
 
 PWM Ports
 Port	Device			Description
 -----------------------------------------------------------------------------------
-
+0		Talon			Winch motor (climb-CIM).
+1		Talon			Winch motor (cube lift).
 
 PCM 0 Ports
 Port	Device blk-pos	Description

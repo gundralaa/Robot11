@@ -20,7 +20,7 @@ public class Lift
 	}
 	
 	/**
-	 * Start thread to move lift to the desired height as measured
+	 * Start thread to move cube lift to the desired height as measured
 	 * by encoder count.
 	 * @param count Target encoder count (height).
 	 */
