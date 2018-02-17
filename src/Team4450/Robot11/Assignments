@@ -85,3 +85,8 @@ Teleop Mode				boolean			True when robot is in tele-operated mode.
 FMS						boolean			True when robot is connected to the FMS.
 Overload				boolean			True when steering assist is on.
 AirPressure				Number			Is set to the current air pressure in psi.
+Deployed				boolean			True when cube grabber is extended.
+Intake					boolean			True when cube grabber motors running in intake direction.
+Spit					boolean			True when cube grabber motors running in spit direction.
+Grabber					boolean			True when cube grabber is in the open position.
+		  
