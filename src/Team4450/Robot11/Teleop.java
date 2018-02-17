@@ -67,13 +67,6 @@ class Teleop
 
 		//Example on how to track button:
 		//launchPad.AddControl(LaunchPadControlIDs.BUTTON_COLOR_HERE);
-		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLUE);
-		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED_RIGHT);
-		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED);
-		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLUE_RIGHT);
-		launchPad.AddControl(LaunchPadControlIDs.BUTTON_YELLOW);
-		launchPad.AddControl(LaunchPadControlIDs.ROCKER_LEFT_FRONT);
-		launchPad.AddControl(LaunchPadControlIDs.ROCKER_RIGHT);
 		launchPad.addLaunchPadEventListener(new LaunchPadListener());
 		launchPad.Start();
 
@@ -92,9 +85,6 @@ class Teleop
 		utilityStick = new JoyStick(Devices.utilityStick, "UtilityStick", JoyStickButtonIDs.TRIGGER, this);
 		//Example on how to track button:
 		//utilityStick.AddButton(JoyStickButtonIDs.BUTTON_NAME_HERE);
-		utilityStick.AddButton(JoyStickButtonIDs.TRIGGER);
-		utilityStick.AddButton(JoyStickButtonIDs.TOP_MIDDLE);
-		utilityStick.AddButton(JoyStickButtonIDs.TOP_BACK);
 		utilityStick.addJoyStickEventListener(new UtilityStickListener());
 		utilityStick.Start();
 
@@ -201,14 +191,6 @@ class Teleop
 
 		Util.consoleLog("end");
 	}
-	
-	public void lowGear() {
-		Devices.gearShifter.SetA();
-	}
-	
-	public void highGear() {
-		Devices.gearShifter.SetB();
-	}
 
 	private boolean leftRightEqual(double left, double right, double percent)
 	{
@@ -242,7 +224,7 @@ class Teleop
 		return joystickValue;
 	}
 
-
+	
 
 	// Handle LaunchPad control events.
 
@@ -264,33 +246,7 @@ class Teleop
 				else
 					DoOtherThing();
 				break;
-			 */
-			case BUTTON_BLUE: //Trigger forklift drop
-				//TODO Trigger forklift drop
-				break;
-
-			case BUTTON_RED_RIGHT: //Rotate wrist
-				if (launchPadEvent.control.latchedState)
-					Lift.getInstance(robot).retractWrist();
-				else 
-					Lift.getInstance(robot).extendWrist();
-				break;
-
-			case BUTTON_RED: //Gear Shift
-				if (launchPadEvent.control.latchedState)
-					highGear();
-				else
-					lowGear();
-				break;
-				
-			case BUTTON_BLUE_RIGHT: //Intake Cube Auto
-				Lift.getInstance(robot).intakeCube();
-				break;
-				
-			case BUTTON_YELLOW: //Change Winch
-				Lift.getInstance(robot).changeWinch();
-				break;
-				
+			*/
 			default:
 				break;
 			}
@@ -317,11 +273,7 @@ class Teleop
 				else
 					DoOtherThing();
 				break;
-			 */
-			case ROCKER_LEFT_FRONT: case ROCKER_RIGHT: //Change Camera
-				robot.cameraThread.ChangeCamera();
-				break;
-				
+			*/
 			default:
 				break;
 			}
@@ -344,16 +296,16 @@ class Teleop
 			case TRIGGER:
 				altDriveMode = !altDriveMode;
 				break;
-
-				//Example of Joystick Button case:
-				/*
+				
+			//Example of Joystick Button case:
+			/*
 			case BUTTON_NAME_HERE:
 				if (button.latchedState)
 					DoOneThing();
 				else
 					DoOtherThing();
 				break;
-				 */
+			 */
 			default:
 				break;
 			}
@@ -418,30 +370,6 @@ class Teleop
 					DoOtherThing();
 				break;
 			 */
-			
-			case TRIGGER: //Toggle Claw Pressure
-				if (button.latchedState)
-					Lift.getInstance(robot).openClaw();
-				else
-					Lift.getInstance(robot).closeClaw();
-				break;
-				
-			case TOP_MIDDLE:
-				if (Devices.grabberMotors.get() == 0) {
-					Devices.grabberMotors.set(-1); //TODO Set eject speed
-				} else {
-					Devices.grabberMotors.set(0);
-				}
-				break;
-				
-			case TOP_BACK:
-				if (Devices.grabberMotors.get() == 0) {
-					Devices.grabberMotors.set(1); //TODO Set intake speed
-				}  else {
-					Devices.grabberMotors.set(0);
-				}
-				break;
-				
 			default:
 				break;
 			}
