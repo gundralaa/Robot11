@@ -14,12 +14,19 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 
 public class Devices
 {
 	  // Motor CAN ID/PWM port assignments (1=left-front, 2=left-rear, 3=right-front, 4=right-rear)
 	  private static WPI_TalonSRX	LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon;
+	  
+	  public final static WPI_TalonSRX	intakeMotorL = new WPI_TalonSRX(5);
+	  public final static WPI_TalonSRX	intakeMotorR = new WPI_TalonSRX(6);
+
+	  public final static Talon			climbWinch = new Talon(0);
+	  public final static Talon			liftWinch = new Talon(1);
 	  
 	  public static DifferentialDrive	robotDrive;
 
@@ -46,9 +53,6 @@ public class Devices
 	  public final static Encoder		wheelEncoder = new Encoder(0, 1, true, EncodingType.k4X);
 	  public final static Encoder		wheelEncoder2 = new Encoder(2, 3, true, EncodingType.k4X);
 	  public final static Encoder		winchEncoder = new Encoder(4, 5, true, EncodingType.k4X);
-	  
-	  public final static WPI_TalonSRX	intakeMotorL = new WPI_TalonSRX(5);
-	  public final static WPI_TalonSRX	intakeMotorR = new WPI_TalonSRX(6);
 	  
 	  public final static SpeedControllerGroup grabberGroup = new SpeedControllerGroup(intakeMotorL, intakeMotorR);
 	  

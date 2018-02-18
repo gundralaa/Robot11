@@ -6,6 +6,7 @@ import java.lang.Math;
 import Team4450.Lib.*;
 import Team4450.Lib.JoyStick.*;
 import Team4450.Lib.LaunchPad.*;
+import Team4450.Robot11.Devices;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -54,7 +55,7 @@ class Teleop
 
 	void OperatorControl()
 	{
-		double	rightY = 0, leftY = 0, utilX = 0, rightX = 0, leftX = 0;
+		double	rightY = 0, leftY = 0, utilX = 0, utilY = 0, rightX = 0, leftX = 0;
 		double	gain = .01;
 		boolean	steeringAssistMode = false;
 		int		angle;
@@ -77,8 +78,15 @@ class Teleop
 		lpControl = launchPad.AddControl(LaunchPadControlIDs.ROCKER_LEFT_FRONT);
 		lpControl.controlType = LaunchPadControlTypes.SWITCH;
 
+		lpControl = launchPad.AddControl(LaunchPadControlIDs.ROCKER_RIGHT);
+		lpControl.controlType = LaunchPadControlTypes.SWITCH;
+
 		//Example on how to track button:
-		//launchPad.AddControl(LaunchPadControlIDs.BUTTON_COLOR_HERE);
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_YELLOW);
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED);
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED_RIGHT);
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLUE_RIGHT);
+
 		launchPad.addLaunchPadEventListener(new LaunchPadListener());
 		launchPad.Start();
 
@@ -100,8 +108,8 @@ class Teleop
 		utilityStick.addJoyStickEventListener(new UtilityStickListener());
 		utilityStick.Start();
 
-		// Tighten up dead zone for smoother climber movement.
-		utilityStick.deadZone = .05;
+		// Set dead zone for smoother climber movement.
+		utilityStick.deadZone = .10;
 
 		// Set CAN Talon brake mode by rocker switch setting.
 		// We do this here so that the Utility stick thread has time to read the initial state
@@ -110,8 +118,8 @@ class Teleop
 
 		// Set Navx to heading 0.
 		Devices.navx.resetYaw();
-
-		Devices.navx.setHeading(0);
+//
+//		Devices.navx.setHeading(0);
 
 		// Reset encoder.
 		//Devices.encoder.reset();
@@ -132,9 +140,9 @@ class Teleop
 			rightX = stickLogCorrection(rightStick.GetX());	// left/right
 			leftX = stickLogCorrection(leftStick.GetX());	// left/right
 
-			utilX = utilityStick.GetX();
+			utilY = utilityStick.GetY();
 
-			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilX=%.4f", leftY, rightY, utilX);
+			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilY=%.4f", leftY, rightY, utilY);
 			LCD.printLine(5, "Wheel=%d  wheel2=%d", Devices.wheelEncoder.get(), Devices.wheelEncoder2.get());
 			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), Devices.navx.getTotalYaw(), 
 					Devices.navx.getYawRate(), Devices.navx.getHeading());
@@ -190,6 +198,10 @@ class Teleop
 					Devices.robotDrive.tankDrive(leftY, rightY);		// Normal tank drive.
 			}
 
+			// Set winch power.
+			
+			lift.setWinchPower(utilY);
+			
 			// Update the robot heading indicator on the DS.
 
 			SmartDashboard.putNumber("Gyro", Devices.navx.getHeading());
@@ -236,8 +248,6 @@ class Teleop
 		return joystickValue;
 	}
 
-	
-
 	// Handle LaunchPad control events.
 
 	public class LaunchPadListener implements LaunchPadEventListener 
@@ -250,17 +260,37 @@ class Teleop
 
 			switch(control.id)
 			{
-			//Example of case:
-			/*
-			case BUTTON_NAME_HERE:
-				if (launchPadEvent.control.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-			*/
-			default:
-				break;
+				case BUTTON_RED:
+					if (gearBox.isLowSpeed())
+		    			gearBox.highSpeed();
+		    		else
+		    			gearBox.lowSpeed();
+					
+					break;
+					
+				case BUTTON_RED_RIGHT:
+					if (grabber.isDeployed())
+						grabber.retract();
+					else
+						grabber.deploy();
+					
+				case BUTTON_BLUE:
+					lift.releaseForks();
+					
+					break;
+					
+				case BUTTON_BLUE_RIGHT:
+					// Automatic intake  function.
+					break;
+					
+				case BUTTON_YELLOW:
+					if (lift.isClimbWinchSelected())
+						lift.selectLiftWinch();
+					else
+						lift.selectClimbWinch();
+					
+				default:
+					break;
 			}
 		}
 
@@ -277,17 +307,26 @@ class Teleop
 
 			switch(control.id)
 			{
-			// Example of Rocker:
-			/*
-			case ROCKER_NAME_HERE:
-				if (control.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-			*/
-			default:
-				break;
+				// Set CAN Talon brake mode.
+	    		case ROCKER_LEFT_BACK:
+    				if (control.latchedState)
+    					Devices.SetCANTalonBrakeMode(false);	// coast
+    				else
+    					Devices.SetCANTalonBrakeMode(true);	// brake
+    				
+    				break;
+    				
+	    		case ROCKER_LEFT_FRONT:
+					if (robot.cameraThread != null) robot.cameraThread.ChangeCamera();
+					//invertDrive = !invertDrive;
+	    			break;
+	    			
+	    		case ROCKER_RIGHT:
+					if (robot.cameraThread != null) robot.cameraThread.ChangeCamera();
+	    			break;
+	
+				default:
+					break;
 			}
 		}
 	}
@@ -342,7 +381,7 @@ class Teleop
 			switch(button.id)
 			{
 				case TRIGGER:
-					if (button.latchedState)
+					if (gearBox.isLowSpeed())
 	    				gearBox.highSpeed();
 	    			else
 	    				gearBox.lowSpeed();
@@ -372,17 +411,24 @@ class Teleop
 
 			switch(button.id)
 			{
-			//Example of Joystick Button case:
-			/*
-			case BUTTON_NAME_HERE:
-				if (button.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-			 */
-			default:
-				break;
+				case TOP_MIDDLE:
+					if (grabber.isSpit())
+						grabber.stop();
+					else
+						grabber.motorsOut(.50);
+					
+					break;
+	
+				case TOP_BACK:
+					if (grabber.isIntake())
+						grabber.stop();
+					else
+						grabber.motorsIn(.50);
+					
+					break;
+	
+				default:
+					break;
 			}
 		}
 

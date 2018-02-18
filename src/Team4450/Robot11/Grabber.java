@@ -2,28 +2,25 @@ package Team4450.Robot11;
 
 import Team4450.Lib.*;
 import Team4450.Robot11.Devices;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Grabber
 {
 	private final Robot	robot;
+	private boolean		grabberOpen, grabberDeployed, intake, spit;
 
 	public Grabber(Robot robot)
 	{
 		Util.consoleLog();
 				
 		this.robot = robot;
-
-		SmartDashboard.putBoolean("Deployed", false);
-		SmartDashboard.putBoolean("Intake", false);
-		SmartDashboard.putBoolean("Spit", false);
-		SmartDashboard.putBoolean("Grabber", false);
 	  
 		stop();
 		
 		retract();
 		
-		open();
+		close();
 	}
 
 	public void dispose()
@@ -35,7 +32,9 @@ public class Grabber
 	{
 		Util.consoleLog();
 
-		SmartDashboard.putBoolean("Grabber", true);
+		grabberOpen = true;
+		
+		SmartDashboard.putBoolean("Grabber", grabberOpen);
 
 		Devices.grabberValve.SetA();
 	}
@@ -44,57 +43,108 @@ public class Grabber
 	{
 		Util.consoleLog();
 		
-		SmartDashboard.putBoolean("Grabber", false);
-
+		grabberOpen =  false;
+		
 		Devices.grabberValve.SetB();
+
+		updateDS();
 	}
 	
 	public void retract()
 	{
 		Util.consoleLog();
 		
-		SmartDashboard.putBoolean("Deployed", false);
+		grabberDeployed = false;
 
 		Devices.grabberValve.SetA();
+		
+		updateDS();
 	}
 	
-	public void extend()
+	public void deploy()
 	{
 		Util.consoleLog();
 		
-		SmartDashboard.putBoolean("Deployed", true);
-
+		grabberDeployed = true;
+		
 		Devices.grabberValve.SetB();
+
+		updateDS();
 	}
 	
 	public void motorsIn(double power)
 	{
 		Util.consoleLog("%.2f", power);
 		
-		SmartDashboard.putBoolean("Intake", true);
-		SmartDashboard.putBoolean("Spit", false);
+		intake = true;
+		spit = false;
 
 		Devices.grabberGroup.set(power);
+		
+		updateDS();
 	}
 
 	public void motorsOut(double power)
 	{
 		Util.consoleLog("%.2f", power);
 		
-		SmartDashboard.putBoolean("Intake", false);
-		SmartDashboard.putBoolean("Spit", true);
+		intake = false;
+		spit = true;
 
 		Devices.grabberGroup.set(-power);
+
+		updateDS();
+	}
+	
+	public void spit(double power)
+	{
+		Util.consoleLog("%.2f", power);
+		
+		motorsOut(power);
+		
+		Timer.delay(2);
+		
+		stop();
 	}
 	
 	public void stop()
 	{
 		Util.consoleLog();
 		
-		SmartDashboard.putBoolean("Intake", false);
-		SmartDashboard.putBoolean("Spit", false);
+		intake = false;
+		spit = false;
 
 		Devices.grabberGroup.set(0);
+		
+		updateDS();
+	}
+	
+	public boolean isOpen()
+	{
+		return grabberOpen;
+	}
+	
+	public boolean isDeployed()
+	{
+		return grabberDeployed;
+	}
+	
+	public boolean isIntake()
+	{
+		return intake;
+	}
+	
+	public boolean isSpit()
+	{
+		return spit;
+	}
+	
+	private void updateDS()
+	{
+		SmartDashboard.putBoolean("Grabber", grabberOpen);
+		SmartDashboard.putBoolean("Deployed", grabberDeployed);
+		SmartDashboard.putBoolean("Intake", intake);
+		SmartDashboard.putBoolean("Spit", spit);
 	}
 }
 

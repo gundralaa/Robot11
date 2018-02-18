@@ -15,12 +15,16 @@ public class Autonomous
 	private PlateStates		plateState;
 	private final Lift		lift;
 	private final Grabber	grabber;
+	private final GearBox	gearBox;
+	private final double	spitPower = 1.0;
 	
 	Autonomous(Robot robot)
 	{
 		Util.consoleLog();
 		
 		this.robot = robot;
+		
+		gearBox = new GearBox(robot);
 		
 		lift = new Lift(robot);
 		
@@ -31,6 +35,7 @@ public class Autonomous
 	{
 		Util.consoleLog();
 		
+		if (gearBox != null) gearBox.dispose();
 		if (lift != null) lift.dispose();
 		if (grabber != null) grabber.dispose();
 	}
@@ -61,6 +66,8 @@ public class Autonomous
         
         // Set NavX to heading 0.
 		Devices.navx.resetYaw();
+
+		Devices.navx.setHeading(0);
 
 		// Determine which auto program to run as indicated by driver station.
 		switch (program)
@@ -151,6 +158,8 @@ public class Autonomous
 		}
 		
 		// Dump cube.
+		
+		grabber.spit(spitPower);
 	}
 
 	// Start left or right. Evaluate game information. Determine if we should score on the switch, 
@@ -226,6 +235,8 @@ public class Autonomous
 		}
 		
 		// Dump cube.
+		
+		grabber.spit(spitPower);
 	}
 	
 	// Auto drive in set direction and power for specified encoder count. Stops
