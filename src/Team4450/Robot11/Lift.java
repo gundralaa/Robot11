@@ -18,7 +18,7 @@ public class Lift {
 	private PIDController pidController;
 	private Lift(Robot robot) {
 		this.robot = robot;
-		pidController = new PIDController(0.1, 0.01, 0, Devices.winchEncoder, Devices.liftMotor);
+		pidController = new PIDController(0.1, 0.01, 0, Devices.winchEncoder, WinchMotor.getInstance());
 	}
 
 	public void extendWrist() {
@@ -113,7 +113,7 @@ class IntakeThread extends Thread {
 		if (robot.isEnabled()) {
 			Lift.getInstance(robot).openClaw();
 			Devices.grabberMotors.set(1);
-			while (Devices.grabberMotor1.getOutputCurrent() < 12 && !isInterrupted()) { Timer.delay(0.02); } //TODO Determine correct output current value
+			while (Devices.grabberMotorLeft.getOutputCurrent() < 12 && !isInterrupted()) { Timer.delay(0.02); } //TODO Determine correct output current value
 			Lift.getInstance(robot).closeClaw();
 			Devices.grabberMotors.set(0);
 			Lift.getInstance(robot).clearIntakeThread();

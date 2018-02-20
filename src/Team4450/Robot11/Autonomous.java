@@ -179,7 +179,6 @@ public class Autonomous
 	private void raiseLift(LiftHeight height) {
 		Util.consoleLog("Raise lift " + height.name());
 		Lift.getInstance(robot).setLiftHeight(height);
-		Devices.liftMotor.set(0);
 	}
 
 	//TODO Will need modification to work.
