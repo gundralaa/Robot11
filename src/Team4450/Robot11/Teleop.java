@@ -109,7 +109,7 @@ class Teleop
 		utilityStick.Start();
 
 		// Set dead zone for smoother climber movement.
-		utilityStick.deadZone = .10;
+		utilityStick.deadZone = .15;
 
 		// Set CAN Talon brake mode by rocker switch setting.
 		// We do this here so that the Utility stick thread has time to read the initial state
@@ -411,6 +411,14 @@ class Teleop
 
 			switch(button.id)
 			{
+				case TRIGGER:
+					if (grabber.isOpen())
+						grabber.close();
+					else
+						grabber.open();
+					
+					break;
+					
 				case TOP_MIDDLE:
 					if (grabber.isSpit())
 						grabber.stop();

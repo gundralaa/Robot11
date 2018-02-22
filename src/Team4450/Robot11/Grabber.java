@@ -56,7 +56,7 @@ public class Grabber
 		
 		grabberDeployed = false;
 
-		Devices.grabberValve.SetA();
+		Devices.deployValve.SetA();
 		
 		updateDS();
 	}
@@ -67,7 +67,7 @@ public class Grabber
 		
 		grabberDeployed = true;
 		
-		Devices.grabberValve.SetB();
+		Devices.deployValve.SetB();
 
 		updateDS();
 	}
