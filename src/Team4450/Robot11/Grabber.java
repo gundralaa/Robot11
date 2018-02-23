@@ -148,6 +148,7 @@ public class Grabber
 		SmartDashboard.putBoolean("Deployed", grabberDeployed);
 		SmartDashboard.putBoolean("Intake", intake);
 		SmartDashboard.putBoolean("Spit", spit);
+		SmartDashboard.putBoolean("AutoGrab", autoIntake);
 	}
 	
 	public boolean isAutoIntakeRunning()
@@ -200,6 +201,8 @@ public class Grabber
 	    	{
 	    		autoIntake = true;
 	    		
+	    		updateDS();
+	    		
 	    		motorsIn(.50);
 	    		sleep(250);
 	    		
@@ -221,6 +224,7 @@ public class Grabber
 			
 	    	autoIntake = false;
 			autoIntakeThread = null;
+			updateDS();
 	    }
 	}	// end of AutoIntake thread class.
 
