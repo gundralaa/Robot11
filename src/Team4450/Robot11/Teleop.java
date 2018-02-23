@@ -323,7 +323,11 @@ class Teleop
 			case ROCKER_LEFT_FRONT: case ROCKER_RIGHT: //Change Camera
 				robot.cameraThread.ChangeCamera();
 				break;
-				
+			
+			case ROCKER_LEFT_BACK: // Toggle Brake Mode
+				Devices.SetCANTalonBrakeMode(control.latchedState);
+				break;
+			
 			default:
 				break;
 			}
