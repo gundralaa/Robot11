@@ -116,10 +116,8 @@ class Teleop
 		// of the rocker switch.
 		if (robot.isComp) Devices.SetCANTalonBrakeMode(lpControl.latchedState);
 
-		// Set Navx to heading 0.
+		// Set Navx current yaw to 0.
 		Devices.navx.resetYaw();
-//
-//		Devices.navx.setHeading(0);
 
 		// Reset encoder.
 		//Devices.encoder.reset();
@@ -143,10 +141,13 @@ class Teleop
 			utilY = utilityStick.GetY();
 
 			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilY=%.4f", leftY, rightY, utilY);
-			LCD.printLine(5, "Wheel=%d  wheel2=%d", Devices.wheelEncoder.get(), Devices.wheelEncoder2.get());
-			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), Devices.navx.getTotalYaw(), 
-					Devices.navx.getYawRate(), Devices.navx.getHeading());
-			LCD.printLine(8, "pressureV=%.2f  psi=%d", robot.monitorCompressorThread.getVoltage(), robot.monitorCompressorThread.getPressure());
+			LCD.printLine(5, "Wheel=%d  wheel2=%d  winch=%d", Devices.wheelEncoder.get(), 
+					Devices.wheelEncoder2.get(), Devices.winchEncoder.get());
+			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), 
+					Devices.navx.getTotalYaw(), Devices.navx.getYawRate(), Devices.navx.getHeading());
+			LCD.printLine(7, "intake current=%f", Devices.intakeMotorL.getOutputCurrent());
+			LCD.printLine(8, "pressureV=%.2f  psi=%d", robot.monitorCompressorThread.getVoltage(), 
+					robot.monitorCompressorThread.getPressure());
 
 			// Set wheel motors.
 			// Do not feed JS input to robotDrive if we are controlling the motors in automatic functions.
@@ -280,14 +281,21 @@ class Teleop
 					break;
 					
 				case BUTTON_BLUE_RIGHT:
-					// Automatic intake  function.
+					// Automatic cube intake function.
+					if (grabber.isAutoIntakeRunning())
+						grabber.stopAutoIntake();
+					else
+						grabber.startAutoIntake();
+					
 					break;
 					
 				case BUTTON_YELLOW:
-					if (lift.isClimbWinchSelected())
-						lift.selectLiftWinch();
-					else
-						lift.selectClimbWinch();
+//					if (lift.isClimbWinchSelected())
+//						lift.selectLiftWinch();
+//					else
+//						lift.selectClimbWinch();
+					
+					break;
 					
 				default:
 					break;
@@ -309,10 +317,10 @@ class Teleop
 			{
 				// Set CAN Talon brake mode.
 	    		case ROCKER_LEFT_BACK:
-    				if (control.latchedState)
+    				if (Devices.isBrakeMode())
     					Devices.SetCANTalonBrakeMode(false);	// coast
     				else
-    					Devices.SetCANTalonBrakeMode(true);	// brake
+    					Devices.SetCANTalonBrakeMode(true);		// brake
     				
     				break;
     				
@@ -421,7 +429,7 @@ class Teleop
 					
 				case TOP_MIDDLE:
 					if (grabber.isSpit())
-						grabber.stop();
+						grabber.stopMotors();
 					else
 						grabber.motorsOut(.50);
 					
@@ -429,7 +437,7 @@ class Teleop
 	
 				case TOP_BACK:
 					if (grabber.isIntake())
-						grabber.stop();
+						grabber.stopMotors();
 					else
 						grabber.motorsIn(.50);
 					

@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
@@ -55,6 +56,8 @@ public class Devices
 	  public final static Encoder		winchEncoder = new Encoder(4, 5, true, EncodingType.k4X);
 	  
 	  public final static SpeedControllerGroup grabberGroup = new SpeedControllerGroup(intakeMotorL, intakeMotorR);
+	  
+	  private static boolean			talonBrakeMode;
 	  
 	  // Create RobotDrive object for CAN Talon controllers.
 	  
@@ -108,11 +111,15 @@ public class Devices
 		  //talon.changeControlMode(ControlMode.PercentOutput); //TODO Find PercentVbus
 	  }
 	  
-	  // Set neutral behavior of CAN Talons. True = brake mode, false = coast mode.
+	  // Set neutral behavior of drive CAN Talons. True = brake mode, false = coast mode.
 
 	  public static void SetCANTalonBrakeMode(boolean brakeMode)
 	  {
 		  Util.consoleLog("brakes on=%b", brakeMode);
+		  
+		  SmartDashboard.putBoolean("Brakes", brakeMode);
+
+		  talonBrakeMode = brakeMode;
 		  
 		  NeutralMode newMode;
 		  
@@ -125,6 +132,11 @@ public class Devices
 		  LRCanTalon.setNeutralMode(newMode);
 		  RFCanTalon.setNeutralMode(newMode);
 		  RRCanTalon.setNeutralMode(newMode);
+	  }
+	  
+	  public static boolean isBrakeMode()
+	  {
+		  return talonBrakeMode;
 	  }
 	  
 	  // Set CAN Talon voltage ramp rate. Rate is volts/sec and can be 2-12v.

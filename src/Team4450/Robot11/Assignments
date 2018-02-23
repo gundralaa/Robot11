@@ -62,17 +62,22 @@ TRIGGER					Toggle Claw Fingers gripping the Power Cube.
 TOP_MIDDLE				Manually toggle Claw motors in ejecting direction.
 TOP_BACK				Manually toggle Claw motors in the intake direction.
 
+Proposed:
+TOP_MIDDLE				Toggle lift position hold.
+TOP_LEFT				Toggle Claw motors in the intake direction.
+TOP_RIGHT				Toggle Claw motors in the ejecting (spit) direction.
+
 LaunchPad
 Button Name				Function
 -----------------------------------------------------------------------------------
 BUTTON_BLUE				Deploy fork lift arms.
 BUTTON_RED_RIGHT		Toggle wrist folding in or out.
 BUTTON_RED				Shift gears.
-BUTTON_BLUE_RIGHT		Toggle Claw intake automation.
+BUTTON_BLUE_RIGHT		Toggle Claw intake motors with auto shut off.
 BUTTON_YELLOW			Switch winches
 ROCKER_LEFT_FRONT		Switch Cameras
 ROCKER_RIGHT			Switch Cameras
-ROCKER_LEFT_BACK		Toggle drive talon break mode.
+ROCKER_LEFT_BACK		Toggle drive talon brake mode.
 
 Dashboard Indicators/Controls
 Name					Type			Description
@@ -86,6 +91,7 @@ Teleop Mode				boolean			True when robot is in tele-operated mode.
 FMS						boolean			True when robot is connected to the FMS.
 Overload				boolean			True when steering assist is on.
 AirPressure				Number			Is set to the current air pressure in psi.
+Brakes					boolean			True when drive Talons are in brake mode.
 Deployed				boolean			True when cube grabber is extended.
 Intake					boolean			True when cube grabber motors running in intake direction.
 Spit					boolean			True when cube grabber motors running in spit direction.

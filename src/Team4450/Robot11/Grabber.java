@@ -8,15 +8,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Grabber
 {
 	private final Robot	robot;
-	private boolean		grabberOpen, grabberDeployed, intake, spit;
-
+	private boolean		grabberOpen, grabberDeployed, intake, spit, autoIntake;
+	private Thread		autoIntakeThread;
+	
 	public Grabber(Robot robot)
 	{
 		Util.consoleLog();
 				
 		this.robot = robot;
 	  
-		stop();
+		stopMotors();
 		
 		retract();
 		
@@ -26,6 +27,8 @@ public class Grabber
 	public void dispose()
 	{
 		Util.consoleLog();
+		
+		if (autoIntakeThread != null) stopAutoIntake();
 	}
 		
 	public void open()
@@ -104,10 +107,10 @@ public class Grabber
 		
 		Timer.delay(2);
 		
-		stop();
+		stopMotors();
 	}
 	
-	public void stop()
+	public void stopMotors()
 	{
 		Util.consoleLog();
 		
@@ -146,5 +149,80 @@ public class Grabber
 		SmartDashboard.putBoolean("Intake", intake);
 		SmartDashboard.putBoolean("Spit", spit);
 	}
+	
+	public boolean isAutoIntakeRunning()
+	{
+		return autoIntake;
+	}
+	
+	/**
+	 * Start auto cube Intake thread.
+	 */
+	public void startAutoIntake()
+	{
+		Util.consoleLog();
+		
+		if (autoIntakeThread != null) return;
+
+		autoIntakeThread = new AutoIntake();
+		autoIntakeThread.start();
+	}
+	
+	/**
+	 * Stops auto Intake thread.
+	 */
+	public void stopAutoIntake()
+	{
+		Util.consoleLog();
+
+		if (autoIntakeThread != null) autoIntakeThread.interrupt();
+		
+		autoIntakeThread = null;
+	}
+
+	//----------------------------------------
+	// Automatic cube Intake thread.
+	
+	private class AutoIntake extends Thread
+	{
+		AutoIntake()
+		{
+			Util.consoleLog();
+			
+			this.setName("AutoCubeIntake");
+	    }
+		
+	    public void run()
+	    {
+	    	Util.consoleLog();
+	    	
+	    	try
+	    	{
+	    		autoIntake = true;
+	    		
+	    		motorsIn(.50);
+	    		sleep(250);
+	    		
+    	    	while (!isInterrupted() && Devices.intakeMotorL.getOutputCurrent() < 10.0) // 5.0
+    	    	{
+    	            // We sleep since JS updates come from DS every 20ms or so. We wait 50ms so this thread
+    	            // does not run at the same time as the teleop thread.
+    	    		LCD.printLine(9, "cube motor current=%f", Devices.intakeMotorL.getOutputCurrent());
+    	            sleep(50);
+    	    	}
+    	    	
+    	    	if (!interrupted()) Util.consoleLog("  Cube detected");
+    	    	
+    	    	sleep(500);
+	    	}
+	    	catch (InterruptedException e) { stopMotors(); }
+	    	catch (Throwable e) { e.printStackTrace(Util.logPrintStream); }
+	    	finally { stopMotors(); }
+			
+	    	autoIntake = false;
+			autoIntakeThread = null;
+	    }
+	}	// end of AutoIntake thread class.
+
 }
 
