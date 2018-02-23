@@ -7,13 +7,14 @@ Port	Device			Description
 2		CanTalon		Left rear drive motor.
 3		CanTalon		Right front drive motor.
 4		CanTalon		Right rear drive motor.
-5		CanTalon    Left Cube Grabber motor.
-6		CanTalon    Right Cube Grabber motor.
+5		CanTalon    	Left Cube Grabber motor.
+6		CanTalon    	Right Cube Grabber motor.
 
 PWM Ports
 Port	Device			Description
 -----------------------------------------------------------------------------------
-
+0		Talon			Winch motor (climb-CIM).
+1		Talon			Winch motor (cube lift).
 
 PCM 0 Ports
 Port	Device blk-pos	Description
@@ -23,8 +24,7 @@ Port	Device blk-pos	Description
 2		ValveDA 1		A side grabber. Open grabber.
 3		ValveDA 1		B side grabber. Close grabber.
 4		ValveDA 2		A side grabber deploy (in).
-5		ValveDA	2		B side grabber deploy (out).
-                                                                                                   
+5		ValveDA	2		B side grabber deploy (out).                                                                                                  
 
 PCM 1 Ports
 Port	Device blk-pos	Description
@@ -60,18 +60,24 @@ Button Name				Function
 -----------------------------------------------------------------------------------
 TRIGGER					Toggle Claw Fingers gripping the Power Cube.
 TOP_MIDDLE				Manually toggle Claw motors in ejecting direction.
-TOP_ BACK				Manually toggle Claw motors in the intakeing direction.
+TOP_BACK				Manually toggle Claw motors in the intake direction.
+
+Proposed:
+TOP_MIDDLE				Toggle lift position hold.
+TOP_LEFT				Toggle Claw motors in the intake direction.
+TOP_RIGHT				Toggle Claw motors in the ejecting (spit) direction.
 
 LaunchPad
 Button Name				Function
 -----------------------------------------------------------------------------------
-BUTTON_BLUE				Deploy forklift arms.
+BUTTON_BLUE				Deploy fork lift arms.
 BUTTON_RED_RIGHT		Toggle wrist folding in or out.
 BUTTON_RED				Shift gears.
-BUTTON_BLUE_RIGHT		Toggle Claw intake automation.
-BUTTON_YELLOW			Switch whiches
+BUTTON_BLUE_RIGHT		Toggle Claw intake motors with auto shut off.
+BUTTON_YELLOW			Switch winches
 ROCKER_LEFT_FRONT		Switch Cameras
 ROCKER_RIGHT			Switch Cameras
+ROCKER_LEFT_BACK		Toggle drive talon brake mode.
 
 Dashboard Indicators/Controls
 Name					Type			Description
@@ -85,3 +91,11 @@ Teleop Mode				boolean			True when robot is in tele-operated mode.
 FMS						boolean			True when robot is connected to the FMS.
 Overload				boolean			True when steering assist is on.
 AirPressure				Number			Is set to the current air pressure in psi.
+Brakes					boolean			True when drive Talons are in brake mode.
+Deployed				boolean			True when cube grabber is extended.
+Intake					boolean			True when cube grabber motors running in intake direction.
+Spit					boolean			True when cube grabber motors running in spit direction.
+Grabber					boolean			True when cube grabber is in the open position.
+Winch					boolean			True when climb winch is selected.
+AutoGrab				boolean			True when intake auto grab is enabled.
+		  

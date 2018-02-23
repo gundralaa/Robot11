@@ -113,7 +113,8 @@ class Teleop
 		Devices.navx.setHeading(90);
 
 		// Reset encoder.
-		//Devices.encoder.reset();
+		Devices.driveEncoder1.reset();
+		Devices.driveEncoder2.reset();
 
 		// Motor safety turned on.
 		Devices.robotDrive.setSafetyEnabled(true);
@@ -137,7 +138,8 @@ class Teleop
 			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), Devices.navx.getTotalYaw(), 
 					Devices.navx.getYawRate(), Devices.navx.getHeading());
 			LCD.printLine(8, "pressureV=%.2f  psi=%d", robot.monitorCompressorThread.getVoltage(), robot.monitorCompressorThread.getPressure());
-
+			LCD.printLine(9, "Drive Encoders: 1:%d 2:%d", Devices.driveEncoder1.get(), Devices.driveEncoder2.get());
+			
 			// Set wheel motors.
 			// Do not feed JS input to robotDrive if we are controlling the motors in automatic functions.
 
@@ -284,11 +286,11 @@ class Teleop
 				break;
 				
 			case BUTTON_BLUE_RIGHT: //Intake Cube Auto
-				Lift.getInstance(robot).intakeCube();
+				Lift.getInstance(robot).toggleIntakeCube();
 				break;
 				
 			case BUTTON_YELLOW: //Change Winch
-				Lift.getInstance(robot).changeWinch();
+				//Lift.getInstance(robot).changeWinch();
 				break;
 				
 			default:

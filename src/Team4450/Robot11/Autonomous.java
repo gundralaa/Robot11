@@ -39,7 +39,8 @@ public class Autonomous
 		Devices.robotDrive.setSafetyEnabled(false);
 
 		// Initialize encoder.
-		Devices.driveEncoder.reset();
+		Devices.driveEncoder1.reset();
+		Devices.driveEncoder2.reset();
 		Devices.winchEncoder.reset();
 
 		// Set gyro/NavX to heading 0.
@@ -78,11 +79,11 @@ public class Autonomous
 				scoreLeftSwitch();
 				break;
 			case 'R':
-				if (robot.gameMessage.charAt(1) == 'L') {
-					scoreLeftScale();
-				} else {
-					moveForwardSide();
-				}
+				//if (robot.gameMessage.charAt(1) == 'L') {
+				//	scoreLeftScale();
+				//} else {
+					moveForwardSide(); //Removed Scale functionality
+				//}
 				break;
 			default:
 				moveForwardSide();
@@ -94,11 +95,11 @@ public class Autonomous
 				scoreRightSwitch();
 				break;
 			case 'L':
-				if (robot.gameMessage.charAt(1) == 'R') {
-					scoreRightScale();
-				} else {
-					moveForwardSide();
-				}
+				//if (robot.gameMessage.charAt(1) == 'R') {
+				//	scoreRightScale();
+				//} else {
+					moveForwardSide(); //Removed Scale functionality
+				//}
 				break;
 			default:
 				moveForwardSide();
@@ -137,7 +138,7 @@ public class Autonomous
 		ejectCube();
 	}
 	
-	private void scoreLeftScale() { //FIXME Power and encoder counts need configuring.
+	private void scoreLeftScale() { //Power and encoder counts need configuring. If we ever use this.
 		raiseLift(LiftHeight.SCALE);
 		autoDrive(.5, 3500, true); //Move out to line up with switch
 		autoRotate(-.5, 90); //Face scale
@@ -153,7 +154,7 @@ public class Autonomous
 		ejectCube();
 	}
 	
-	private void scoreRightScale() { //FIXME Power and encoder counts need configuring.
+	private void scoreRightScale() { //Power and encoder counts need configuring. If we ever use this.
 		raiseLift(LiftHeight.SCALE);
 		autoDrive(.5, 3500, true); //Move out to line up with switch
 		autoRotate(.5, 90); //Face scale
@@ -195,12 +196,13 @@ public class Autonomous
 
 		if (robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
 
-		Devices.driveEncoder.reset();
+		Devices.driveEncoder1.reset();
+		Devices.driveEncoder2.reset();
 		Devices.navx.resetYaw();
 		
-		while (isAutoActive() && Math.abs(Devices.driveEncoder.get()) < encoderCounts) 
+		while (isAutoActive() && Math.abs(Devices.driveEncoder1.get()) < encoderCounts) 
 		{
-			LCD.printLine(4, "encoder=%d", Devices.driveEncoder.get());
+			LCD.printLine(4, "encoder1=%d encoder2=%d", Devices.driveEncoder1.get(), Devices.driveEncoder2.get());
 
 			// Angle is negative if robot veering left, positive if veering right when going forward.
 			// It is opposite when going backward. Note that for this robot, - power means forward and
@@ -229,7 +231,7 @@ public class Autonomous
 		
 		Devices.robotDrive.tankDrive(0, 0, true);				
 
-		Util.consoleLog("end: actual count=%d", Math.abs(Devices.driveEncoder.get()));
+		Util.consoleLog("end: actual count1=%d actual count2=%d", Math.abs(Devices.driveEncoder1.get()), Math.abs(Devices.driveEncoder2.get()));
 	}
 
 	// Auto rotate left or right the specified angle. Left/right from robots forward view.

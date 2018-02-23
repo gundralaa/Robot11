@@ -24,8 +24,8 @@ public class Devices
 	  
 	  public static DifferentialDrive	robotDrive;
 
-	  public static WPI_TalonSRX        grabberMotorLeft, grabberMotorRight;
-	  public static PWMTalonSRX			winchMotor1, winchMotor2;
+	  public static WPI_TalonSRX        grabberMotorLeft = new WPI_TalonSRX(5), grabberMotorRight = new WPI_TalonSRX(6);
+	  public static PWMTalonSRX			winchMotor;
 	  public static SpeedControllerGroup grabberMotors;
 	  
 	  public final static Joystick      utilityStick = new Joystick(2);	
@@ -47,16 +47,17 @@ public class Devices
 
 	  public static NavX				navx;
 	  
-	  // Wheel encoder is plugged into dio port 0 - orange=+5v blue=signal, dio port 1 black=gnd yellow=signal. 
-	  public final static Encoder		driveEncoder = new Encoder(0, 1, true, EncodingType.k4X);
+	  // Wheel encoder is plugged into dio port 0/2 - orange=+5v blue=signal, dio port 1/3 black=gnd yellow=signal. 
+	  public final static Encoder		driveEncoder1 = new Encoder(0, 1, true, EncodingType.k4X);
+	  public final static Encoder		driveEncoder2 = new Encoder(2, 3, true, EncodingType.k4X);
 	  
-	  // Winch encoder is plugged into dio port 2 - orange=+5v blue=signal, dio port 3 black=gnd yellow=signal. 
-	  public final static Encoder		winchEncoder = new Encoder(2, 3, true, EncodingType.k4X);
+	  // Winch encoder is plugged into dio port 4 - orange=+5v blue=signal, dio port 5 black=gnd yellow=signal. 
+	  public final static Encoder		winchEncoder = new Encoder(4, 5, true, EncodingType.k4X);
 
 	  // Encoder ribbon cable to dio ports: ribbon wire 2 = orange, 5 = yellow, 7 = blue, 10 = black
 	  // not used.
 	  
-	  // Create RobotDrive object for CAN Talon controllers.
+	  // Create DifferentialDrive object for CAN Talon controllers.
 	  
 	  public static void InitializeCANTalonDrive()
 	  {
@@ -66,9 +67,6 @@ public class Devices
 		  LRCanTalon = new WPI_TalonSRX(2);
 		  RFCanTalon = new WPI_TalonSRX(3);
 		  RRCanTalon = new WPI_TalonSRX(4);
-		  
-		  grabberMotorLeft = new WPI_TalonSRX(5);
-		  grabberMotorRight = new WPI_TalonSRX(6);
 
 	      // Initialize CAN Talons and write status to log so we can verify
 	      // all the Talons are connected.
@@ -78,7 +76,9 @@ public class Devices
 	      InitializeCANTalon(RRCanTalon);
 	      
 	      InitializeCANTalon(grabberMotorLeft);
+	      grabberMotorLeft.setNeutralMode(NeutralMode.Brake);
 	      InitializeCANTalon(grabberMotorRight);
+	      grabberMotorRight.setNeutralMode(NeutralMode.Brake);
 	      
 	      // Configure CAN Talons with correct inversions.
 	      LFCanTalon.setInverted(false);
@@ -86,9 +86,6 @@ public class Devices
 		  
 		  RFCanTalon.setInverted(false);
 		  RRCanTalon.setInverted(false);
-		  
-		  grabberMotorLeft.setInverted(false); //TODO Check these
-		  grabberMotorRight.setInverted(true);
 	      
 		  grabberMotors = new SpeedControllerGroup(grabberMotorLeft, grabberMotorRight);
 		  
