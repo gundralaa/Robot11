@@ -174,7 +174,7 @@ class Teleop
 						// right so we set the turn value to - because - is a turn left which corrects our right
 						// drift.
 
-						Devices.robotDrive.curvatureDrive(rightY, -angle * gain, true);
+						Devices.robotDrive.curvatureDrive(rightY, angle * gain, true);
 
 						steeringAssistMode = true;
 					}
@@ -205,11 +205,17 @@ class Teleop
 	}
 	
 	public void lowGear() {
-		Devices.gearShifter.SetA();
+		if (robot.isComp)
+			Devices.gearShifter.SetA();
+		else
+			Devices.gearShifter.SetB();
 	}
 	
 	public void highGear() {
-		Devices.gearShifter.SetB();
+		if (robot.isComp)
+			Devices.gearShifter.SetB();
+		else
+			Devices.gearShifter.SetA();
 	}
 
 	private boolean leftRightEqual(double left, double right, double percent)

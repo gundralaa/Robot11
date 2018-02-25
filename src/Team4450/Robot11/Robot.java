@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "SWF11-02.3.18-01";
+  static final String  	PROGRAM_NAME = "SWF11-02.24.18-07";
 
   public Properties		robotProperties;
   
@@ -97,7 +97,11 @@ public class Robot extends SampleRobot
    		Devices.robotDrive.stopMotor();
    		Devices.robotDrive.setSafetyEnabled(false);
    		Devices.robotDrive.setExpiration(0.1);
-             
+   		
+   		Devices.driveEncoder1.setReverseDirection(true);
+   		Devices.driveEncoder2.setReverseDirection(true);
+
+   		
    		// Create NavX object here so it has time to calibrate before we
    		// use it. Takes 10 seconds. Must appear before CamerFeed is created.
    		

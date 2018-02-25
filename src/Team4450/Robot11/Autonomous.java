@@ -37,6 +37,8 @@ public class Autonomous
 				Devices.ds.isFMSAttached(), program, robot.gameMessage);
 
 		Devices.robotDrive.setSafetyEnabled(false);
+		
+		lowGear();
 
 		// Initialize encoder.
 		Devices.driveEncoder1.reset();
@@ -82,8 +84,9 @@ public class Autonomous
 				//if (robot.gameMessage.charAt(1) == 'L') {
 				//	scoreLeftScale();
 				//} else {
-					moveForwardSide(); //Removed Scale functionality
+					//moveForwardSide(); //Removed Scale functionality
 				//}
+				moveForwardAndTurnLeft();
 				break;
 			default:
 				moveForwardSide();
@@ -98,8 +101,9 @@ public class Autonomous
 				//if (robot.gameMessage.charAt(1) == 'R') {
 				//	scoreRightScale();
 				//} else {
-					moveForwardSide(); //Removed Scale functionality
+					//moveForwardSide(); //Removed Scale functionality
 				//}
+				moveForwardAndTurnRight();
 				break;
 			default:
 				moveForwardSide();
@@ -110,66 +114,76 @@ public class Autonomous
 		Util.consoleLog("end");
 	}
 	
-	private void scoreCenterLeft() { //FIXME Power and encoder counts need configuring.
+	private void scoreCenterLeft() { //FIXME Power need configuring.
 		raiseLift(LiftHeight.SWITCH);
-		autoDrive(.5,250,true); //Move out a little
+		autoDrive(-.5,924,true); //Move out a little
 		autoRotate(.5, 90); //Turn to the left
-		autoDrive(.5, 500, true); //Align with switch
+		autoDrive(-.5, 1028, true); //Align with switch
 		autoRotate(-.5, 90); //Face switch
-		autoDrive(.5, 350, true); //Go to switch
+		autoDrive(-.3, 880, true); //Go to switch
 		ejectCube(); //... Take a guess
 	}
 	
-	private void scoreCenterRight() { //FIXME Power and encoder counts need configuring.
+	private void scoreCenterRight() { //FIXME Power need configuring.
 		raiseLift(LiftHeight.SWITCH);
-		autoDrive(.5,250,true); //Move out a little
+		autoDrive(-.5,924,true); //Move out a little
 		autoRotate(-.5, 90); //Turn to the right
-		autoDrive(.5, 500, true); //Align with switch
+		autoDrive(-.5, 1330, true); //Align with switch
 		autoRotate(.5, 90); //Face switch
-		autoDrive(.5, 350, true); //Go to switch
+		autoDrive(-.3, 880, true); //Go to switch
 		ejectCube(); //... Take a guess
 	}
 	
-	private void scoreLeftSwitch() { //FIXME Power and encoder counts need configuring.
+	private void scoreLeftSwitch() {
 		raiseLift(LiftHeight.SWITCH);
-		autoDrive(.5, 1500, true); //Move out to line up with switch
+		autoDrive(-.5, 3180, true); //Move out to line up with switch
 		autoRotate(-.5, 90); //Face switch
-		autoDrive(.25, 200, true); //Go towards switch //TODO Figure out if needed
+		autoDrive(-.25, 320, true); //Go towards switch
 		ejectCube();
 	}
 	
 	private void scoreLeftScale() { //Power and encoder counts need configuring. If we ever use this.
-		raiseLift(LiftHeight.SCALE);
-		autoDrive(.5, 3500, true); //Move out to line up with switch
+		//raiseLift(LiftHeight.SCALE);
+		autoDrive(-.5, 3500, true); //Move out to line up with switch
 		autoRotate(-.5, 90); //Face scale
-		autoDrive(.25, 200, true); //Go towards scale //TODO Figure out if needed
+		autoDrive(-.25, 200, true); //Go towards scale
 		ejectCube();
 	}
 	
-	private void scoreRightSwitch() { //FIXME Power and encoder counts need configuring.
+	private void scoreRightSwitch() {
 		raiseLift(LiftHeight.SWITCH);
-		autoDrive(.5, 1500, true); //Move out to line up with switch
+		autoDrive(-.5, 3180, true); //Move out to line up with switch
 		autoRotate(.5, 90); //Face switch
-		autoDrive(.25, 200, true); //Go towards switch //TODO Figure out if needed
+		autoDrive(-.3, 320, true); //Go towards switch
 		ejectCube();
 	}
 	
-	private void scoreRightScale() { //Power and encoder counts need configuring. If we ever use this.
+	private void scoreRightScale() {
 		raiseLift(LiftHeight.SCALE);
-		autoDrive(.5, 3500, true); //Move out to line up with switch
+		autoDrive(-.5, 3500, true); //Move out to line up with switch
 		autoRotate(.5, 90); //Face scale
-		autoDrive(.25, 200, true); //Go towards scale //TODO Figure out if needed
+		autoDrive(-.25, 200, true); //Go towards scale
 		ejectCube();
 	}
 
-	private void moveForwardSide() { //FIXME Power and encoder counts need configuring.
-		autoDrive(.5, 2000, true); 
+	private void moveForwardSide() {
+		autoDrive(-.5, 2490, true);
 	}
 	
-	private void moveForwardCenter() { //FIXME Power and encoder counts need configuring.
-		autoDrive(.5, 250, true); //Move out a little
-		autoRotate(-.5, 45); //Turn a little to the right
-		autoDrive(.25, 1000, true); //Cross the line
+	private void moveForwardCenter() {
+		autoDrive(-.3, 1970, true); //Move out a little
+	}
+	
+	private void moveForwardAndTurnRight() {
+		autoDrive(-.5, 4600, true); //-done
+		autoRotate(.5, 90);
+		autoDrive(-.5, 1470, true); //-done
+	}
+	
+	private void moveForwardAndTurnLeft() {
+		autoDrive(-.5, 4600, true); //-done
+		autoRotate(-.5, 90);
+		autoDrive(-.5, 1470, true); //-done
 	}
 	
 	private void ejectCube() {	
@@ -180,6 +194,20 @@ public class Autonomous
 	private void raiseLift(LiftHeight height) {
 		Util.consoleLog("Raise lift " + height.name());
 		Lift.getInstance(robot).setLiftHeight(height);
+	}
+	
+	public void lowGear() {
+		if (robot.isComp)
+			Devices.gearShifter.SetA();
+		else
+			Devices.gearShifter.SetB();
+	}
+	
+	public void highGear() {
+		if (robot.isComp)
+			Devices.gearShifter.SetB();
+		else
+			Devices.gearShifter.SetA();
 	}
 
 	//TODO Will need modification to work.
@@ -224,7 +252,7 @@ public class Autonomous
 			// right so we set the turn value to - because - is a turn left which corrects our right
 			// drift.
 
-			Devices.robotDrive.curvatureDrive(power, -angle * gain, false);
+			Devices.robotDrive.curvatureDrive(power, angle * gain, false);
 
 			Timer.delay(.020);
 		}
@@ -234,11 +262,11 @@ public class Autonomous
 		Util.consoleLog("end: actual count1=%d actual count2=%d", Math.abs(Devices.driveEncoder1.get()), Math.abs(Devices.driveEncoder2.get()));
 	}
 
-	// Auto rotate left or right the specified angle. Left/right from robots forward view.
-	// Turn right, power is -
-	// Turn left, power is +
-	// angle of rotation is always +.
-
+	/** Auto rotate left or right the specified angle. Left/right from robots forward view.
+	* Turn right, power is -
+	* Turn left, power is +
+	* angle of rotation is always +.
+	**/
 	private void autoRotate(double power, int angle)
 	{
 		Util.consoleLog("pwr=%.2f  angle=%d", power, angle);
