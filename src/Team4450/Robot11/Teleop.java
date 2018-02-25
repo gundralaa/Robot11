@@ -86,6 +86,7 @@ class Teleop
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED_RIGHT);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLUE_RIGHT);
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_GREEN);
 
 		launchPad.addLaunchPadEventListener(new LaunchPadListener());
 		launchPad.Start();
@@ -294,6 +295,12 @@ class Teleop
 //						lift.selectLiftWinch();
 //					else
 //						lift.selectClimbWinch();
+					
+					break;
+					
+				case BUTTON_GREEN:
+					Devices.wheelEncoder.reset();
+					Devices.wheelEncoder2.reset();
 					
 					break;
 					

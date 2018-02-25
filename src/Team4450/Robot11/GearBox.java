@@ -43,7 +43,7 @@ public class GearBox
 
 		highSpeed = false;
 
-		Devices.highLowValve.SetA();
+		Devices.highLowValve.SetB();
 		
 		lowSpeed = true;
 		
@@ -59,7 +59,7 @@ public class GearBox
 
 		lowSpeed = false;
 		
-		Devices.highLowValve.SetB();
+		Devices.highLowValve.SetA();
 		
 		highSpeed = true;
 		

@@ -95,6 +95,9 @@ public class Robot extends SampleRobot
    		
    		Devices.InitializeCANTalonDrive();
 		
+   		Devices.wheelEncoder.setReverseDirection(false);
+   		Devices.wheelEncoder2.setReverseDirection(false);
+ 		
    		Devices.robotDrive.stopMotor();
    		Devices.robotDrive.setSafetyEnabled(false);
    		Devices.robotDrive.setExpiration(0.1);

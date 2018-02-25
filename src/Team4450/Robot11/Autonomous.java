@@ -104,7 +104,7 @@ public class Autonomous
 	{
 		Util.consoleLog();
 		
-		autoDrive(.50, 0, true);
+		autoDrive(-.50, 2490, true);	// 1620
 	}
 
 	// Start from center (offset right). Move forward a bit to get off the wall. 
@@ -114,11 +114,11 @@ public class Autonomous
 	{
 		Util.consoleLog();
 		
-		autoDrive(.50, 1000, true);
+		autoDrive(-.30, 1970, true);	// 1250
 		
-		autoRotate(.50, -45);
+		//autoRotate(.50, -45);
 		
-		autoDrive(.50, 1000, true);
+		//autoDrive(.50, 1000, true);
 	}
 
 	// Start from center (offset right). Evaluate game information. Determine which switch we
@@ -134,7 +134,7 @@ public class Autonomous
 		// lift.setHeight(500);
 		// delay?
 		
-		autoDrive(.50, 1000, true);
+		autoDrive(-.40, 925, true);		// 595
 		
 		switch (plateState)
 		{
@@ -144,16 +144,16 @@ public class Autonomous
 				
 			case LLL: case LRL:
 				autoRotate(.50, 90);
-				autoDrive(.50, 1000, true);
-				autoRotate(.50, -90);
-				autoDrive(.50, 1000, true);
+				autoDrive(-.50, 1028, true);	// 670
+				autoRotate(-.50, 90);
+				autoDrive(-.30, 880, true);		// 720
 				break;
 				
 			case RRR: case RLR:
-				autoRotate(.50, -90);
-				autoDrive(.50, 1000, true);
+				autoRotate(-.50, 90);
+				autoDrive(-.50, 1330, true);
 				autoRotate(.50, 90);
-				autoDrive(.50, 1000, true);
+				autoDrive(-.30, 880, true);
 				break;
 		}
 		
@@ -182,25 +182,25 @@ public class Autonomous
 				case UNDEFINED:
 					return;
 					
-				case LLL: case RLR:	// Scale available.
+				//case LLL: case RLR:	// Scale available.
 					// Lift cube to scoring height. Assume async.
 					// lift.setHeight(2000);
-					autoDrive(.50, 1000, true);
-					autoRotate(.50, -90);
-					autoDrive(.50, 1000, true);
-					break;
+					//autoDrive(.50, 1000, true);
+					//autoRotate(.50, -90);
+					//autoDrive(.50, 1000, true);
+					//break;
 					
-				case RRR:	// No plate available.
-					autoDrive(.50, 1000, true);
-					autoRotate(.50, -90);
-					autoDrive(.50, 1000, true);
+				case RRR:  case RLR:	// No plate available.
+					autoDrive(-.50, 4600, true);	// 3090
+					autoRotate(-.50, 90);
+					autoDrive(-.50, 1470, true);	// 960
 					return;
 					
-				case LRL:	// Switch available.
+				case LRL: case LLL:		// Switch available.
 					// Lift cube to scoring height. Assume async.
-					autoDrive(.50, 1000, true);
-					autoRotate(.50, -90);
-					autoDrive(.50, 1000, true);
+					autoDrive(-.50, 3180, true);	// 2050
+					autoRotate(-.50, 90);
+					autoDrive(-.30, 320, true);		// 200
 					break;
 			}
 		}
@@ -211,25 +211,24 @@ public class Autonomous
 				case UNDEFINED:
 					return;
 					
-				case LLL:	// No plate available.
-					autoDrive(.50, 1000, true);
+				case LLL: case LRL:	// No plate available.
+					autoDrive(-.50, 4600, true);	// 3090
 					autoRotate(.50, 90);
-					autoDrive(.50, 1000, true);
+					autoDrive(-.50, 1470, true);	// 960
 					return;
-
 					
-				case RRR: case LRL:	// Scale available.
+//				case RRR: case LRL:	// Scale available.
+//					// Lift cube to scoring height. Assume async.
+//					autoDrive(.50, 1000, true);
+//					autoRotate(.50, 90);
+//					autoDrive(.50, 1000, true);
+//					break;
+//					
+				case RLR: case RRR:	// Switch available.
 					// Lift cube to scoring height. Assume async.
-					autoDrive(.50, 1000, true);
+					autoDrive(-.50, 3180, true);	// 2050
 					autoRotate(.50, 90);
-					autoDrive(.50, 1000, true);
-					break;
-					
-				case RLR:	// Switch available.
-					// Lift cube to scoring height. Assume async.
-					autoDrive(.50, 1000, true);
-					autoRotate(.50, 90);
-					autoDrive(.50, 1000, true);
+					autoDrive(-.30, 320, true);		// 200
 					break;
 			}
 		}
@@ -245,46 +244,47 @@ public class Autonomous
 	private void autoDrive(double power, int encoderCounts, boolean enableBrakes)
 	{
 		int		angle;
-		double	gain = .03;
+		double	gain = .05;
 		
 		Util.consoleLog("pwr=%.2f, count=%d, brakes=%b", power, encoderCounts, enableBrakes);
 
-//		if (robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
-//
-//		Devices.wheelEncoder.reset();
-//		Devices.navx.resetYaw();
-//		
-//		while (isAutoActive() && Math.abs(Devices.wheelEncoder.get()) < encoderCounts) 
-//		{
-//			LCD.printLine(4, "encoder=%d", Devices.wheelEncoder.get());
-//			
-//			// Angle is negative if robot veering left, positive if veering right when going forward.
-//			// It is opposite when going backward. Note that for this robot, - power means forward and
-//			// + power means backward.
-//			
-//			angle = (int) Devices.navx.getYaw();
-//
-//			LCD.printLine(5, "angle=%d", angle);
-//			
-//			// Invert angle for backwards.
-//			
-//			if (power > 0) angle = -angle;
-//			
-//			//Util.consoleLog("angle=%d", angle);
-//			
-//			// Note we invert sign on the angle because we want the robot to turn in the opposite
-//			// direction than it is currently going to correct it. So a + angle says robot is veering
-//			// right so we set the turn value to - because - is a turn left which corrects our right
-//			// drift.
-//			
-//			Devices.robotDrive.curvatureDrive(power, -angle * gain, false);
-//			
-//			Timer.delay(.020);
-//		}
-//
-//		Devices.robotDrive.tankDrive(0, 0, true);				
-//		
-//		Util.consoleLog("end: actual count=%d", Math.abs(Devices.wheelEncoder.get()));
+		Devices.SetCANTalonBrakeMode(enableBrakes);
+
+		Devices.wheelEncoder.reset();
+		Devices.wheelEncoder2.reset();
+		Devices.navx.resetYaw();
+		
+		while (isAutoActive() && Math.abs(Devices.wheelEncoder.get()) < encoderCounts) 
+		{
+			LCD.printLine(4, "encoder=%d", Devices.wheelEncoder.get());
+			
+			// Angle is negative if robot veering left, positive if veering right when going forward.
+			// It is opposite when going backward. Note that for this robot, - power means forward and
+			// + power means backward.
+			
+			angle = (int) Devices.navx.getYaw();
+			
+			// Invert angle for backwards.
+			
+			if (power > 0) angle = -angle;
+
+			LCD.printLine(5, "angle=%d", angle);
+			
+			//Util.consoleLog("angle=%d", angle);
+			
+			// Note we invert sign on the angle because we want the robot to turn in the opposite
+			// direction than it is currently going to correct it. So a + angle says robot is veering
+			// right so we set the turn value to - because - is a turn left which corrects our right
+			// drift.
+			
+			Devices.robotDrive.curvatureDrive(power, angle * gain, false);
+			
+			Timer.delay(.020);
+		}
+
+		Devices.robotDrive.tankDrive(0, 0, true);				
+		
+		Util.consoleLog("end: actual count=%d", Math.abs(Devices.wheelEncoder.get()));
 	}
 	
 	// Auto rotate left or right the specified angle. Left/right from robots forward view.
@@ -296,13 +296,13 @@ public class Autonomous
 	{
 		Util.consoleLog("pwr=%.2f  angle=%d", power, angle);
 		
-//		Devices.navx.resetYaw();
-//		
-//		Devices.robotDrive.tankDrive(power, -power);
-//
-//		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) {Timer.delay(.020);} 
-//		
-//		Devices.robotDrive.tankDrive(0, 0);
+		Devices.navx.resetYaw();
+		
+		Devices.robotDrive.tankDrive(power, -power);
+
+		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) {Timer.delay(.020);} 
+		
+		Devices.robotDrive.tankDrive(0, 0);
 	}
 	
 	private enum PlateStates
