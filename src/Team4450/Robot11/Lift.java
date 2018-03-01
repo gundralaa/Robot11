@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Lift
 {
 	private final Robot			robot;
+	// Only climb winch in use at the moment.
 	private boolean				climbWinch = true, holdingPosition, holdingHeight;
 	private final PIDController	liftPidController;
 	
@@ -18,6 +19,8 @@ public class Lift
 		this.robot = robot;
 
 		liftPidController = new PIDController(0.0, 0.0, 0.0, Devices.winchEncoder, Devices.climbWinch);
+		
+		Devices.winchEncoder.reset();
 		
 		updateDS();
 	}
@@ -65,7 +68,18 @@ public class Lift
 	public void setWinchPower(double power)
 	{
 		if (climbWinch)
-			Devices.climbWinch.set(power);
+		{
+			if (Devices.winchEncoderEnabled)
+			{
+				if ((power > 0 && Devices.winchEncoder.get() < 10800) ||
+					(power < 0 && Devices.winchEncoder.get() > 0))
+					Devices.climbWinch.set(power);
+				else
+					Devices.climbWinch.set(0);
+			}
+			else
+				Devices.climbWinch.set(power);
+		}
 		else
 			Devices.liftWinch.set(power);
 	}
@@ -77,11 +91,12 @@ public class Lift
 	}
 	
 	// Automatically move lift to specified encoder count and hold it there.
+	// count < 0 turns pid controller off.
 	public void setHeight(int count)
 	{
 		Util.consoleLog("%d", count);
 		
-		if (count != 0)
+		if (count < 0)
 		{
 			if (isHoldingPosition()) holdPosition(0);
 			

@@ -35,7 +35,7 @@ public class GearBox
 	}
 
 	/**
-	 * Set gear boxes into low speed.
+	 * Set gear boxes into low speed. Pushes the dog ring to the inside.
 	 */
 	public void lowSpeed()
 	{
@@ -43,7 +43,7 @@ public class GearBox
 
 		highSpeed = false;
 
-		Devices.highLowValve.SetB();
+		Devices.highLowValve.SetA();
 		
 		lowSpeed = true;
 		
@@ -51,7 +51,7 @@ public class GearBox
 	}
 
 	/**
-	 * Set gear boxes into high speed.
+	 * Set gear boxes into high speed. Pushes the dog ring to the outside.
 	 */
 	public void highSpeed()
 	{
@@ -59,7 +59,7 @@ public class GearBox
 
 		lowSpeed = false;
 		
-		Devices.highLowValve.SetA();
+		Devices.highLowValve.SetB();
 		
 		highSpeed = true;
 		

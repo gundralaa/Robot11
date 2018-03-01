@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 @SuppressWarnings("deprecation")
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "RAC11-02.22.18-01";
+  static final String  	PROGRAM_NAME = "RAC11-02.28.18-01";
 
   public Properties		robotProperties;
   
@@ -97,6 +97,7 @@ public class Robot extends SampleRobot
 		
    		Devices.wheelEncoder.setReverseDirection(false);
    		Devices.wheelEncoder2.setReverseDirection(false);
+   		Devices.winchEncoder.setReverseDirection(false);
  		
    		Devices.robotDrive.stopMotor();
    		Devices.robotDrive.setSafetyEnabled(false);

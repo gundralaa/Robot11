@@ -21,7 +21,7 @@ public class Grabber
 		
 		retract();
 		
-		close();
+		open();
 	}
 
 	public void dispose()
@@ -206,7 +206,7 @@ public class Grabber
 	    		motorsIn(.50);
 	    		sleep(250);
 	    		
-    	    	while (!isInterrupted() && Devices.intakeMotorL.getOutputCurrent() < 10.0) // 5.0
+    	    	while (!isInterrupted() && Devices.intakeMotorL.getOutputCurrent() < 15.0) // 5.0
     	    	{
     	            // We sleep since JS updates come from DS every 20ms or so. We wait 50ms so this thread
     	            // does not run at the same time as the teleop thread.

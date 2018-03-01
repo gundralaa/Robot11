@@ -16,7 +16,7 @@ public class Autonomous
 	private final Lift		lift;
 	private final Grabber	grabber;
 	private final GearBox	gearBox;
-	private final double	spitPower = 1.0;
+	private final double	spitPower = .50;
 	
 	Autonomous(Robot robot)
 	{
@@ -104,7 +104,7 @@ public class Autonomous
 	{
 		Util.consoleLog();
 		
-		autoDrive(-.50, 2490, true);	// 1620
+		autoDrive(-.50, 2490, true);	// 1606
 	}
 
 	// Start from center (offset right). Move forward a bit to get off the wall. 
@@ -114,7 +114,7 @@ public class Autonomous
 	{
 		Util.consoleLog();
 		
-		autoDrive(-.30, 1970, true);	// 1250
+		autoDrive(-.30, 1970, true);	// 1270
 		
 		//autoRotate(.50, -45);
 		
@@ -130,11 +130,13 @@ public class Autonomous
 	{
 		Util.consoleLog(plateState.toString());
 		
-		// May need initial cube lift or lift to scoring height.
-		// lift.setHeight(500);
-		// delay?
+		// deploy grabber then lift.
 		
-		autoDrive(-.40, 925, true);		// 595
+		grabber.deploy();
+		Timer.delay(1.0);
+		lift.setHeight(3000);
+		
+		autoDrive(-.40, 925, true);		// 596
 		
 		switch (plateState)
 		{
@@ -144,22 +146,28 @@ public class Autonomous
 				
 			case LLL: case LRL:
 				autoRotate(.50, 90);
-				autoDrive(-.50, 1028, true);	// 670
+				autoDrive(-.50, 1028, true);	// 663
 				autoRotate(-.50, 90);
-				autoDrive(-.30, 880, true);		// 720
+				autoDrive(-.30, 880, true);		// 567
 				break;
 				
 			case RRR: case RLR:
 				autoRotate(-.50, 90);
-				autoDrive(-.50, 1330, true);
+				autoDrive(-.50, 1330, true);	// 857
 				autoRotate(.50, 90);
-				autoDrive(-.30, 880, true);
+				autoDrive(-.30, 880, true);		// 567
 				break;
 		}
 		
 		// Dump cube.
 		
 		grabber.spit(spitPower);
+		
+		// Back up and drop the lift.
+		
+		autoDrive(.30, 500, true);
+		lift.setHeight(0);
+		Timer.delay(3.0);
 	}
 
 	// Start left or right. Evaluate game information. Determine if we should score on the switch, 
@@ -173,7 +181,11 @@ public class Autonomous
 	{
 		Util.consoleLog("start left=%b, plate=%s", startingLeft, plateState.toString());
 		
-		// May need initial cube lift.
+		// deploy grabber then lift.
+		
+		grabber.deploy();
+		Timer.delay(1.0);
+		lift.setHeight(3000);
 		
 		if (startingLeft) 
 		{
@@ -191,16 +203,20 @@ public class Autonomous
 					//break;
 					
 				case RRR:  case RLR:	// No plate available.
-					autoDrive(-.50, 4600, true);	// 3090
+					autoDrive(-.50, 4600, true);	// 2967
 					autoRotate(-.50, 90);
-					autoDrive(-.50, 1470, true);	// 960
+					autoDrive(-.50, 1470, true);	// 948
+					
+					// Drop the lift.
+					lift.setHeight(0);
+					Timer.delay(3.0);
 					return;
 					
 				case LRL: case LLL:		// Switch available.
 					// Lift cube to scoring height. Assume async.
-					autoDrive(-.50, 3180, true);	// 2050
+					autoDrive(-.50, 3180, true);	// 2051
 					autoRotate(-.50, 90);
-					autoDrive(-.30, 320, true);		// 200
+					autoDrive(-.30, 320, true);		// 206
 					break;
 			}
 		}
@@ -212,9 +228,13 @@ public class Autonomous
 					return;
 					
 				case LLL: case LRL:	// No plate available.
-					autoDrive(-.50, 4600, true);	// 3090
+					autoDrive(-.50, 4600, true);	// 2967
 					autoRotate(.50, 90);
-					autoDrive(-.50, 1470, true);	// 960
+					autoDrive(-.50, 1470, true);	// 948
+					
+					// Drop the lift.
+					lift.setHeight(0);
+					Timer.delay(3.0);
 					return;
 					
 //				case RRR: case LRL:	// Scale available.
@@ -226,9 +246,9 @@ public class Autonomous
 //					
 				case RLR: case RRR:	// Switch available.
 					// Lift cube to scoring height. Assume async.
-					autoDrive(-.50, 3180, true);	// 2050
+					autoDrive(-.50, 3180, true);	// 2051
 					autoRotate(.50, 90);
-					autoDrive(-.30, 320, true);		// 200
+					autoDrive(-.30, 320, true);		// 206s
 					break;
 			}
 		}
@@ -236,6 +256,12 @@ public class Autonomous
 		// Dump cube.
 		
 		grabber.spit(spitPower);
+		
+		// Back up and drop the lift.
+		
+		autoDrive(.30, 500, true);
+		lift.setHeight(0);
+		Timer.delay(3.0);
 	}
 	
 	// Auto drive in set direction and power for specified encoder count. Stops
@@ -276,6 +302,13 @@ public class Autonomous
 			// direction than it is currently going to correct it. So a + angle says robot is veering
 			// right so we set the turn value to - because - is a turn left which corrects our right
 			// drift.
+			
+			// Update: The new curvatureDrive function expects the power to be + for forward motion.
+			// Since our power value is - for forward, we do not invert the sign of the angle like
+			// we did with previous drive functions. This code base should be updated to fix the
+			// Y axis sign to be + for forward. This would make more sense and simplify understanding
+			// the code and would match what curvatureDrive expects. Will wait on that until after
+			// 2018 season. After fixing that, the angle would again need to be inverted.
 			
 			Devices.robotDrive.curvatureDrive(power, angle * gain, false);
 			

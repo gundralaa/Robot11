@@ -56,7 +56,7 @@ class Teleop
 	void OperatorControl()
 	{
 		double	rightY = 0, leftY = 0, utilX = 0, utilY = 0, rightX = 0, leftX = 0;
-		double	gain = .01;
+		double	gain = .05;
 		boolean	steeringAssistMode = false;
 		int		angle;
 
@@ -105,7 +105,8 @@ class Teleop
 
 		utilityStick = new JoyStick(Devices.utilityStick, "UtilityStick", JoyStickButtonIDs.TRIGGER, this);
 		//Example on how to track button:
-		//utilityStick.AddButton(JoyStickButtonIDs.BUTTON_NAME_HERE);
+		utilityStick.AddButton(JoyStickButtonIDs.TOP_MIDDLE);
+		utilityStick.AddButton(JoyStickButtonIDs.TOP_BACK);
 		utilityStick.addJoyStickEventListener(new UtilityStickListener());
 		utilityStick.Start();
 
@@ -183,8 +184,15 @@ class Teleop
 						// direction than it is currently going to correct it. So a + angle says robot is veering
 						// right so we set the turn value to - because - is a turn left which corrects our right
 						// drift.
+						
+						// Update: The new curvatureDrive function expects the power to be + for forward motion.
+						// Since our power value is - for forward, we do not invert the sign of the angle like
+						// we did with previous drive functions. This code base should be updated to fix the
+						// Y axis sign to be + for forward. This would make more sense and simplify understanding
+						// the code and would match what curvatureDrive expects. Will wait on that until after
+						// 2018 season. After fixing that, the angle would again need to be inverted.
 
-						Devices.robotDrive.curvatureDrive(rightY, -angle * gain, false);
+						Devices.robotDrive.curvatureDrive(rightY, angle * gain, false);
 
 						steeringAssistMode = true;
 					}
@@ -337,7 +345,15 @@ class Teleop
 	    			break;
 	    			
 	    		case ROCKER_RIGHT:
-					if (robot.cameraThread != null) robot.cameraThread.ChangeCamera();
+	    			if (control.latchedState)
+	    			{
+	    				Devices.winchEncoderEnabled = true;
+	    				Devices.winchEncoder.reset();
+	    			}
+	    			else
+	    				Devices.winchEncoderEnabled = false;
+	    			
+					//if (robot.cameraThread != null) robot.cameraThread.ChangeCamera();
 	    			break;
 	
 				default:
