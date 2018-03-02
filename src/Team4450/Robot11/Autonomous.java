@@ -130,8 +130,9 @@ public class Autonomous
 	{
 		Util.consoleLog(plateState.toString());
 		
-		// deploy grabber then lift.
+		// close, deploy grabber then lift.
 		
+		grabber.close();
 		grabber.deploy();
 		Timer.delay(1.0);
 		lift.setHeight(3000);
@@ -181,8 +182,9 @@ public class Autonomous
 	{
 		Util.consoleLog("start left=%b, plate=%s", startingLeft, plateState.toString());
 		
-		// deploy grabber then lift.
+		// close, deploy grabber then lift.
 		
+		grabber.close();
 		grabber.deploy();
 		Timer.delay(1.0);
 		lift.setHeight(3000);

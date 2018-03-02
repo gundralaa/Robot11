@@ -143,8 +143,8 @@ class Teleop
 			utilY = utilityStick.GetY();
 
 			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilY=%.4f", leftY, rightY, utilY);
-			LCD.printLine(5, "Wheel=%d  wheel2=%d  winch=%d", Devices.wheelEncoder.get(), 
-					Devices.wheelEncoder2.get(), Devices.winchEncoder.get());
+			LCD.printLine(5, "Wheel=%d  wheel2=%d  winch=%d  switch=%b", Devices.wheelEncoder.get(), 
+					Devices.wheelEncoder2.get(), Devices.winchEncoder.get(), Devices.winchSwitch.get());
 			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), 
 					Devices.navx.getTotalYaw(), Devices.navx.getYawRate(), Devices.navx.getHeading());
 			LCD.printLine(7, "intake current=%f", Devices.intakeMotorL.getOutputCurrent());

@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Devices
 {
@@ -58,6 +59,7 @@ public class Devices
 	  public final static Encoder		winchEncoder = new Encoder(4, 5, true, EncodingType.k4X);
 	  
 	  public static boolean				winchEncoderEnabled = true;
+	  public static DigitalInput		winchSwitch = new DigitalInput(0);
 	  
 	  public final static SpeedControllerGroup grabberGroup = new SpeedControllerGroup(intakeMotorL, intakeMotorR);
 	  

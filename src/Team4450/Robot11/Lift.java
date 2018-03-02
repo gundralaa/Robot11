@@ -76,6 +76,16 @@ public class Lift
 					Devices.climbWinch.set(power);
 				else
 					Devices.climbWinch.set(0);
+				
+//				if ((power > 0 && Devices.winchEncoder.get() < 10800) ||
+//					(power < 0 && !Devices.winchSwitch.get()))
+//					Devices.climbWinch.set(power);
+//				else
+//				{
+//					if (Devices.winchSwitchget()) Devices.winchEncoder.reset();
+//					
+//					Devices.climbWinch.set(0);
+//				}
 			}
 			else
 				Devices.climbWinch.set(power);
