@@ -39,7 +39,7 @@ public class Grabber
 		
 		SmartDashboard.putBoolean("Grabber", grabberOpen);
 
-		Devices.grabberValve.SetA();
+		Devices.grabberValve.SetB();
 	}
 	
 	public void close()
@@ -48,7 +48,7 @@ public class Grabber
 		
 		grabberOpen =  false;
 		
-		Devices.grabberValve.SetB();
+		Devices.grabberValve.SetA();
 
 		updateDS();
 	}
@@ -59,7 +59,7 @@ public class Grabber
 		
 		grabberDeployed = false;
 
-		Devices.deployValve.SetA();
+		Devices.deployValve.SetB();
 		
 		updateDS();
 	}
@@ -70,7 +70,7 @@ public class Grabber
 		
 		grabberDeployed = true;
 		
-		Devices.deployValve.SetB();
+		Devices.deployValve.SetA();
 
 		updateDS();
 	}

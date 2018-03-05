@@ -94,6 +94,10 @@ public class Autonomous
 			case 5:		// Start right outside score cube.
 				startOutsideScore(false);
 				break;
+				
+			case 6:		// Start center score cube.
+				startCenterScore2();
+				break;
 		}
 		
 		Util.consoleLog("end");
@@ -135,7 +139,7 @@ public class Autonomous
 		grabber.close();
 		grabber.deploy();
 		Timer.delay(1.0);
-		lift.setHeight(3000);
+		lift.setHeight(7900);
 		
 		autoDrive(-.40, 925, true);		// 596
 		
@@ -147,16 +151,16 @@ public class Autonomous
 				
 			case LLL: case LRL:
 				autoRotate(.50, 90);
-				autoDrive(-.50, 1028, true);	// 663
+				autoDrive(-.60, 928, true);	// 663
 				autoRotate(-.50, 90);
-				autoDrive(-.30, 880, true);		// 567
+				autoDrive(-.40, 880, true);		// 567
 				break;
 				
 			case RRR: case RLR:
 				autoRotate(-.50, 90);
-				autoDrive(-.50, 1330, true);	// 857
+				autoDrive(-.60, 900, true);	// 857
 				autoRotate(.50, 90);
-				autoDrive(-.30, 880, true);		// 567
+				autoDrive(-.40, 880, true);		// 567
 				break;
 		}
 		
@@ -166,9 +170,56 @@ public class Autonomous
 		
 		// Back up and drop the lift.
 		
-		autoDrive(.30, 500, true);
-		lift.setHeight(0);
-		Timer.delay(3.0);
+		lift.setHeight(-1);
+//		autoDrive(.30, 500, true);
+//		lift.setHeight(0);
+//		Timer.delay(3.0);
+	}
+
+	private void startCenterScore2()
+	{
+		Util.consoleLog(plateState.toString());
+		
+		// close, deploy grabber then lift.
+		
+		grabber.close();
+		grabber.deploy();
+		Timer.delay(1.0);
+		lift.setHeight(7900);
+		
+		autoDrive(-.40, 100, true);		// 596
+		
+		switch (plateState)
+		{
+			case UNDEFINED:
+				startCenterNoScore();
+				return;
+				
+			case LLL: case LRL:
+				autoRotate(.50, 24);
+				autoDrive(-.60, 2100, true);	// 663
+				//autoRotate(-.50, 90);
+				//autoDrive(-.40, 880, true);		// 567
+				break;
+				
+			case RRR: case RLR:
+				autoRotate(-.50, 16);
+				autoDrive(-.60, 1900, true);	// 857
+				//autoRotate(.50, 12);
+				//autoDrive(-.40, 880, true);		// 567
+				break;
+		}
+		
+		// Dump cube.
+		
+		grabber.spit(spitPower);
+		
+		// Back up and drop the lift.
+		
+		lift.setHeight(-1);
+//		autoDrive(.30, 500, true);
+//		lift.setHeight(0);
+//		Timer.delay(3.0);
 	}
 
 	// Start left or right. Evaluate game information. Determine if we should score on the switch, 
@@ -187,7 +238,7 @@ public class Autonomous
 		grabber.close();
 		grabber.deploy();
 		Timer.delay(1.0);
-		lift.setHeight(3000);
+		lift.setHeight(7900);
 		
 		if (startingLeft) 
 		{
@@ -197,25 +248,23 @@ public class Autonomous
 					return;
 					
 				//case LLL: case RLR:	// Scale available.
-					// Lift cube to scoring height. Assume async.
-					// lift.setHeight(2000);
 					//autoDrive(.50, 1000, true);
 					//autoRotate(.50, -90);
 					//autoDrive(.50, 1000, true);
 					//break;
 					
 				case RRR:  case RLR:	// No plate available.
-					autoDrive(-.50, 4600, true);	// 2967
-					autoRotate(-.50, 90);
-					autoDrive(-.50, 1470, true);	// 948
+					autoDrive(-.50, 2500, true);	// 4600/2967
+					//autoRotate(-.50, 90);
+					//autoDrive(-.50, 1470, true);	// 948
 					
 					// Drop the lift.
-					lift.setHeight(0);
-					Timer.delay(3.0);
+					lift.setHeight(-1);
+//					lift.setHeight(0);
+//					Timer.delay(3.0);
 					return;
 					
 				case LRL: case LLL:		// Switch available.
-					// Lift cube to scoring height. Assume async.
 					autoDrive(-.50, 3180, true);	// 2051
 					autoRotate(-.50, 90);
 					autoDrive(-.30, 320, true);		// 206
@@ -230,9 +279,9 @@ public class Autonomous
 					return;
 					
 				case LLL: case LRL:	// No plate available.
-					autoDrive(-.50, 4600, true);	// 2967
-					autoRotate(.50, 90);
-					autoDrive(-.50, 1470, true);	// 948
+					autoDrive(-.50, 2500, true);	// 4600/2967
+					//autoRotate(.50, 90);
+					//autoDrive(-.50, 1470, true);	// 948
 					
 					// Drop the lift.
 					lift.setHeight(0);
@@ -240,14 +289,12 @@ public class Autonomous
 					return;
 					
 //				case RRR: case LRL:	// Scale available.
-//					// Lift cube to scoring height. Assume async.
 //					autoDrive(.50, 1000, true);
 //					autoRotate(.50, 90);
 //					autoDrive(.50, 1000, true);
 //					break;
 //					
 				case RLR: case RRR:	// Switch available.
-					// Lift cube to scoring height. Assume async.
 					autoDrive(-.50, 3180, true);	// 2051
 					autoRotate(.50, 90);
 					autoDrive(-.30, 320, true);		// 206s
@@ -261,9 +308,10 @@ public class Autonomous
 		
 		// Back up and drop the lift.
 		
-		autoDrive(.30, 500, true);
-		lift.setHeight(0);
-		Timer.delay(3.0);
+		lift.setHeight(-1);
+//		autoDrive(.30, 500, true);
+//		lift.setHeight(0);
+//		Timer.delay(3.0);
 	}
 	
 	// Auto drive in set direction and power for specified encoder count. Stops
@@ -284,7 +332,7 @@ public class Autonomous
 		
 		while (isAutoActive() && Math.abs(Devices.wheelEncoder.get()) < encoderCounts) 
 		{
-			LCD.printLine(4, "encoder=%d", Devices.wheelEncoder.get());
+			LCD.printLine(4, "wheel encoder=%d  winch encoder=%d", Devices.wheelEncoder.get(), Devices.winchEncoder.get());
 			
 			// Angle is negative if robot veering left, positive if veering right when going forward.
 			// It is opposite when going backward. Note that for this robot, - power means forward and

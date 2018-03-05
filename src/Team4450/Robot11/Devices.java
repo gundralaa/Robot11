@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
@@ -30,9 +31,10 @@ public class Devices
 
 	  public final static Talon			climbWinch = new Talon(0);
 	  public final static Talon			liftWinch = new Talon(1);
+	  public final static Servo			armDeloyServo = new Servo(2);	// PWM port 2.
 	  
 	  public static DifferentialDrive	robotDrive;
-	  public static RobotDrive			rd;
+	  //public static RobotDrive			rd;
 
 	  public final static Joystick      utilityStick = new Joystick(2);	
 	  public final static Joystick      leftStick = new Joystick(0);	
@@ -59,7 +61,7 @@ public class Devices
 	  public final static Encoder		winchEncoder = new Encoder(4, 5, true, EncodingType.k4X);
 	  
 	  public static boolean				winchEncoderEnabled = true;
-	  public static DigitalInput		winchSwitch = new DigitalInput(0);
+	  public static DigitalInput		winchSwitch = new DigitalInput(6);
 	  
 	  public final static SpeedControllerGroup grabberGroup = new SpeedControllerGroup(intakeMotorL, intakeMotorR);
 	  

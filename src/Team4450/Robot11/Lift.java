@@ -18,6 +18,8 @@ public class Lift
 		
 		this.robot = robot;
 
+		Devices.armDeloyServo.setAngle(0);
+
 		liftPidController = new PIDController(0.0, 0.0, 0.0, Devices.winchEncoder, Devices.climbWinch);
 		
 		Devices.winchEncoder.reset();
@@ -71,21 +73,21 @@ public class Lift
 		{
 			if (Devices.winchEncoderEnabled)
 			{
-				if ((power > 0 && Devices.winchEncoder.get() < 10800) ||
-					(power < 0 && Devices.winchEncoder.get() > 0))
-					Devices.climbWinch.set(power);
-				else
-					Devices.climbWinch.set(0);
-				
 //				if ((power > 0 && Devices.winchEncoder.get() < 10800) ||
-//					(power < 0 && !Devices.winchSwitch.get()))
+//					(power < 0 && Devices.winchEncoder.get() > 0))
 //					Devices.climbWinch.set(power);
 //				else
-//				{
-//					if (Devices.winchSwitchget()) Devices.winchEncoder.reset();
-//					
 //					Devices.climbWinch.set(0);
-//				}
+				
+				if ((power > 0 && Devices.winchEncoder.get() < 10800) ||
+					(power < 0 && !Devices.winchSwitch.get()))
+					Devices.climbWinch.set(power);
+				else
+				{
+					if (Devices.winchSwitch.get()) Devices.winchEncoder.reset();
+					
+					Devices.climbWinch.set(0);
+				}
 			}
 			else
 				Devices.climbWinch.set(power);
@@ -97,6 +99,8 @@ public class Lift
 	public void releaseForks()
 	{
 		Util.consoleLog();
+		
+		Devices.armDeloyServo.setAngle(60);
 
 	}
 	
@@ -106,7 +110,7 @@ public class Lift
 	{
 		Util.consoleLog("%d", count);
 		
-		if (count < 0)
+		if (count >= 0)
 		{
 			if (isHoldingPosition()) holdPosition(0);
 			
@@ -115,7 +119,8 @@ public class Lift
 			// Setpoint is the target encoder count.
 			// The idea is that the difference between the current encoder count and the
 			// target count will apply power to bring the two counts together and stay there.
-			liftPidController.setPID(0.01, 0.001, 0.0, .50);
+			liftPidController.setPID(0.0003, .0001, 0.0, .50);
+			liftPidController.setOutputRange(-1, 1);
 			liftPidController.setSetpoint(count);
 			liftPidController.setPercentTolerance(5);	// 5% error.
 			liftPidController.enable();

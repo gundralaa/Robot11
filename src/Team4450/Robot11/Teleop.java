@@ -127,6 +127,8 @@ class Teleop
 		// Motor safety turned on.
 		Devices.robotDrive.setSafetyEnabled(true);
 
+		Devices.SetCANTalonBrakeMode(false);	// coast
+
 		// Driving loop runs until teleop is over.
 
 		while (robot.isEnabled() && robot.isOperatorControl())
@@ -283,6 +285,8 @@ class Teleop
 						grabber.retract();
 					else
 						grabber.deploy();
+					
+					break;
 					
 				case BUTTON_BLUE:
 					lift.releaseForks();
