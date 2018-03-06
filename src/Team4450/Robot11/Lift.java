@@ -156,7 +156,7 @@ public class Lift
 			// f value is the base motor speed, which is where (power) we want to hold position.
 			// Setpoint is current encoder count.
 			// The idea is that any encoder motion will alter motor base speed to hold position.
-			liftPidController.setPID(0.01, 0.001, 0.0, speed);
+			liftPidController.setPID(0.0003, 0.0001, 0.0, speed);
 			liftPidController.setSetpoint(Devices.winchEncoder.get());
 			liftPidController.setPercentTolerance(5);	// 5% error.
 			liftPidController.enable();
