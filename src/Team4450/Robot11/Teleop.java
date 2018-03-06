@@ -115,8 +115,11 @@ class Teleop
 
 		// Set CAN Talon brake mode by rocker switch setting.
 		// We do this here so that the Utility stick thread has time to read the initial state
-		// of the rocker switch.
-		if (robot.isComp) Devices.SetCANTalonBrakeMode(lpControl.latchedState);
+		// of the rocker switch. Depends on lpcontrol being the last control defined for the 
+		// launch pad as the one that controls brake mode.
+		//if (robot.isComp) Devices.SetCANTalonBrakeMode(lpControl.latchedState);
+
+		Devices.SetCANTalonBrakeMode(false);	// force coast for 2018.
 
 		// Set Navx current yaw to 0.
 		Devices.navx.resetYaw();
@@ -126,8 +129,6 @@ class Teleop
 
 		// Motor safety turned on.
 		Devices.robotDrive.setSafetyEnabled(true);
-
-		Devices.SetCANTalonBrakeMode(false);	// coast
 
 		// Driving loop runs until teleop is over.
 

@@ -1,7 +1,7 @@
 /**
  * 2018 competition robot code.
  *
- * For Robot "TBA" built for FRC game "FIRST POWER UP".
+ * For Robot "Odyssey" built for FRC game "FIRST POWER UP".
 */
 
 package Team4450.Robot11;
@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 @SuppressWarnings("deprecation")
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "RAC11-03.04.18-04";
+  static final String  	PROGRAM_NAME = "RAC11-03.06.18-01";
 
   public Properties		robotProperties;
   

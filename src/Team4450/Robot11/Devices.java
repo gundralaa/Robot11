@@ -147,20 +147,18 @@ public class Devices
 		  return talonBrakeMode;
 	  }
 	  
-	  // Set CAN Talon voltage ramp rate. Rate is volts/sec and can be 2-12v.
+	  // Set CAN Talon voltage ramp rate. Rate is number of seconds from zero to full output.
+	  // zero disables.
 	  
-	  /*
-	   * As of right now I'm unable to find a replacement function.
-	  public static void SetCANTalonRampRate(double rate)
+	  public static void SetCANTalonRampRate(double seconds)
 	  {
-		  Util.consoleLog("%f", rate);
+		  Util.consoleLog("%f", seconds);
 		  
-		  LFCanTalon.setVoltageRampRate(rate);
-		  LRCanTalon.setVoltageRampRate(rate);
-		  RFCanTalon.setVoltageRampRate(rate);
-		  RRCanTalon.setVoltageRampRate(rate);
+		  LFCanTalon.configOpenloopRamp(seconds, 0);
+		  LRCanTalon.configOpenloopRamp(seconds, 0);
+		  RFCanTalon.configOpenloopRamp(seconds, 0);
+		  RRCanTalon.configOpenloopRamp(seconds, 0);
 	  }
-	  */
 	  
 	  // Return voltage and current draw for each CAN Talon.
 	  
