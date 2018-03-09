@@ -25,13 +25,13 @@ public class Lift {
 	}
 
 	public void extendWrist() {
-		Devices.grabberWristValve.SetB();
+		Devices.grabberWristValve.SetA();
 		SmartDashboard.putBoolean("Deployed", true);
 		Util.consoleLog();
 	}
 
 	public void retractWrist() {
-		Devices.grabberWristValve.SetA();
+		Devices.grabberWristValve.SetB();
 		SmartDashboard.putBoolean("Deployed", false);
 		Util.consoleLog();
 	}
@@ -40,21 +40,21 @@ public class Lift {
 	public boolean getClawOpen() {return clawOpen; }
 	
 	public void openClaw() {
-		Devices.grabberGrabValve.SetA();
+		Devices.grabberGrabValve.SetB();
 		SmartDashboard.putBoolean("Grabber", true);
 		Util.consoleLog();
 		clawOpen = true;
 	}
 
 	public void closeClaw() {
-		Devices.grabberGrabValve.SetB();
+		Devices.grabberGrabValve.SetA();
 		SmartDashboard.putBoolean("Grabber", false);
 		Util.consoleLog();
 		clawOpen = false;
 	}
 	
 	public static enum LiftHeight {
-		GROUND (0), EXCHANGE(50), SWITCH (7900), SCALE (200); //FIXME Get correct encoder counts
+		GROUND (0), EXCHANGE(50), SWITCH (7900), SCALE (200); //FIXME Get correct encoder counts for exchange and scale
 		private int encoderCount;
 		LiftHeight(int encoderCount) {
 			this.encoderCount = encoderCount;
