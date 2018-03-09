@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "SWF11-02.24.18-07";
+  static final String  	PROGRAM_NAME = "SWF11.2-03.8.18-01";
 
   public Properties		robotProperties;
   
@@ -98,8 +98,8 @@ public class Robot extends SampleRobot
    		Devices.robotDrive.setSafetyEnabled(false);
    		Devices.robotDrive.setExpiration(0.1);
    		
-   		Devices.driveEncoder1.setReverseDirection(true);
-   		Devices.driveEncoder2.setReverseDirection(true);
+   		Devices.driveEncoder1.setReverseDirection(false);
+   		Devices.driveEncoder2.setReverseDirection(false);
 
    		
    		// Create NavX object here so it has time to calibrate before we
@@ -237,7 +237,7 @@ public class Robot extends SampleRobot
         
           Teleop teleOp = new Teleop(this);
        
-          teleOp.OperatorControl();
+          teleOp.execute();
         
           teleOp.dispose();
         	

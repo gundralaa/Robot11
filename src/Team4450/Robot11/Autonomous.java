@@ -7,16 +7,14 @@ import Team4450.Robot11.Lift.LiftHeight;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Autonomous
+public class Autonomous extends GamePhase
 {
-	private final Robot	robot;
 	private final int	program = (int) SmartDashboard.getNumber("AutoProgramSelect",0);
 
 	Autonomous(Robot robot)
 	{
-		Util.consoleLog();
-
-		this.robot = robot;		
+		super(robot);
+		Util.consoleLog();	
 	}
 
 	public void dispose()
@@ -37,8 +35,9 @@ public class Autonomous
 				Devices.ds.isFMSAttached(), program, robot.gameMessage);
 
 		Devices.robotDrive.setSafetyEnabled(false);
-		
+
 		lowGear();
+		Devices.resetServo();
 
 		// Initialize encoder.
 		Devices.driveEncoder1.reset();
@@ -84,7 +83,7 @@ public class Autonomous
 				//if (robot.gameMessage.charAt(1) == 'L') {
 				//	scoreLeftScale();
 				//} else {
-					//moveForwardSide(); //Removed Scale functionality
+				//moveForwardSide(); //Removed Scale functionality
 				//}
 				moveForwardAndTurnLeft();
 				break;
@@ -101,7 +100,7 @@ public class Autonomous
 				//if (robot.gameMessage.charAt(1) == 'R') {
 				//	scoreRightScale();
 				//} else {
-					//moveForwardSide(); //Removed Scale functionality
+				//moveForwardSide(); //Removed Scale functionality
 				//}
 				moveForwardAndTurnRight();
 				break;
@@ -109,100 +108,121 @@ public class Autonomous
 				moveForwardSide();
 			}
 			break;
+
+		case 6:		//Center w/scoring alt method
+			switch(robot.gameMessage.charAt(0)) {
+			case 'R':
+				scoreCenterRightAlt();
+				break;
+			case 'L':
+				scoreCenterLeftAlt();
+				break;
+			default: 
+				moveForwardCenter();
+				break;
+			}
 		}
 
 		Util.consoleLog("end");
 	}
-	
+
 	private void scoreCenterLeft() { //FIXME Power need configuring.
-		raiseLift(LiftHeight.SWITCH);
+		moveLift(LiftHeight.SWITCH);
 		autoDrive(-.5,924,true); //Move out a little
 		autoRotate(.5, 90); //Turn to the left
-		autoDrive(-.5, 1028, true); //Align with switch
+		autoDrive(-.6, 928, true); //Align with switch
 		autoRotate(-.5, 90); //Face switch
-		autoDrive(-.3, 880, true); //Go to switch
+		autoDrive(-.4, 880, true); //Go to switch
 		ejectCube(); //... Take a guess
+		autoDrive(.3, 200, true); //Go back a tiny bit
+		moveLift(LiftHeight.GROUND); //Lower lift
 	}
-	
+
 	private void scoreCenterRight() { //FIXME Power need configuring.
-		raiseLift(LiftHeight.SWITCH);
+		moveLift(LiftHeight.SWITCH);
 		autoDrive(-.5,924,true); //Move out a little
 		autoRotate(-.5, 90); //Turn to the right
-		autoDrive(-.5, 1330, true); //Align with switch
+		autoDrive(-.6, 900, true); //Align with switch
 		autoRotate(.5, 90); //Face switch
-		autoDrive(-.3, 880, true); //Go to switch
+		autoDrive(-.4, 880, true); //Go to switch
 		ejectCube(); //... Take a guess
+		autoDrive(.3, 200, true); //Go back a tiny bit
+		moveLift(LiftHeight.GROUND); //Lower lift
 	}
-	
+
 	private void scoreLeftSwitch() {
-		raiseLift(LiftHeight.SWITCH);
+		moveLift(LiftHeight.SWITCH);
 		autoDrive(-.5, 3180, true); //Move out to line up with switch
 		autoRotate(-.5, 90); //Face switch
 		autoDrive(-.25, 320, true); //Go towards switch
 		ejectCube();
 	}
-	
-	private void scoreLeftScale() { //Power and encoder counts need configuring. If we ever use this.
-		//raiseLift(LiftHeight.SCALE);
-		autoDrive(-.5, 3500, true); //Move out to line up with switch
-		autoRotate(-.5, 90); //Face scale
-		autoDrive(-.25, 200, true); //Go towards scale
-		ejectCube();
-	}
-	
+
 	private void scoreRightSwitch() {
-		raiseLift(LiftHeight.SWITCH);
+		moveLift(LiftHeight.SWITCH);
 		autoDrive(-.5, 3180, true); //Move out to line up with switch
 		autoRotate(.5, 90); //Face switch
 		autoDrive(-.3, 320, true); //Go towards switch
-		ejectCube();
-	}
-	
-	private void scoreRightScale() {
-		raiseLift(LiftHeight.SCALE);
-		autoDrive(-.5, 3500, true); //Move out to line up with switch
-		autoRotate(.5, 90); //Face scale
-		autoDrive(-.25, 200, true); //Go towards scale
 		ejectCube();
 	}
 
 	private void moveForwardSide() {
 		autoDrive(-.5, 2490, true);
 	}
-	
+
 	private void moveForwardCenter() {
 		autoDrive(-.3, 1970, true); //Move out a little
 	}
-	
+
 	private void moveForwardAndTurnRight() {
 		autoDrive(-.5, 4600, true); //-done
 		autoRotate(.5, 90);
 		autoDrive(-.5, 1470, true); //-done
 	}
-	
+
 	private void moveForwardAndTurnLeft() {
 		autoDrive(-.5, 4600, true); //-done
 		autoRotate(-.5, 90);
 		autoDrive(-.5, 1470, true); //-done
 	}
 	
+	private void scoreCenterRightAlt() {
+		moveLift(LiftHeight.SWITCH);
+		autoDrive(-.40, 100, true); //Move forward a bit
+		autoRotate(.50, 16); //Turn to switch
+		autoDrive(-.60, 1900, true); //Go there
+		ejectCube(); //Eject Cube
+		autoDrive(.3, 100, true);
+		moveLift(LiftHeight.GROUND);
+	}
+	
+	private void scoreCenterLeftAlt () {
+		moveLift(LiftHeight.SWITCH);
+		autoDrive(-.40, 100, true); //Move forward a bit
+		autoRotate(.50, 24); //Turn to switch
+		autoDrive(-.60, 2100, true); //Go there
+		ejectCube(); //Eject Cube
+		autoDrive(.3, 100, true);
+		moveLift(LiftHeight.GROUND);
+	}
+
 	private void ejectCube() {	
 		Util.consoleLog("Eject Cube");
 		Lift.getInstance(robot).ejectCube();
 	}
-	
-	private void raiseLift(LiftHeight height) {
+
+	private void moveLift(LiftHeight height) {
 		Util.consoleLog("Raise lift " + height.name());
 		Lift.getInstance(robot).setLiftHeight(height);
 	}
-	
+
 	public void lowGear() {
 		if (robot.isComp)
 			Devices.gearShifter.SetA();
 		else
 			Devices.gearShifter.SetB();
 	}
-	
+
 	public void highGear() {
 		if (robot.isComp)
 			Devices.gearShifter.SetB();
@@ -227,7 +247,7 @@ public class Autonomous
 		Devices.driveEncoder1.reset();
 		Devices.driveEncoder2.reset();
 		Devices.navx.resetYaw();
-		
+
 		while (isAutoActive() && Math.abs(Devices.driveEncoder1.get()) < encoderCounts) 
 		{
 			LCD.printLine(4, "encoder1=%d encoder2=%d", Devices.driveEncoder1.get(), Devices.driveEncoder2.get());
@@ -256,17 +276,17 @@ public class Autonomous
 
 			Timer.delay(.020);
 		}
-		
+
 		Devices.robotDrive.tankDrive(0, 0, true);				
 
 		Util.consoleLog("end: actual count1=%d actual count2=%d", Math.abs(Devices.driveEncoder1.get()), Math.abs(Devices.driveEncoder2.get()));
 	}
 
 	/** Auto rotate left or right the specified angle. Left/right from robots forward view.
-	* Turn right, power is -
-	* Turn left, power is +
-	* angle of rotation is always +.
-	**/
+	 * Turn right, power is -
+	 * Turn left, power is +
+	 * angle of rotation is always +.
+	 **/
 	private void autoRotate(double power, int angle)
 	{
 		Util.consoleLog("pwr=%.2f  angle=%d", power, angle);

@@ -9,9 +9,8 @@ import Team4450.Lib.LaunchPad.*;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-class Teleop
+class Teleop extends GamePhase
 {
-	private final Robot 		robot;
 	public  JoyStick			rightStick, leftStick, utilityStick;
 	public  LaunchPad			launchPad;
 	private boolean				autoTarget, invertDrive, altDriveMode;
@@ -21,9 +20,8 @@ class Teleop
 
 	Teleop(Robot robot)
 	{
+		super(robot);
 		Util.consoleLog();
-
-		this.robot = robot;
 
 		vision = Vision.getInstance(robot);
 	}
@@ -40,7 +38,7 @@ class Teleop
 		if (launchPad != null) launchPad.dispose();
 	}
 
-	void OperatorControl()
+	void execute()
 	{
 		double	rightY = 0, leftY = 0, utilX = 0, rightX = 0, leftX = 0;
 		double	gain = .01;
@@ -49,6 +47,9 @@ class Teleop
 
 		// Motor safety turned off during initialization.
 		Devices.robotDrive.setSafetyEnabled(false);
+		Devices.resetServo();
+		
+		Devices.SetCANTalonBrakeMode(false); //For 2018 force coast
 
 		Util.consoleLog();
 
@@ -72,7 +73,7 @@ class Teleop
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLUE_RIGHT);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_YELLOW);
-		launchPad.AddControl(LaunchPadControlIDs.ROCKER_LEFT_FRONT);
+		launchPad.AddControl(LaunchPadControlIDs.ROCKER_LEFT_BACK);
 		launchPad.AddControl(LaunchPadControlIDs.ROCKER_RIGHT);
 		launchPad.addLaunchPadEventListener(new LaunchPadListener());
 		launchPad.Start();
@@ -190,6 +191,8 @@ class Teleop
 					Devices.robotDrive.tankDrive(leftY, rightY);		// Normal tank drive.
 			}
 
+			Lift.getInstance(robot).setMotor(utilityStick.GetY());
+			
 			// Update the robot heading indicator on the DS.
 
 			SmartDashboard.putNumber("Gyro", Devices.navx.getHeading());
@@ -274,10 +277,10 @@ class Teleop
 				break;
 			 */
 			case BUTTON_BLUE: //Trigger forklift drop
-				//TODO Trigger forklift drop
+				Devices.armReleaseServo.setAngle(60);
 				break;
 
-			case BUTTON_RED_RIGHT: //Rotate wrist
+			case BUTTON_RED_RIGHT: //Toggle wrist
 				if (launchPadEvent.control.latchedState)
 					Lift.getInstance(robot).retractWrist();
 				else 
@@ -326,13 +329,17 @@ class Teleop
 					DoOtherThing();
 				break;
 			 */
-			case ROCKER_LEFT_FRONT: case ROCKER_RIGHT: //Change Camera
+			case ROCKER_LEFT_FRONT: //Change Camera
 				robot.cameraThread.ChangeCamera();
 				break;
 			
 			case ROCKER_LEFT_BACK: // Toggle Brake Mode
 				Devices.SetCANTalonBrakeMode(control.latchedState);
 				break;
+				
+			case ROCKER_RIGHT: //Toggle limit switch override
+				Lift.getInstance(robot).toggleOverride();
+			break;
 			
 			default:
 				break;

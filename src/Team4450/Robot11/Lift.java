@@ -17,9 +17,11 @@ public class Lift {
 
 	private Robot robot;
 	private PIDController pidController;
+	private boolean toggleOverride = false;
 	private Lift(Robot robot) {
 		this.robot = robot;
-		pidController = new PIDController(0.1, 0.01, 0, Devices.winchEncoder, Devices.winchMotor);
+		pidController = new PIDController(0.0003, 0.0001, 0.0, .5, Devices.winchEncoder, Devices.winchMotor);
+		pidController.setOutputRange(-1, 1);
 	}
 
 	public void extendWrist() {
@@ -52,7 +54,7 @@ public class Lift {
 	}
 	
 	public static enum LiftHeight {
-		GROUND (0), SWITCH (100), SCALE (200); //FIXME Get correct encoder counts
+		GROUND (0), EXCHANGE(50), SWITCH (7900), SCALE (200); //FIXME Get correct encoder counts
 		private int encoderCount;
 		LiftHeight(int encoderCount) {
 			this.encoderCount = encoderCount;
@@ -62,12 +64,23 @@ public class Lift {
 	};
 		
 	public void setLiftHeight(LiftHeight height) {
+		Util.consoleLog();
 		pidController.enable();
 		pidController.setSetpoint(height.getEncoderCount());
-		PIDChecker pidChecker = new PIDChecker(pidController);
+		PIDChecker pidChecker = new PIDChecker(pidController, robot);
 		pidChecker.start();
 	}
 
+	public void toggleOverride() {
+		toggleOverride = !toggleOverride;
+		SmartDashboard.putBoolean("Override", toggleOverride);
+	}
+	
+	public void setMotor(double power) {
+		if (toggleOverride || !(Devices.winchLimitSwitch.get() && power < 0)) {
+			Devices.winchMotor.set(power);
+		}
+	}
 
 	public void ejectCube() {
 		SmartDashboard.putBoolean("Spit", true);
@@ -123,7 +136,7 @@ class IntakeThread extends Thread {
 			SmartDashboard.putBoolean("AutoGrab", true);
 			Lift.getInstance(robot).openClaw();
 			Devices.grabberMotors.set(1);
-			while (Devices.grabberMotorLeft.getOutputCurrent() < 12 && !isInterrupted() && robot.isEnabled()) { Timer.delay(0.02); } //TODO Determine correct output current value
+			while (Devices.grabberMotorLeft.getOutputCurrent() < 15.0 && !isInterrupted() && robot.isEnabled()) { Timer.delay(0.02); }
 			Lift.getInstance(robot).closeClaw();
 			Devices.grabberMotors.set(0);
 			SmartDashboard.putBoolean("AutoGrab", false);
@@ -134,12 +147,15 @@ class IntakeThread extends Thread {
 
 class PIDChecker extends Thread {
 	private PIDController pid;
-	PIDChecker(PIDController pid) {
+	private Robot robot;
+	PIDChecker(PIDController pid, Robot robot) {
 		this.pid = pid;
+		this.robot = robot;
 	}
 	
 	public void run() {
-		while (Math.abs(pid.getSetpoint()-Devices.winchEncoder.get()) > 50 && pid.get() > 0.3 && !isInterrupted()) { Timer.delay(0.2); } //TODO Determine correct tolerances.
+		while (Math.abs(pid.getSetpoint()-Devices.winchEncoder.get()) > 50 && pid.get() > 0.2 && !isInterrupted() && robot.isEnabled()) { Timer.delay(0.2); } //TODO Determine correct tolerances.
 		pid.disable();
+		Util.consoleLog();
 	}
 }

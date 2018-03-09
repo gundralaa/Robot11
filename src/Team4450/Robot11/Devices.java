@@ -9,11 +9,13 @@ import Team4450.Lib.ValveDA;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
@@ -25,7 +27,7 @@ public class Devices
 	  public static DifferentialDrive	robotDrive;
 
 	  public static WPI_TalonSRX        grabberMotorLeft = new WPI_TalonSRX(5), grabberMotorRight = new WPI_TalonSRX(6);
-	  public static PWMTalonSRX			winchMotor;
+	  public static PWMTalonSRX			winchMotor = new PWMTalonSRX(0);
 	  public static SpeedControllerGroup grabberMotors;
 	  
 	  public final static Joystick      utilityStick = new Joystick(2);	
@@ -46,6 +48,10 @@ public class Devices
 	  public final static DriverStation				ds = DriverStation.getInstance();
 
 	  public static NavX				navx;
+	  
+	  public static DigitalInput		winchLimitSwitch = new DigitalInput(6);
+	  
+	  public static Servo				armReleaseServo = new Servo(2);
 	  
 	  // Wheel encoder is plugged into dio port 0/2 - orange=+5v blue=signal, dio port 1/3 black=gnd yellow=signal. 
 	  public final static Encoder		driveEncoder1 = new Encoder(0, 1, true, EncodingType.k4X);
@@ -102,6 +108,10 @@ public class Devices
 	  // Initialize and Log status indication from CANTalon. If we see an exception
 	  // or a talon has low voltage value, it did not get recognized by the RR on start up.
 	  
+	  public static void resetServo() {
+		  armReleaseServo.set(0);
+	  }
+	  
 	  public static void InitializeCANTalon(WPI_TalonSRX talon)
 	  {
 		  Util.consoleLog("talon init: %s   voltage=%.1f", talon.getDescription(), talon.getBusVoltage());
@@ -130,22 +140,18 @@ public class Devices
 		  RRCanTalon.setNeutralMode(newMode);
 	  }
 	  
-	  // Set CAN Talon voltage ramp rate. Rate is volts/sec and can be 2-12v.
+	  // Set CAN Talon voltage ramp rate. Rate is seconds.
 	  
-	  /*
-	   * As of right now I'm unable to find a replacement function.
-	  public static void SetCANTalonRampRate(double rate)
+	  public static void SetCANTalonRampRate(double seconds)
 	  {
-		  Util.consoleLog("%f", rate);
+		  Util.consoleLog("%f", seconds);
 		  
-		  LFCanTalon.setVoltageRampRate(rate);
-		  LRCanTalon.setVoltageRampRate(rate);
-		  RFCanTalon.setVoltageRampRate(rate);
-		  RRCanTalon.setVoltageRampRate(rate);
-		  LSlaveCanTalon.setVoltageRampRate(rate);
-		  RSlaveCanTalon.setVoltageRampRate(rate);
+		  LFCanTalon.configOpenloopRamp(seconds,0);
+		  LRCanTalon.configOpenloopRamp(seconds,0);
+		  RFCanTalon.configOpenloopRamp(seconds,0);
+		  RRCanTalon.configOpenloopRamp(seconds,0);
 	  }
-	  */
+	  
 	  
 	  // Return voltage and current draw for each CAN Talon.
 	  
