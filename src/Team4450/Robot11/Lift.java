@@ -77,7 +77,7 @@ public class Lift {
 	}
 	
 	public void setMotor(double power) {
-		if (toggleOverride || !(Devices.winchLimitSwitch.get() && power < 0)) {
+		if (toggleOverride || !((robot.isClone ? !Devices.winchLimitSwitch.get() : Devices.winchLimitSwitch.get()) && power < 0)) {
 			Devices.winchMotor.set(power);
 		}
 	}
