@@ -29,6 +29,11 @@ public class Autonomous
 		lift = new Lift(robot);
 		
 		grabber = new Grabber(robot);
+		
+		SmartDashboard.putNumber("PValue", 2);
+		SmartDashboard.putNumber("IValue", 20);
+		SmartDashboard.putNumber("DValue", 1500);
+
 	}
 
 	public void dispose()
@@ -61,14 +66,18 @@ public class Autonomous
 		
 		Devices.robotDrive.setSafetyEnabled(false);
 
+		Util.consoleLog("1");
 		// Initialize encoder.
 		Devices.wheelEncoder.reset();
         
-        // Set NavX to heading 0.
+		Util.consoleLog("2");
+       // Set NavX to heading 0.
 		Devices.navx.resetYaw();
 
+		Util.consoleLog("3");
 		Devices.navx.setHeading(0);
 
+		Util.consoleLog("4");
 		// Determine which auto program to run as indicated by driver station.
 		switch (program)
 		{
@@ -97,6 +106,10 @@ public class Autonomous
 				
 			case 6:		// Start center score cube.
 				startCenterScore2();
+				break;
+				
+			case 7:		// Start center score cube.
+				startCenterScore3();
 				break;
 		}
 		
@@ -222,6 +235,50 @@ public class Autonomous
 //		Timer.delay(3.0);
 	}
 
+	private void startCenterScore3()
+	{
+		Util.consoleLog(plateState.toString());
+		
+		// close, deploy grabber then lift.
+		
+		grabber.close();
+		grabber.deploy();
+		Timer.delay(1.0);
+		lift.setHeight(7900);
+		
+		switch (plateState)
+		{
+			case UNDEFINED:
+				startCenterNoScore();
+				return;
+				
+			case LLL: case LRL:
+				autoSCurve(.50, SmartDashboard.getNumber("PValue", -2),
+							(int) SmartDashboard.getNumber("IValue", 20),
+							(int) SmartDashboard.getNumber("DValue", 1500));
+
+				break;
+				
+			case RRR: case RLR:
+				autoSCurve(-.50, SmartDashboard.getNumber("PValue", 2),
+						(int) SmartDashboard.getNumber("IValue", 20),
+						(int) SmartDashboard.getNumber("DValue", 1500));
+
+				break;
+		}
+		
+		// Dump cube.
+		
+		grabber.spit(spitPower);
+		
+		// Back up and drop the lift.
+		
+		lift.setHeight(-1);
+//		autoDrive(.30, 500, true);
+//		lift.setHeight(0);
+//		Timer.delay(3.0);
+	}
+
 	// Start left or right. Evaluate game information. Determine if we should score on the switch, 
 	// scale, or not at all. For not at all, drive forward until aligned with the platform area, 
 	// turn right 90, drive forward into the platform area as far as we can get toward the scale on 
@@ -314,7 +371,7 @@ public class Autonomous
 //		Timer.delay(3.0);
 	}
 	
-	// Auto drive in set direction and power for specified encoder count. Stops
+	// Auto drive straight in set direction and power for specified encoder count. Stops
 	// with or without brakes on CAN bus drive system. Uses NavX to go straight.
 	
 	private void autoDrive(double power, int encoderCounts, boolean enableBrakes)
@@ -386,6 +443,29 @@ public class Autonomous
 		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) {Timer.delay(.020);} 
 		
 		Devices.robotDrive.tankDrive(0, 0);
+	}
+	
+	private void autoSCurve(double power, double curve, int targetAngle, int straightEncoderCounts)
+	{
+		double	gain = .05;
+		
+		Util.consoleLog("pwr=%.2f  curve=%.2f  angle=%d  counts=%d", power, curve, targetAngle, straightEncoderCounts);
+		
+		// We start out driving in a curve until we have turned the desired angle.
+		// Then we drive straight the desired distance then curve back to starting
+		// angle. Curve is + for right, - for left.
+		
+		Devices.robotDrive.curvatureDrive(power, curve * gain, false);
+		
+		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) {Timer.delay(.020);}
+		
+		autoDrive(power, straightEncoderCounts, false);
+
+		Devices.robotDrive.curvatureDrive(power, -curve * gain, false);
+		
+		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) > 0) {Timer.delay(.020);}
+	
+		Devices.robotDrive.tankDrive(0, 0, true);
 	}
 	
 	private enum PlateStates

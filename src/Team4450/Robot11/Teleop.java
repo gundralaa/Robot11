@@ -87,6 +87,7 @@ class Teleop
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED_RIGHT);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLUE_RIGHT);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_GREEN);
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLACK);
 
 		launchPad.addLaunchPadEventListener(new LaunchPadListener());
 		launchPad.Start();
@@ -291,6 +292,11 @@ class Teleop
 					
 				case BUTTON_BLUE:
 					lift.releaseForks();
+					
+					break;
+					
+				case BUTTON_BLACK:
+					lift.releaseBrace();
 					
 					break;
 					

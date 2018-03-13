@@ -29,9 +29,10 @@ public class Devices
 	  public final static WPI_TalonSRX	intakeMotorL = new WPI_TalonSRX(5);
 	  public final static WPI_TalonSRX	intakeMotorR = new WPI_TalonSRX(6);
 
-	  public final static Talon			climbWinch = new Talon(0);
-	  public final static Talon			liftWinch = new Talon(1);
+	  public final static Talon			climbWinch = new Talon(0);		// PWM port 0.
+	  public final static Talon			liftWinch = new Talon(1);		// PWM port 1.
 	  public final static Servo			armDeloyServo = new Servo(2);	// PWM port 2.
+	  public final static Servo			braceDeloyServo = new Servo(3);	// PWM port 3.
 	  
 	  public static DifferentialDrive	robotDrive;
 	  //public static RobotDrive			rd;

@@ -19,7 +19,7 @@ public class Grabber
 	  
 		stopMotors();
 		
-		retract();
+		if (robot.isAutonomous()) retract();
 		
 		open();
 	}
@@ -39,7 +39,7 @@ public class Grabber
 		
 		SmartDashboard.putBoolean("Grabber", grabberOpen);
 
-		Devices.grabberValve.SetB();
+		Devices.grabberValve.SetA();
 	}
 	
 	public void close()
@@ -48,7 +48,7 @@ public class Grabber
 		
 		grabberOpen =  false;
 		
-		Devices.grabberValve.SetA();
+		Devices.grabberValve.SetB();
 
 		updateDS();
 	}
@@ -59,7 +59,7 @@ public class Grabber
 		
 		grabberDeployed = false;
 
-		Devices.deployValve.SetB();
+		Devices.deployValve.SetA();
 		
 		updateDS();
 	}
@@ -70,7 +70,7 @@ public class Grabber
 		
 		grabberDeployed = true;
 		
-		Devices.deployValve.SetA();
+		Devices.deployValve.SetB();
 
 		updateDS();
 	}

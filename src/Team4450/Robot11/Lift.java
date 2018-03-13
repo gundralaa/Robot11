@@ -19,6 +19,7 @@ public class Lift
 		this.robot = robot;
 
 		Devices.armDeloyServo.setAngle(0);
+		Devices.braceDeloyServo.setAngle(0);
 
 		liftPidController = new PIDController(0.0, 0.0, 0.0, Devices.winchEncoder, Devices.climbWinch);
 		
@@ -79,14 +80,29 @@ public class Lift
 //				else
 //					Devices.climbWinch.set(0);
 				
-				if ((power > 0 && Devices.winchEncoder.get() < 10800) ||
-					(power < 0 && !Devices.winchSwitch.get()))
-					Devices.climbWinch.set(power);
+				if (robot.isComp)
+				{
+					if ((power > 0 && Devices.winchEncoder.get() < 10800) ||
+						(power < 0 && !Devices.winchSwitch.get()))
+						Devices.climbWinch.set(power);
+					else
+					{
+						if (Devices.winchSwitch.get()) Devices.winchEncoder.reset();
+						
+						Devices.climbWinch.set(0);
+					}
+				}
 				else
 				{
-					if (Devices.winchSwitch.get()) Devices.winchEncoder.reset();
-					
-					Devices.climbWinch.set(0);
+					if ((power > 0 && Devices.winchEncoder.get() < 10800) ||
+						(power < 0 && Devices.winchSwitch.get()))
+						Devices.climbWinch.set(power);
+					else
+					{
+						if (Devices.winchSwitch.get()) Devices.winchEncoder.reset();
+						
+						Devices.climbWinch.set(0);
+					}
 				}
 			}
 			else
@@ -104,8 +120,17 @@ public class Lift
 
 	}
 	
+	public void releaseBrace()
+	{
+		Util.consoleLog();
+		
+		Devices.braceDeloyServo.setAngle(60);
+
+	}
+	
 	// Automatically move lift to specified encoder count and hold it there.
 	// count < 0 turns pid controller off.
+	
 	public void setHeight(int count)
 	{
 		Util.consoleLog("%d", count);
@@ -144,13 +169,14 @@ public class Lift
 	}
 	
 	// Automatically hold lift position at specified power level.
+	
 	void holdPosition(double speed)
 	{
 		Util.consoleLog("%f", speed);
 		
 		if (speed != 0)
 		{
-			if (isHoldingHeight()) setHeight(0);
+			if (isHoldingHeight()) setHeight(-1);
 			
 			// p,i,d values are a guess.
 			// f value is the base motor speed, which is where (power) we want to hold position.
