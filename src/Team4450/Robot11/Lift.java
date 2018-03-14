@@ -19,7 +19,7 @@ public class Lift
 		this.robot = robot;
 
 		Devices.armDeloyServo.setAngle(0);
-		Devices.braceDeloyServo.setAngle(0);
+		Devices.braceDeloyServo.set(1);
 
 		liftPidController = new PIDController(0.0, 0.0, 0.0, Devices.winchEncoder, Devices.climbWinch);
 		
@@ -72,6 +72,11 @@ public class Lift
 	{
 		if (climbWinch)
 		{
+			// Clone has reversed winch so we need invert the power so utility stick
+			// operation remains the same.
+			
+			if (robot.isClone) power = power * -1;
+			
 			if (Devices.winchEncoderEnabled)
 			{
 //				if ((power > 0 && Devices.winchEncoder.get() < 10800) ||
@@ -79,6 +84,9 @@ public class Lift
 //					Devices.climbWinch.set(power);
 //				else
 //					Devices.climbWinch.set(0);
+				
+				// Competition robot has a limit switch and clone has hall effect sensor and the sensors
+				// read in reverse so two sets of code.
 				
 				if (robot.isComp)
 				{
@@ -94,12 +102,12 @@ public class Lift
 				}
 				else
 				{
-					if ((power > 0 && Devices.winchEncoder.get() < 10800) ||
-						(power < 0 && Devices.winchSwitch.get()))
+					if ((power < 0 && Devices.winchEncoder.get() < 10800) ||
+						(power > 0 && Devices.winchSwitch.get()))
 						Devices.climbWinch.set(power);
 					else
 					{
-						if (Devices.winchSwitch.get()) Devices.winchEncoder.reset();
+						if (!Devices.winchSwitch.get()) Devices.winchEncoder.reset();
 						
 						Devices.climbWinch.set(0);
 					}
@@ -124,8 +132,7 @@ public class Lift
 	{
 		Util.consoleLog();
 		
-		Devices.braceDeloyServo.setAngle(60);
-
+		if (Devices.winchEncoder.get() > 8100) Devices.braceDeloyServo.setAngle(60);
 	}
 	
 	// Automatically move lift to specified encoder count and hold it there.
