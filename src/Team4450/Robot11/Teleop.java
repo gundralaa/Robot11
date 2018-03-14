@@ -73,6 +73,8 @@ class Teleop extends GamePhase
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLUE_RIGHT);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_YELLOW);
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLACK);
+		launchPad.AddControl(LaunchPadControlIDs.BUTTON_GREEN);
 		launchPad.AddControl(LaunchPadControlIDs.ROCKER_LEFT_BACK);
 		launchPad.AddControl(LaunchPadControlIDs.ROCKER_RIGHT);
 		launchPad.addLaunchPadEventListener(new LaunchPadListener());
@@ -270,7 +272,7 @@ class Teleop extends GamePhase
 			//Example of case:
 			/*
 			case BUTTON_NAME_HERE:
-				if (launchPadEvent.control.latchedState)
+				if (control.latchedState)
 					DoOneThing();
 				else
 					DoOtherThing();
@@ -302,7 +304,17 @@ class Teleop extends GamePhase
 				//Lift.getInstance(robot).changeWinch();
 				break;
 				
+			case BUTTON_BLACK: //Release brace
+				Lift.getInstance(robot).releaseBrace();
+				break;
+				
+			case BUTTON_GREEN:
+				Devices.driveEncoder1.reset();
+				Devices.driveEncoder2.reset();
+				break;
+				
 			default:
+				Util.consoleLog("Unassigned button pressed: "+control.id.name());
 				break;
 			}
 		}
@@ -459,6 +471,10 @@ class Teleop extends GamePhase
 				}  else {
 					Devices.grabberMotors.set(0);
 				}
+				break;
+				
+			case TOP_RIGHT:
+				Lift.getInstance(robot).toggleIntakeCube();
 				break;
 				
 			default:

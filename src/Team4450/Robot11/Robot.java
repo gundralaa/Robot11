@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "SWF11.2-03.10.18-01";
+  static final String  	PROGRAM_NAME = "SWF11.2-03.14.18-01";
 
   public Properties		robotProperties;
   
@@ -55,6 +55,8 @@ public class Robot extends SampleRobot
     	Util.consoleLog(PROGRAM_NAME);
 
     	Util.consoleLog("RobotLib=%s", LibraryVersion.version);
+    	
+    	SmartDashboard.putString("Sean's Debug Table/ProgramInfo/RobotLib Version", LibraryVersion.version);
     }
     catch (Exception e) {Util.logException(e);}
   }
@@ -90,6 +92,9 @@ public class Robot extends SampleRobot
    		Devices.PDP.clearStickyFaults();
    		Devices.compressor.clearAllPCMStickyFaults();
    		
+   		SmartDashboard.putData("Sean's Debug Table/ControlSystem/PDP", Devices.PDP);
+   		SmartDashboard.putData("Sean's Debug Table/ControlSystem/Compressor", Devices.compressor);
+   		
    		// Configure motor controllers and RobotDrive.
    		
    		Devices.InitializeCANTalonDrive();
@@ -100,7 +105,15 @@ public class Robot extends SampleRobot
    		
    		Devices.driveEncoder1.setReverseDirection(false);
    		Devices.driveEncoder2.setReverseDirection(false);
+   		
+   		Devices.winchEncoder.setReverseDirection(!isComp);
 
+   		SmartDashboard.putData("Sean's Debug Table/Encoders/Drive1", Devices.driveEncoder1);
+   		SmartDashboard.putData("Sean's Debug Table/Encoders/Drive2", Devices.driveEncoder1);
+   		SmartDashboard.putData("Sean's Debug Table/Encoders/Winch", Devices.winchEncoder);
+   		
+   		SmartDashboard.putData("Sean's Debug Table/Servo/ArmDeploy", Devices.armReleaseServo);
+   		SmartDashboard.putData("Sean's Debug Table/Servo/BraceDeploy", Devices.braceReleaseServo);
    		
    		// Create NavX object here so it has time to calibrate before we
    		// use it. Takes 10 seconds. Must appear before CamerFeed is created.
@@ -108,6 +121,8 @@ public class Robot extends SampleRobot
    		Devices.navx = NavX.getInstance(NavX.PortType.SPI);
    		
    		Devices.navx.dumpValuesToNetworkTables();
+   		
+   		SmartDashboard.putData("Sean's Debug Table/ControlSystem/NavX", Devices.navx.getAHRS());
 
    		// Start the battery, compressor, PDP and camera feed monitoring Tasks.
 

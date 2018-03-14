@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 public class Devices
@@ -52,6 +53,7 @@ public class Devices
 	  public static DigitalInput		winchLimitSwitch = new DigitalInput(6);
 	  
 	  public static Servo				armReleaseServo = new Servo(2);
+	  public static Servo				braceReleaseServo = new Servo(3);
 	  
 	  // Wheel encoder is plugged into dio port 0/2 - orange=+5v blue=signal, dio port 1/3 black=gnd yellow=signal. 
 	  public final static Encoder		driveEncoder1 = new Encoder(0, 1, true, EncodingType.k4X);
@@ -73,6 +75,11 @@ public class Devices
 		  LRCanTalon = new WPI_TalonSRX(2);
 		  RFCanTalon = new WPI_TalonSRX(3);
 		  RRCanTalon = new WPI_TalonSRX(4);
+		  
+		  SmartDashboard.putData("Sean's Debug Table/ControlSystem/Motors/Drive/LF", LFCanTalon);
+		  SmartDashboard.putData("Sean's Debug Table/ControlSystem/Motors/Drive/LR", LRCanTalon);
+		  SmartDashboard.putData("Sean's Debug Table/ControlSystem/Motors/Drive/RF", RFCanTalon);
+		  SmartDashboard.putData("Sean's Debug Table/ControlSystem/Motors/Drive/RR", RRCanTalon);
 
 	      // Initialize CAN Talons and write status to log so we can verify
 	      // all the Talons are connected.
@@ -95,6 +102,8 @@ public class Devices
 	      
 		  grabberMotors = new SpeedControllerGroup(grabberMotorLeft, grabberMotorRight);
 		  
+		  SmartDashboard.putData("Sean's Debug Table/ControlSystem/Motors/Grabbers", grabberMotors);
+		  
 	      // Turn on brake mode for CAN Talons.
 	      SetCANTalonBrakeMode(true);
 	      
@@ -103,14 +112,17 @@ public class Devices
 		  SpeedControllerGroup RightGroup = new SpeedControllerGroup(RFCanTalon, RRCanTalon);
 		  
 		  robotDrive = new DifferentialDrive(LeftGroup, RightGroup);
+		  
+		  SmartDashboard.putData("Sean's Debug Table/ControlSystem/Motors/DriveGroup", robotDrive);
+	  }
+	  
+	  public static void resetServo() {
+		  armReleaseServo.set(0);
+		  braceReleaseServo.set(1);
 	  }
 
 	  // Initialize and Log status indication from CANTalon. If we see an exception
 	  // or a talon has low voltage value, it did not get recognized by the RR on start up.
-	  
-	  public static void resetServo() {
-		  armReleaseServo.set(0);
-	  }
 	  
 	  public static void InitializeCANTalon(WPI_TalonSRX talon)
 	  {

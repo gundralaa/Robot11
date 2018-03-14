@@ -22,6 +22,8 @@ public class Lift {
 		this.robot = robot;
 		pidController = new PIDController(0.0003, 0.0001, 0.0, .5, Devices.winchEncoder, Devices.winchMotor);
 		pidController.setOutputRange(-1, 1);
+		
+		SmartDashboard.putData("Sean's Debug Table/Lift/PID", pidController);
 	}
 
 	public void extendWrist() {
@@ -54,7 +56,7 @@ public class Lift {
 	}
 	
 	public static enum LiftHeight {
-		GROUND (0), EXCHANGE(50), SWITCH (7900), SCALE (200); //FIXME Get correct encoder counts for exchange and scale
+		GROUND (0), EXCHANGE(50), SWITCH (7900), SCALE (200), CLIMB (8101); //FIXME ClimbClone 13600 Get correct encoder counts for exchange and scale
 		private int encoderCount;
 		LiftHeight(int encoderCount) {
 			this.encoderCount = encoderCount;
@@ -74,6 +76,10 @@ public class Lift {
 	public void toggleOverride() {
 		toggleOverride = !toggleOverride;
 		SmartDashboard.putBoolean("Override", toggleOverride);
+	}
+	
+	public void releaseBrace() {
+		if (Devices.winchEncoder.get() > 8100) Devices.braceReleaseServo.setAngle(60);
 	}
 	
 	public void setMotor(double power) {
@@ -127,8 +133,10 @@ class EjectThread extends Thread {
 
 class IntakeThread extends Thread {
 	private Robot robot;
+	private double stopCurrent;
 	IntakeThread(Robot robot) {
 		this.robot = robot;
+		stopCurrent = (robot.isClone ? 20.0 : 15.0);
 	}
 
 	public void run() {
@@ -136,7 +144,7 @@ class IntakeThread extends Thread {
 			SmartDashboard.putBoolean("AutoGrab", true);
 			Lift.getInstance(robot).openClaw();
 			Devices.grabberMotors.set(1);
-			while (Devices.grabberMotorLeft.getOutputCurrent() < 15.0 && !isInterrupted() && robot.isEnabled()) { Timer.delay(0.02); }
+			while (Devices.grabberMotorLeft.getOutputCurrent() < stopCurrent && !isInterrupted() && robot.isEnabled()) { Timer.delay(0.02); }
 			Lift.getInstance(robot).closeClaw();
 			Devices.grabberMotors.set(0);
 			SmartDashboard.putBoolean("AutoGrab", false);

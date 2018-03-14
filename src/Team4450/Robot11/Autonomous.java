@@ -126,7 +126,7 @@ public class Autonomous extends GamePhase
 		Util.consoleLog("end");
 	}
 
-	private void scoreCenterLeft() { //FIXME Power need configuring.
+	private void scoreCenterLeft() {
 		moveLift(LiftHeight.SWITCH);
 		autoDrive(-.5,924,true); //Move out a little
 		autoRotate(.5, 90); //Turn to the left
@@ -138,7 +138,7 @@ public class Autonomous extends GamePhase
 		moveLift(LiftHeight.GROUND); //Lower lift
 	}
 
-	private void scoreCenterRight() { //FIXME Power need configuring.
+	private void scoreCenterRight() {
 		moveLift(LiftHeight.SWITCH);
 		autoDrive(-.5,924,true); //Move out a little
 		autoRotate(-.5, 90); //Turn to the right
