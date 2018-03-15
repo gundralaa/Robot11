@@ -85,6 +85,8 @@ public class Lift {
 	public void setMotor(double power) {
 		if (toggleOverride || !((robot.isClone ? !Devices.winchLimitSwitch.get() : Devices.winchLimitSwitch.get()) && power < 0)) {
 			Devices.winchMotor.set(power);
+		} else {
+			Devices.winchMotor.set(0);
 		}
 	}
 
@@ -122,7 +124,7 @@ class EjectThread extends Thread {
 
 	public void run() {
 		if (robot.isEnabled()) {
-			Devices.grabberMotors.set(-1); //TODO Adjust eject speed
+			Devices.grabberMotors.set(-.5);
 			Timer.delay(0.5); //TODO Adjust eject time delay
 			Lift.getInstance(robot).openClaw();
 			Devices.grabberMotors.set(0);
@@ -143,7 +145,7 @@ class IntakeThread extends Thread {
 		if (robot.isEnabled()) {
 			SmartDashboard.putBoolean("AutoGrab", true);
 			Lift.getInstance(robot).openClaw();
-			Devices.grabberMotors.set(1);
+			Devices.grabberMotors.set(.5);
 			while (Devices.grabberMotorLeft.getOutputCurrent() < stopCurrent && !isInterrupted() && robot.isEnabled()) { Timer.delay(0.02); }
 			Lift.getInstance(robot).closeClaw();
 			Devices.grabberMotors.set(0);

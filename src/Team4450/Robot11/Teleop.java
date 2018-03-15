@@ -417,6 +417,14 @@ class Teleop extends GamePhase
 					DoOtherThing();
 				break;
 			 */
+			
+			case TRIGGER:
+				if (button.latchedState)
+					highGear();
+				else
+					lowGear();
+				break;
+			
 			default:
 				break;
 			}
@@ -459,7 +467,7 @@ class Teleop extends GamePhase
 				
 			case TOP_MIDDLE:
 				if (Devices.grabberMotors.get() == 0) {
-					Devices.grabberMotors.set(-1); //TODO Set eject speed
+					Devices.grabberMotors.set(-.5);
 				} else {
 					Devices.grabberMotors.set(0);
 				}
@@ -467,7 +475,7 @@ class Teleop extends GamePhase
 				
 			case TOP_BACK:
 				if (Devices.grabberMotors.get() == 0) {
-					Devices.grabberMotors.set(1); //TODO Set intake speed
+					Devices.grabberMotors.set(.5);
 				}  else {
 					Devices.grabberMotors.set(0);
 				}

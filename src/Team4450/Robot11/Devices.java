@@ -99,6 +99,8 @@ public class Devices
 		  
 		  RFCanTalon.setInverted(false);
 		  RRCanTalon.setInverted(false);
+		  
+		  winchMotor.setInverted(Robot.isClone);
 	      
 		  grabberMotors = new SpeedControllerGroup(grabberMotorLeft, grabberMotorRight);
 		  

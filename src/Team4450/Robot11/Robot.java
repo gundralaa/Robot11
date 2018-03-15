@@ -28,7 +28,7 @@ public class Robot extends SampleRobot
 
   public Properties		robotProperties;
   
-  public boolean		isClone = false, isComp = false;
+  public static boolean		isClone = false, isComp = false;
     	
   DriverStation.Alliance	alliance;
   int                       location, matchNumber;
