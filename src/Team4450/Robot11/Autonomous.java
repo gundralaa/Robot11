@@ -217,14 +217,14 @@ public class Autonomous extends GamePhase
 	}
 
 	public void lowGear() {
-		if (robot.isComp)
+		if (Robot.isComp)
 			Devices.gearShifter.SetA();
 		else
 			Devices.gearShifter.SetB();
 	}
 
 	public void highGear() {
-		if (robot.isComp)
+		if (Robot.isComp)
 			Devices.gearShifter.SetB();
 		else
 			Devices.gearShifter.SetA();
@@ -242,7 +242,7 @@ public class Autonomous extends GamePhase
 
 		Util.consoleLog("pwr=%.2f, count=%d, brakes=%b", power, encoderCounts, enableBrakes);
 
-		if (robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
+		if (Robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
 
 		Devices.driveEncoder1.reset();
 		Devices.driveEncoder2.reset();

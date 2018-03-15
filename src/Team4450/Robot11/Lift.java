@@ -83,8 +83,10 @@ public class Lift {
 	}
 	
 	public void setMotor(double power) {
-		if (toggleOverride || !((robot.isClone ? !Devices.winchLimitSwitch.get() : Devices.winchLimitSwitch.get()) && power < 0)) {
+		if (toggleOverride || power == 0) {
 			Devices.winchMotor.set(power);
+		} else if ((Devices.winchEncoder.get() >= 13600 && power > 0) || ((Robot.isClone ? !Devices.winchLimitSwitch.get() : Devices.winchLimitSwitch.get()) && power < 0))  {
+			Devices.winchMotor.set(0);
 		} else {
 			Devices.winchMotor.set(0);
 		}
@@ -138,7 +140,7 @@ class IntakeThread extends Thread {
 	private double stopCurrent;
 	IntakeThread(Robot robot) {
 		this.robot = robot;
-		stopCurrent = (robot.isClone ? 20.0 : 15.0);
+		stopCurrent = (Robot.isClone ? 20.0 : 15.0);
 	}
 
 	public void run() {

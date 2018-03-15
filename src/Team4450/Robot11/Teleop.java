@@ -107,7 +107,7 @@ class Teleop extends GamePhase
 		// Set CAN Talon brake mode by rocker switch setting.
 		// We do this here so that the Utility stick thread has time to read the initial state
 		// of the rocker switch.
-		if (robot.isComp) Devices.SetCANTalonBrakeMode(lpControl.latchedState);
+		if (Robot.isComp) Devices.SetCANTalonBrakeMode(lpControl.latchedState);
 
 		// Set gyro/Navx to heading 0.
 		//robot.gyro.reset();
@@ -210,14 +210,14 @@ class Teleop extends GamePhase
 	}
 	
 	public void lowGear() {
-		if (robot.isComp)
+		if (Robot.isComp)
 			Devices.gearShifter.SetA();
 		else
 			Devices.gearShifter.SetB();
 	}
 	
 	public void highGear() {
-		if (robot.isComp)
+		if (Robot.isComp)
 			Devices.gearShifter.SetB();
 		else
 			Devices.gearShifter.SetA();
