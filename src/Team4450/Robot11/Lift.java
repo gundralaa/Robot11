@@ -72,6 +72,10 @@ public class Lift {
 		PIDChecker pidChecker = new PIDChecker(pidController, robot);
 		pidChecker.start();
 	}
+	
+	public boolean isAutoLifting() {
+		return pidController.isEnabled();
+	}
 
 	public void toggleOverride() {
 		toggleOverride = !toggleOverride;
@@ -83,12 +87,15 @@ public class Lift {
 	}
 	
 	public void setMotor(double power) {
+		if (isAutoLifting() && power != 0) {
+			pidController.disable();
+		}
 		if (toggleOverride || power == 0) {
 			Devices.winchMotor.set(power);
 		} else if ((Devices.winchEncoder.get() >= 13600 && power > 0) || ((Robot.isClone ? !Devices.winchLimitSwitch.get() : Devices.winchLimitSwitch.get()) && power < 0))  {
 			Devices.winchMotor.set(0);
 		} else {
-			Devices.winchMotor.set(0);
+			Devices.winchMotor.set(power);
 		}
 	}
 
@@ -166,7 +173,7 @@ class PIDChecker extends Thread {
 	}
 	
 	public void run() {
-		while (Math.abs(pid.getSetpoint()-Devices.winchEncoder.get()) > 50 && pid.get() > 0.2 && !isInterrupted() && robot.isEnabled()) { Timer.delay(0.2); } //TODO Determine correct tolerances.
+		while (Math.abs(pid.getSetpoint()-Devices.winchEncoder.get()) > 50 && pid.get() > 0.2 && !isInterrupted() && robot.isEnabled() && pid.isEnabled()) { Timer.delay(0.2); } //TODO Determine correct tolerances.
 		pid.disable();
 		Util.consoleLog();
 	}
