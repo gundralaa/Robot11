@@ -124,7 +124,7 @@ class Teleop
 
 		Devices.SetCANTalonBrakeMode(false);	// force coast for 2018.
 		
-		//Devices.SetCANTalonRampRate(1.0);				// Try for 2018.
+		Devices.SetCANTalonRampRate(1.0);		// Try for 2018.
 		
 		// Set Navx current yaw to 0.
 		Devices.navx.resetYaw();

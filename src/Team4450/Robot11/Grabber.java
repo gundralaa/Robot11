@@ -39,7 +39,11 @@ public class Grabber
 		
 		SmartDashboard.putBoolean("Grabber", grabberOpen);
 
-		Devices.grabberValve.SetA();
+		if (robot.isClone)
+			Devices.grabberValve.SetA();
+		else
+			Devices.grabberValve.SetB();
+
 	}
 	
 	public void close()
@@ -48,7 +52,10 @@ public class Grabber
 		
 		grabberOpen =  false;
 		
-		Devices.grabberValve.SetB();
+		if (robot.isClone)
+			Devices.grabberValve.SetB();
+		else
+			Devices.grabberValve.SetA();
 
 		updateDS();
 	}
@@ -59,8 +66,11 @@ public class Grabber
 		
 		grabberDeployed = false;
 
-		Devices.deployValve.SetA();
-		
+		if (robot.isClone)
+			Devices.deployValve.SetA();
+		else
+			Devices.deployValve.SetB();
+
 		updateDS();
 	}
 	
@@ -70,7 +80,10 @@ public class Grabber
 		
 		grabberDeployed = true;
 		
-		Devices.deployValve.SetB();
+		if (robot.isClone)
+			Devices.deployValve.SetB();
+		else
+			Devices.deployValve.SetA();
 
 		updateDS();
 	}
