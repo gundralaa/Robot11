@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 @SuppressWarnings("deprecation")
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "RAC11-03.13.18-06";
+  static final String  	PROGRAM_NAME = "RAC11-03.16.18-02";
 
   public Properties		robotProperties;
   
@@ -97,9 +97,16 @@ public class Robot extends SampleRobot
 		
    		Devices.wheelEncoder.setReverseDirection(false);
    		Devices.wheelEncoder2.setReverseDirection(false);
+
+   		// Clone has reversed winch so we need invert the power so utility stick
+		// operation remains the same.
+		
+		if (isClone) Devices.climbWinch.setInverted(true);
    		
+		// Competition needs encoder reversed to reads + as winch goes up.
+		
    		if (isComp) Devices.winchEncoder.setReverseDirection(false);
- 		
+
    		Devices.robotDrive.stopMotor();
    		Devices.robotDrive.setSafetyEnabled(false);
    		Devices.robotDrive.setExpiration(0.1);
@@ -128,7 +135,11 @@ public class Robot extends SampleRobot
       
        	cameraThread = CameraFeed.getInstance(); 
        	cameraThread.start();
-   		
+		
+		SmartDashboard.putNumber("PValue", Autonomous.pValue);
+		SmartDashboard.putNumber("IValue", Autonomous.iValue);
+		SmartDashboard.putNumber("DValue", Autonomous.dValue);
+
    		Util.consoleLog("end");
     }
     catch (Exception e) {Util.logException(e);}

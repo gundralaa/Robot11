@@ -24,7 +24,7 @@ public class Lift
 		liftPidController = new PIDController(0.0, 0.0, 0.0, Devices.winchEncoder, Devices.climbWinch);
 		
 		Devices.winchEncoder.reset();
-		
+				
 		updateDS();
 	}
 
@@ -66,16 +66,19 @@ public class Lift
 	public void updateDS()
 	{
 		SmartDashboard.putBoolean("Winch", climbWinch);
+		SmartDashboard.putBoolean("TargetLocked", holdingHeight);
 	}
 	
 	public void setWinchPower(double power)
 	{
+		if (isHoldingHeight()) return;
+		
 		if (climbWinch)
 		{
 			// Clone has reversed winch so we need invert the power so utility stick
 			// operation remains the same.
 			
-			if (robot.isClone) power = power * -1;
+			//if (robot.isClone) power = power * -1;
 			
 			if (Devices.winchEncoderEnabled)
 			{
@@ -90,7 +93,7 @@ public class Lift
 				
 				if (robot.isComp)
 				{
-					if ((power > 0 && Devices.winchEncoder.get() < 10800) ||
+					if ((power > 0 && Devices.winchEncoder.get() < 10800) ||	
 						(power < 0 && !Devices.winchSwitch.get()))
 						Devices.climbWinch.set(power);
 					else
@@ -102,8 +105,9 @@ public class Lift
 				}
 				else
 				{
-					if ((power < 0 && Devices.winchEncoder.get() < 10800) ||
-						(power > 0 && Devices.winchSwitch.get()))
+					// Note that height limit is different because clone has different gear ratio in winch.
+					if ((power > 0 && Devices.winchEncoder.get() < 14000) ||	// 10800
+						(power < 0 && Devices.winchSwitch.get()))
 						Devices.climbWinch.set(power);
 					else
 					{
@@ -151,10 +155,10 @@ public class Lift
 			// Setpoint is the target encoder count.
 			// The idea is that the difference between the current encoder count and the
 			// target count will apply power to bring the two counts together and stay there.
-			liftPidController.setPID(0.0003, .0001, 0.0, .50);
+			liftPidController.setPID(0.0003, 0.00001, 0.0003, 0.0);
 			liftPidController.setOutputRange(-1, 1);
 			liftPidController.setSetpoint(count);
-			liftPidController.setPercentTolerance(5);	// 5% error.
+			liftPidController.setPercentTolerance(1);	// % error.
 			liftPidController.enable();
 			holdingHeight = true;
 		}
@@ -163,6 +167,8 @@ public class Lift
 			liftPidController.disable();
 			holdingHeight = false;
 		}
+		
+		updateDS();
 	}
 	
 	public boolean isHoldingHeight()
@@ -189,9 +195,9 @@ public class Lift
 			// f value is the base motor speed, which is where (power) we want to hold position.
 			// Setpoint is current encoder count.
 			// The idea is that any encoder motion will alter motor base speed to hold position.
-			liftPidController.setPID(0.0003, 0.0001, 0.0, speed);
+			liftPidController.setPID(0.0003, 0.00001, 0.0003, speed);
 			liftPidController.setSetpoint(Devices.winchEncoder.get());
-			liftPidController.setPercentTolerance(5);	// 5% error.
+			liftPidController.setPercentTolerance(1);	// % error.
 			liftPidController.enable();
 			holdingPosition = true;
 		}

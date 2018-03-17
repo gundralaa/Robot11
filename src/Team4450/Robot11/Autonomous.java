@@ -18,6 +18,10 @@ public class Autonomous
 	private final GearBox	gearBox;
 	private final double	spitPower = .50;
 	
+	public static double	pValue = -6;
+	public static double	iValue = 30;
+	public static double	dValue = 900;
+	
 	Autonomous(Robot robot)
 	{
 		Util.consoleLog();
@@ -29,11 +33,6 @@ public class Autonomous
 		lift = new Lift(robot);
 		
 		grabber = new Grabber(robot);
-		
-		SmartDashboard.putNumber("PValue", 2);
-		SmartDashboard.putNumber("IValue", 20);
-		SmartDashboard.putNumber("DValue", 1500);
-
 	}
 
 	public void dispose()
@@ -151,8 +150,12 @@ public class Autonomous
 		
 		grabber.close();
 		grabber.deploy();
-		Timer.delay(1.0);
-		lift.setHeight(7900);
+		Timer.delay(0.5);
+		
+		if (robot.isClone)
+			lift.setHeight(9100);
+		else
+			lift.setHeight(7900);
 		
 		autoDrive(-.40, 925, true);		// 596
 		
@@ -164,14 +167,14 @@ public class Autonomous
 				
 			case LLL: case LRL:
 				autoRotate(.50, 90);
-				autoDrive(-.60, 928, true);	// 663
+				autoDrive(-.60, 928, true);		// 663
 				autoRotate(-.50, 90);
 				autoDrive(-.40, 880, true);		// 567
 				break;
 				
 			case RRR: case RLR:
 				autoRotate(-.50, 90);
-				autoDrive(-.60, 900, true);	// 857
+				autoDrive(-.60, 900, true);		// 857
 				autoRotate(.50, 90);
 				autoDrive(-.40, 880, true);		// 567
 				break;
@@ -197,8 +200,12 @@ public class Autonomous
 		
 		grabber.close();
 		grabber.deploy();
-		Timer.delay(1.0);
-		lift.setHeight(7900);
+		Timer.delay(0.5);
+		
+		if (robot.isClone)
+			lift.setHeight(9100);
+		else
+			lift.setHeight(7900);
 		
 		autoDrive(-.40, 100, true);		// 596
 		
@@ -229,7 +236,7 @@ public class Autonomous
 		
 		// Back up and drop the lift.
 		
-		lift.setHeight(-1);
+		//lift.setHeight(-1);
 //		autoDrive(.30, 500, true);
 //		lift.setHeight(0);
 //		Timer.delay(3.0);
@@ -243,8 +250,12 @@ public class Autonomous
 		
 		grabber.close();
 		grabber.deploy();
-		Timer.delay(1.0);
-		lift.setHeight(7900);
+		Timer.delay(0.5);
+		
+		if (robot.isClone)
+			lift.setHeight(9100);
+		else
+			lift.setHeight(7900);
 		
 		switch (plateState)
 		{
@@ -253,16 +264,16 @@ public class Autonomous
 				return;
 				
 			case LLL: case LRL:
-				autoSCurve(.50, SmartDashboard.getNumber("PValue", -2),
-							(int) SmartDashboard.getNumber("IValue", 20),
-							(int) SmartDashboard.getNumber("DValue", 1500));
+				autoSCurve(-.50, SmartDashboard.getNumber("PValue", 6),
+							(int) SmartDashboard.getNumber("IValue", 30),
+							(int) SmartDashboard.getNumber("DValue", 900));
 
 				break;
 				
 			case RRR: case RLR:
-				autoSCurve(-.50, SmartDashboard.getNumber("PValue", 2),
-						(int) SmartDashboard.getNumber("IValue", 20),
-						(int) SmartDashboard.getNumber("DValue", 1500));
+				autoSCurve(-.50, SmartDashboard.getNumber("PValue", -6),
+						(int) SmartDashboard.getNumber("IValue", 30),
+						(int) SmartDashboard.getNumber("DValue", 900));
 
 				break;
 		}
@@ -273,7 +284,7 @@ public class Autonomous
 		
 		// Back up and drop the lift.
 		
-		lift.setHeight(-1);
+		//lift.setHeight(-1);
 //		autoDrive(.30, 500, true);
 //		lift.setHeight(0);
 //		Timer.delay(3.0);
@@ -294,8 +305,12 @@ public class Autonomous
 		
 		grabber.close();
 		grabber.deploy();
-		Timer.delay(1.0);
-		lift.setHeight(7900);
+		Timer.delay(0.5);
+		
+		if (robot.isClone)
+			lift.setHeight(9100);
+		else
+			lift.setHeight(7900);
 		
 		if (startingLeft) 
 		{
@@ -385,6 +400,7 @@ public class Autonomous
 
 		Devices.wheelEncoder.reset();
 		Devices.wheelEncoder2.reset();
+		
 		Devices.navx.resetYaw();
 		
 		while (isAutoActive() && Math.abs(Devices.wheelEncoder.get()) < encoderCounts) 
@@ -453,18 +469,28 @@ public class Autonomous
 		
 		// We start out driving in a curve until we have turned the desired angle.
 		// Then we drive straight the desired distance then curve back to starting
-		// angle. Curve is + for right, - for left.
+		// angle. Curve is - for right, + for left.
 		
 		Devices.robotDrive.curvatureDrive(power, curve * gain, false);
 		
-		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) {Timer.delay(.020);}
+		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) 
+		{
+			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());
+			Timer.delay(.020);
+		}
 		
 		autoDrive(power, straightEncoderCounts, false);
 
+		Devices.navx.resetYaw();
+		
 		Devices.robotDrive.curvatureDrive(power, -curve * gain, false);
 		
-		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) > 0) {Timer.delay(.020);}
-	
+		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) 
+		{
+			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());
+			Timer.delay(.020);
+		}
+
 		Devices.robotDrive.tankDrive(0, 0, true);
 	}
 	

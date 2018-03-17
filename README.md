@@ -17,6 +17,13 @@ Operates the robot "Odyssey" for FRC game "FIRST POWER UP".
 3) Right click on the project in Eclipse and select "Refresh"
 
 ****************************************************************************************************************
+Version 11.3
+
+*	As of completion of clone robot.
+
+R. Corn
+March 16, 2018
+
 Version 11.2
 
 *	As of the end of Mt. Vernon week 1 competition.

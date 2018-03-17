@@ -108,6 +108,8 @@ class Teleop
 		//Example on how to track button:
 		utilityStick.AddButton(JoyStickButtonIDs.TOP_MIDDLE);
 		utilityStick.AddButton(JoyStickButtonIDs.TOP_BACK);
+		utilityStick.AddButton(JoyStickButtonIDs.TOP_LEFT);
+		utilityStick.AddButton(JoyStickButtonIDs.TOP_RIGHT);
 		utilityStick.addJoyStickEventListener(new UtilityStickListener());
 		utilityStick.Start();
 
@@ -121,7 +123,9 @@ class Teleop
 		//if (robot.isComp) Devices.SetCANTalonBrakeMode(lpControl.latchedState);
 
 		Devices.SetCANTalonBrakeMode(false);	// force coast for 2018.
-
+		
+		//Devices.SetCANTalonRampRate(1.0);				// Try for 2018.
+		
 		// Set Navx current yaw to 0.
 		Devices.navx.resetYaw();
 
@@ -315,6 +319,14 @@ class Teleop
 //					else
 //						lift.selectClimbWinch();
 					
+					if (lift.isHoldingHeight())
+						lift.setHeight(-1);
+					else
+						if (robot.isClone)
+							lift.setHeight(13300);
+						else
+							lift.setHeight(12100);
+					
 					break;
 					
 				case BUTTON_GREEN:
@@ -474,6 +486,24 @@ class Teleop
 						grabber.stopMotors();
 					else
 						grabber.motorsIn(.50);
+					
+					break;
+					
+				case TOP_RIGHT:
+					if (grabber.isAutoIntakeRunning())
+						grabber.stopAutoIntake();
+					else
+						grabber.startAutoIntake();
+					
+					break;
+					
+				case TOP_LEFT:
+					if (lift.isHoldingHeight())
+						lift.setHeight(-1);
+					else if (robot.isClone)
+						lift.setHeight(9100);
+					else
+						lift.setHeight(7900);
 					
 					break;
 	
