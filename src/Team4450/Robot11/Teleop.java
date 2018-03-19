@@ -137,6 +137,8 @@ class Teleop
 
 		// Driving loop runs until teleop is over.
 
+		Util.consoleLog("enter driving loop");
+		
 		while (robot.isEnabled() && robot.isOperatorControl())
 		{
 			// Get joystick deflection and feed to robot drive object
@@ -300,7 +302,7 @@ class Teleop
 					break;
 					
 				case BUTTON_BLACK:
-					lift.releaseBrace();
+					lift.releaseFoot();
 					
 					break;
 					

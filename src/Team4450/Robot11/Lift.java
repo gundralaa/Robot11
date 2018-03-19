@@ -9,7 +9,7 @@ public class Lift
 {
 	private final Robot			robot;
 	// Only climb winch in use at the moment.
-	private boolean				climbWinch = true, holdingPosition, holdingHeight;
+	private boolean				climbWinch = true, holdingPosition, holdingHeight, footReleased;
 	private final PIDController	liftPidController;
 	
 	public Lift(Robot robot)
@@ -19,7 +19,7 @@ public class Lift
 		this.robot = robot;
 
 		Devices.armDeloyServo.setAngle(0);
-		Devices.braceDeloyServo.set(1);
+		Devices.footDeloyServo.set(1);
 
 		liftPidController = new PIDController(0.0, 0.0, 0.0, Devices.winchEncoder, Devices.climbWinch);
 		
@@ -75,11 +75,6 @@ public class Lift
 		
 		if (climbWinch)
 		{
-			// Clone has reversed winch so we need invert the power so utility stick
-			// operation remains the same.
-			
-			//if (robot.isClone) power = power * -1;
-			
 			if (Devices.winchEncoderEnabled)
 			{
 //				if ((power > 0 && Devices.winchEncoder.get() < 10800) ||
@@ -132,11 +127,15 @@ public class Lift
 
 	}
 	
-	public void releaseBrace()
+	public void releaseFoot()
 	{
 		Util.consoleLog();
 		
-		if (Devices.winchEncoder.get() > 8100) Devices.braceDeloyServo.setAngle(60);
+		if (Devices.winchEncoder.get() > 8100) 
+		{
+			Devices.footDeloyServo.setAngle(60);
+			footReleased = true;
+		}
 	}
 	
 	// Automatically move lift to specified encoder count and hold it there.

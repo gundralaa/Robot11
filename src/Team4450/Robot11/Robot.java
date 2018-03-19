@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 @SuppressWarnings("deprecation")
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "RAC11-03.17.18-01";
+  static final String  	PROGRAM_NAME = "RAC11-03.19.18-01";
 
   public Properties		robotProperties;
   
@@ -48,12 +48,20 @@ public class Robot extends SampleRobot
 	try
 	{
 		Util.CustomLogger.setup();
-    }
-    catch (Exception e) {Util.logException(e);}
-      
-    try
-    {
-    	Util.consoleLog(PROGRAM_NAME);
+		
+		// Catch any uncaught exceptions and record them in our log file. 
+		
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() 
+		{
+			public void uncaughtException(Thread t, Throwable e)
+			{
+		        Util.consoleLog("Uncaught exception from thread " + t);
+		        Util.logException(e);
+		    }
+
+		});
+
+		Util.consoleLog(PROGRAM_NAME);
 
     	Util.consoleLog("RobotLib=%s", LibraryVersion.version);
     }
