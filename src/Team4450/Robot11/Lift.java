@@ -10,6 +10,7 @@ public class Lift
 	private final Robot			robot;
 	// Only climb winch in use at the moment.
 	private boolean				climbWinch = true, holdingPosition, holdingHeight, footReleased;
+	private boolean				forksReleased;
 	private final PIDController	liftPidController;
 	
 	public Lift(Robot robot)
@@ -18,7 +19,8 @@ public class Lift
 		
 		this.robot = robot;
 
-		Devices.armDeloyServo.setAngle(0);
+		//Devices.armDeployServo.setAngle(0);
+		Devices.forkDeployServo.setPosition(0.2);
 		Devices.footDeloyServo.set(1);
 
 		liftPidController = new PIDController(0.0, 0.0, 0.0, Devices.winchEncoder, Devices.climbWinch);
@@ -61,6 +63,38 @@ public class Lift
 		climbWinch = false;
 		
 		updateDS();
+	}
+	
+	public void forkExtendHalf()
+	{
+		Util.consoleLog();
+		
+		Devices.forkDeployServo.setPosition(0.5);
+		
+		forksReleased = true;
+	}
+	
+	public void forkExtendFull()
+	{
+		Util.consoleLog();
+		
+		Devices.forkDeployServo.setPosition(0.82);
+		
+		forksReleased = true;
+	}
+	
+	public void forkRetract()
+	{
+		Util.consoleLog();
+		
+		Devices.forkDeployServo.setPosition(0.2);
+		
+		forksReleased = false;
+	}
+	
+	public boolean isForksReleased()
+	{
+		return forksReleased;
 	}
 	
 	public void updateDS()
@@ -123,8 +157,8 @@ public class Lift
 	{
 		Util.consoleLog();
 		
-		Devices.armDeloyServo.setAngle(60);
-
+		//Devices.armDeployServo.setAngle(60);
+		forkExtendHalf();
 	}
 	
 	public void releaseFoot()

@@ -101,6 +101,9 @@ class Teleop
 		rightStick = new JoyStick(Devices.rightStick, "RightStick", JoyStickButtonIDs.TRIGGER, this);
 		//Example on how to track button:
 		//rightStick.AddButton(JoyStickButtonIDs.BUTTON_NAME_HERE);
+		rightStick.AddButton(JoyStickButtonIDs.TOP_BACK);
+		rightStick.AddButton(JoyStickButtonIDs.TOP_LEFT);
+		rightStick.AddButton(JoyStickButtonIDs.TOP_RIGHT);
 		rightStick.addJoyStickEventListener(new RightStickListener());
 		rightStick.Start();
 
@@ -124,7 +127,7 @@ class Teleop
 
 		Devices.SetCANTalonBrakeMode(false);	// force coast for 2018.
 		
-		Devices.SetCANTalonRampRate(1.0);		// Try for 2018.
+		Devices.SetCANTalonRampRate(0.5);		// Try for 2018.
 		
 		// Set Navx current yaw to 0.
 		Devices.navx.resetYaw();
@@ -403,7 +406,22 @@ class Teleop
 				case TRIGGER:
 					altDriveMode = !altDriveMode;
 					break;
-				
+					
+				case TOP_BACK:
+					lift.forkRetract();
+					
+					break;
+					
+				case TOP_LEFT:
+					lift.forkExtendHalf();
+					
+					break;
+					
+				case TOP_RIGHT:
+					lift.forkExtendFull();
+					
+					break;
+
 			//Example of Joystick Button case:
 			/*
 			case BUTTON_NAME_HERE:
