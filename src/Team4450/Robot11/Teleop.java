@@ -6,6 +6,7 @@ import java.lang.Math;
 import Team4450.Lib.*;
 import Team4450.Lib.JoyStick.*;
 import Team4450.Lib.LaunchPad.*;
+import Team4450.Robot11.Lift.LiftHeight;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -98,6 +99,7 @@ class Teleop extends GamePhase
 		utilityStick.AddButton(JoyStickButtonIDs.TRIGGER);
 		utilityStick.AddButton(JoyStickButtonIDs.TOP_MIDDLE);
 		utilityStick.AddButton(JoyStickButtonIDs.TOP_BACK);
+		utilityStick.AddButton(JoyStickButtonIDs.TOP_LEFT);
 		utilityStick.addJoyStickEventListener(new UtilityStickListener());
 		utilityStick.Start();
 
@@ -121,7 +123,7 @@ class Teleop extends GamePhase
 
 		// Motor safety turned on.
 		Devices.robotDrive.setSafetyEnabled(true);
-
+		
 		// Driving loop runs until teleop is over.
 
 		while (robot.isEnabled() && robot.isOperatorControl())
@@ -140,8 +142,14 @@ class Teleop extends GamePhase
 			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilX=%.4f", leftY, rightY, utilX);
 			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), Devices.navx.getTotalYaw(), 
 					Devices.navx.getYawRate(), Devices.navx.getHeading());
+			LCD.printLine(7, "winchEncoder=%d", Devices.winchEncoder.get());
 			LCD.printLine(8, "pressureV=%.2f  psi=%d", robot.monitorCompressorThread.getVoltage(), robot.monitorCompressorThread.getPressure());
 			LCD.printLine(9, "Drive Encoders: 1:%d 2:%d", Devices.driveEncoder1.get(), Devices.driveEncoder2.get());
+			
+			if ((Robot.isClone ? !Devices.winchLimitSwitch.get() : Devices.winchLimitSwitch.get())) {
+				Devices.winchEncoder.reset();
+				Lift.getInstance(robot).stopAutoLift();
+			}
 			
 			// Set wheel motors.
 			// Do not feed JS input to robotDrive if we are controlling the motors in automatic functions.
@@ -484,6 +492,13 @@ class Teleop extends GamePhase
 			case TOP_RIGHT:
 				Lift.getInstance(robot).toggleIntakeCube();
 				break;
+				
+			case TOP_LEFT:
+				Util.consoleLog("TOP_LEFT");
+				if (Lift.getInstance(robot).isAutoLifting())
+					Lift.getInstance(robot).stopAutoLift();
+				else
+					Lift.getInstance(robot).setLiftHeight(LiftHeight.SWITCH);
 				
 			default:
 				break;

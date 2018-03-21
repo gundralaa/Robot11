@@ -20,8 +20,9 @@ public class Lift {
 	private boolean toggleOverride = false;
 	private Lift(Robot robot) {
 		this.robot = robot;
-		pidController = new PIDController(0.0003, 0.0001, 0.0, .5, Devices.winchEncoder, Devices.winchMotor);
+		pidController = new PIDController(0.0003, 0.00001, 0.0003, 0.0, Devices.winchEncoder, Devices.winchMotor);
 		pidController.setOutputRange(-1, 1);
+		pidController.setPercentTolerance(1); //1%
 		
 		SmartDashboard.putData("Sean's Debug Table/Lift/PID", pidController);
 	}
@@ -56,25 +57,37 @@ public class Lift {
 	}
 	
 	public static enum LiftHeight {
-		GROUND (0), EXCHANGE(50), SWITCH (7900), SCALE (200), CLIMB (8101); //FIXME ClimbClone 13600 Get correct encoder counts for exchange and scale
-		private int encoderCount;
+		GROUND (0), EXCHANGE (100), SWITCH (7900, 9100), SCALE (0) /* Scale Currently Unused */, CLIMB (12100, 13300); //TODO Get correct encoder counts for exchange and scale
+		private int encoderCountComp;
+		private int encoderCountClone;
+		
 		LiftHeight(int encoderCount) {
-			this.encoderCount = encoderCount;
+			this.encoderCountComp = encoderCount;
+			this.encoderCountClone = encoderCount;
 		}
 		
-		public int getEncoderCount() { return encoderCount; }
+		LiftHeight(int encoderCountComp, int encoderCountClone) {
+			this.encoderCountComp = encoderCountComp;
+			this.encoderCountClone = encoderCountClone;
+		}
+		
+		public int getEncoderCount() { return (Robot.isComp ? encoderCountComp : encoderCountClone); }
 	};
 		
 	public void setLiftHeight(LiftHeight height) {
 		Util.consoleLog();
 		pidController.enable();
 		pidController.setSetpoint(height.getEncoderCount());
-		PIDChecker pidChecker = new PIDChecker(pidController, robot);
-		pidChecker.start();
+		//PIDChecker pidChecker = new PIDChecker(pidController, robot);
+		//pidChecker.start();
 	}
 	
 	public boolean isAutoLifting() {
 		return pidController.isEnabled();
+	}
+	
+	public void stopAutoLift() {
+		pidController.disable();
 	}
 
 	public void toggleOverride() {
@@ -89,10 +102,12 @@ public class Lift {
 	public void setMotor(double power) {
 		if (isAutoLifting() && power != 0) {
 			pidController.disable();
+		} else if (isAutoLifting()) {
+			return;
 		}
 		if (toggleOverride || power == 0) {
 			Devices.winchMotor.set(power);
-		} else if ((Devices.winchEncoder.get() >= 13600 && power > 0) || ((Robot.isClone ? !Devices.winchLimitSwitch.get() : Devices.winchLimitSwitch.get()) && power < 0))  {
+		} else if ((Devices.winchEncoder.get() >= (Robot.isComp ? 13600 : 14000) && power > 0) || ((Robot.isClone ? !Devices.winchLimitSwitch.get() : Devices.winchLimitSwitch.get()) && power < 0))  {
 			Devices.winchMotor.set(0);
 		} else {
 			Devices.winchMotor.set(power);
@@ -173,6 +188,7 @@ class PIDChecker extends Thread {
 	}
 	
 	public void run() {
+		Timer.delay(1);
 		while (Math.abs(pid.getSetpoint()-Devices.winchEncoder.get()) > 50 && pid.get() > 0.2 && !isInterrupted() && robot.isEnabled() && pid.isEnabled()) { Timer.delay(0.2); } //TODO Determine correct tolerances.
 		pid.disable();
 		Util.consoleLog();
