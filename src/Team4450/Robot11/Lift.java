@@ -165,7 +165,8 @@ public class Lift
 	{
 		Util.consoleLog();
 		
-		if (Devices.winchEncoder.get() > 8100) 
+		if ((robot.isClone && Devices.winchEncoder.get() > 8750) ||
+			(robot.isComp && Devices.winchEncoder.get() > 8100)) 	
 		{
 			Devices.footDeloyServo.setAngle(60);
 			footReleased = true;
@@ -189,6 +190,7 @@ public class Lift
 			// The idea is that the difference between the current encoder count and the
 			// target count will apply power to bring the two counts together and stay there.
 			liftPidController.setPID(0.0003, 0.00001, 0.0003, 0.0);
+			//liftPidController.setPID(0.0003, 0.0, 0.0, 0.0);
 			liftPidController.setOutputRange(-1, 1);
 			liftPidController.setSetpoint(count);
 			liftPidController.setPercentTolerance(1);	// % error.

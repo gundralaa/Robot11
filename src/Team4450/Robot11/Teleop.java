@@ -127,7 +127,7 @@ class Teleop
 
 		Devices.SetCANTalonBrakeMode(false);	// force coast for 2018.
 		
-		Devices.SetCANTalonRampRate(0.5);		// Try for 2018.
+		//Devices.SetCANTalonRampRate(0.5);		// Try for 2018.
 		
 		// Set Navx current yaw to 0.
 		Devices.navx.resetYaw();
@@ -328,7 +328,7 @@ class Teleop
 						lift.setHeight(-1);
 					else
 						if (robot.isClone)
-							lift.setHeight(13300);
+							lift.setHeight(14000);
 						else
 							lift.setHeight(12100);
 					
@@ -521,7 +521,7 @@ class Teleop
 					if (lift.isHoldingHeight())
 						lift.setHeight(-1);
 					else if (robot.isClone)
-						lift.setHeight(9100);
+						lift.setHeight(10100);
 					else
 						lift.setHeight(7900);
 					

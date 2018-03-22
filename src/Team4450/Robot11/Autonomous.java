@@ -264,16 +264,18 @@ public class Autonomous
 				return;
 				
 			case LLL: case LRL:
-				autoSCurve(-.50, SmartDashboard.getNumber("PValue", 6),
-							(int) SmartDashboard.getNumber("IValue", 30),
-							(int) SmartDashboard.getNumber("DValue", 900));
+//				autoSCurve(-.50, SmartDashboard.getNumber("PValue", 6),
+//							(int) SmartDashboard.getNumber("IValue", 30),
+//							(int) SmartDashboard.getNumber("DValue", 900));
+				autoSCurve(-.50, 6, 30,	900);
 
 				break;
 				
 			case RRR: case RLR:
-				autoSCurve(-.50, SmartDashboard.getNumber("PValue", -6),
-						(int) SmartDashboard.getNumber("IValue", 30),
-						(int) SmartDashboard.getNumber("DValue", 900));
+//				autoSCurve(-.50, SmartDashboard.getNumber("PValue", -6),
+//						(int) SmartDashboard.getNumber("IValue", 30),
+//						(int) SmartDashboard.getNumber("DValue", 900));
+				autoSCurve(-.50, -6, 30,	900);
 
 				break;
 		}
@@ -356,8 +358,8 @@ public class Autonomous
 					//autoDrive(-.50, 1470, true);	// 948
 					
 					// Drop the lift.
-					lift.setHeight(0);
-					Timer.delay(3.0);
+					lift.setHeight(-1);
+					//Timer.delay(3.0);
 					return;
 					
 //				case RRR: case LRL:	// Scale available.
@@ -476,6 +478,7 @@ public class Autonomous
 		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) 
 		{
 			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());
+			Util.consoleLog("angle=%.2f", Devices.navx.getYaw());
 			Timer.delay(.020);
 		}
 		
@@ -488,6 +491,7 @@ public class Autonomous
 		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) 
 		{
 			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());
+			Util.consoleLog("angle=%.2f", Devices.navx.getYaw());
 			Timer.delay(.020);
 		}
 
