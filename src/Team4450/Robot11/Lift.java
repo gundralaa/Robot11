@@ -57,7 +57,7 @@ public class Lift {
 	}
 	
 	public static enum LiftHeight {
-		GROUND (0), EXCHANGE (100), SWITCH (7900, 9100), SCALE (0) /* Scale Currently Unused */, CLIMB (12100, 13300); //TODO Get correct encoder counts for exchange and scale
+		GROUND (0), EXCHANGE (100), SWITCH (7900, 10100), SCALE (0) /* Scale Currently Unused */, CLIMB (12100, 13300); //TODO Get correct encoder counts for exchange and scale
 		private int encoderCountComp;
 		private int encoderCountClone;
 		
@@ -97,6 +97,21 @@ public class Lift {
 	
 	public void releaseBrace() {
 		if (Devices.winchEncoder.get() > 8100) Devices.braceReleaseServo.setAngle(60);
+	}
+	
+	public enum ForkReleaseState { RETRACT(0.2), HALF(0.82), RELEASE(0.5);
+		double position;
+		ForkReleaseState(double position) {
+			this.position = position;
+		}
+		
+		public double getPosition() {
+			return position;
+		}
+	};
+	
+	public void setForkRelease(ForkReleaseState newForkState) {
+		Devices.forkReleaseServo.setPosition(newForkState.getPosition());
 	}
 	
 	public void setMotor(double power) {

@@ -52,7 +52,7 @@ public class Devices
 
 	public final static DigitalInput		winchLimitSwitch = new DigitalInput(6);
 
-	public final static Servo				armReleaseServo = new Servo(2);
+	public final static Servo				forkReleaseServo = new Servo(2);
 	public final static Servo				braceReleaseServo = new Servo(3);
 
 	// Wheel encoder is plugged into dio port 0/2 - orange=+5v blue=signal, dio port 1/3 black=gnd yellow=signal. 
@@ -105,7 +105,7 @@ public class Devices
 	}
 
 	public static void resetServo() {
-		armReleaseServo.set(0);
+		forkReleaseServo.setPosition(0.2);
 		braceReleaseServo.set(1);
 	}
 
@@ -163,6 +163,18 @@ public class Devices
 				RFCanTalon.getMotorOutputVoltage(), RFCanTalon.getOutputCurrent(),
 				RRCanTalon.getMotorOutputVoltage(), RRCanTalon.getOutputCurrent());
 	}
+	
+	public static void lowGear() {
+		Devices.gearShifter.SetA();
+		SmartDashboard.putBoolean("Low", true);
+		SmartDashboard.putBoolean("High", false);
+	}
+	
+	public static void highGear() { //TODO Check Clone v Comp
+		Devices.gearShifter.SetB();
+		SmartDashboard.putBoolean("Low", false);
+		SmartDashboard.putBoolean("High", true);
+	}
 
 	public static void updateNetworkTables() {
 		SmartDashboard.putData("Sean's Debug Table/ControlSystem/Motors/Drive/LF", LFCanTalon);
@@ -183,7 +195,7 @@ public class Devices
    		SmartDashboard.putData("Sean's Debug Table/Encoders/Drive2", driveEncoder1);
    		SmartDashboard.putData("Sean's Debug Table/Encoders/Winch", winchEncoder);
    		
-   		SmartDashboard.putData("Sean's Debug Table/Servo/ArmDeploy", armReleaseServo);
+   		SmartDashboard.putData("Sean's Debug Table/Servo/ForkDeploy", forkReleaseServo);
    		SmartDashboard.putData("Sean's Debug Table/Servo/BraceDeploy", braceReleaseServo);
 	}
 

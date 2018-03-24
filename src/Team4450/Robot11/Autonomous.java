@@ -36,8 +36,11 @@ public class Autonomous extends GamePhase
 
 		Devices.robotDrive.setSafetyEnabled(false);
 
-		lowGear();
+		Devices.lowGear();
 		Devices.resetServo();
+		
+		Lift.getInstance(robot).extendWrist();
+		Lift.getInstance(robot).closeClaw();
 
 		// Initialize encoder.
 		Devices.driveEncoder1.reset();
@@ -121,6 +124,20 @@ public class Autonomous extends GamePhase
 				moveForwardCenter();
 				break;
 			}
+			break;
+			
+		case 7:		//Center w/scoring curve method
+			switch(robot.gameMessage.charAt(0)) {
+			case 'R':
+				scoreCenterRightCurve();
+				break;
+			case 'L':
+				scoreCenterLeftCurve();
+				break;
+			default: 
+				moveForwardCenter();
+				break;
+			}
 		}
 
 		Util.consoleLog("end");
@@ -192,8 +209,8 @@ public class Autonomous extends GamePhase
 		autoRotate(.50, 16); //Turn to switch
 		autoDrive(-.60, 1900, true); //Go there
 		ejectCube(); //Eject Cube
-		autoDrive(.3, 100, true);
-		moveLift(LiftHeight.GROUND);
+		//autoDrive(.3, 100, true);
+		//moveLift(LiftHeight.GROUND);
 	}
 	
 	private void scoreCenterLeftAlt () {
@@ -202,8 +219,20 @@ public class Autonomous extends GamePhase
 		autoRotate(.50, 24); //Turn to switch
 		autoDrive(-.60, 2100, true); //Go there
 		ejectCube(); //Eject Cube
-		autoDrive(.3, 100, true);
-		moveLift(LiftHeight.GROUND);
+		//autoDrive(.3, 100, true);
+		//moveLift(LiftHeight.GROUND);
+	}
+	
+	private void scoreCenterRightCurve() {
+		moveLift(LiftHeight.SWITCH);
+		autoSCurve(-.50, -6, 30,	900);
+		ejectCube();
+	}
+	
+	private void scoreCenterLeftCurve() {
+		moveLift(LiftHeight.SWITCH);
+		autoSCurve(-.50, 6, 30,	900);
+		ejectCube();
 	}
 
 	private void ejectCube() {	
@@ -216,20 +245,6 @@ public class Autonomous extends GamePhase
 		Lift.getInstance(robot).setLiftHeight(height);
 	}
 
-	public void lowGear() {
-		if (Robot.isComp)
-			Devices.gearShifter.SetA();
-		else
-			Devices.gearShifter.SetB();
-	}
-
-	public void highGear() {
-		if (Robot.isComp)
-			Devices.gearShifter.SetB();
-		else
-			Devices.gearShifter.SetA();
-	}
-
 	//TODO Will need modification to work.
 
 	// Auto drive in set direction and power for specified encoder count. Stops
@@ -238,7 +253,7 @@ public class Autonomous extends GamePhase
 	private void autoDrive(double power, int encoderCounts, boolean enableBrakes)
 	{
 		int		angle;
-		double	gain = .03;
+		double	gain = .05;
 
 		Util.consoleLog("pwr=%.2f, count=%d, brakes=%b", power, encoderCounts, enableBrakes);
 
@@ -300,5 +315,40 @@ public class Autonomous extends GamePhase
 
 		Util.consoleLog("AutoRotate: Stop");
 		Devices.robotDrive.tankDrive(0, 0);
+	}
+	
+	private void autoSCurve(double power, double curve, int targetAngle, int straightEncoderCounts)
+	{
+		double	gain = .05;
+		
+		Util.consoleLog("pwr=%.2f  curve=%.2f  angle=%d  counts=%d", power, curve, targetAngle, straightEncoderCounts);
+		
+		// We start out driving in a curve until we have turned the desired angle.
+		// Then we drive straight the desired distance then curve back to starting
+		// angle. Curve is - for right, + for left.
+		
+		Devices.robotDrive.curvatureDrive(power, curve * gain, false);
+		
+		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) 
+		{
+			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());
+			Util.consoleLog("angle=%.2f", Devices.navx.getYaw());
+			Timer.delay(.020);
+		}
+		
+		autoDrive(power, straightEncoderCounts, false);
+
+		Devices.navx.resetYaw();
+		
+		Devices.robotDrive.curvatureDrive(power, -curve * gain, false);
+		
+		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) 
+		{
+			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());
+			Util.consoleLog("angle=%.2f", Devices.navx.getYaw());
+			Timer.delay(.020);
+		}
+
+		Devices.robotDrive.tankDrive(0, 0, true);
 	}
 }

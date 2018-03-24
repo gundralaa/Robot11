@@ -6,6 +6,7 @@ import java.lang.Math;
 import Team4450.Lib.*;
 import Team4450.Lib.JoyStick.*;
 import Team4450.Lib.LaunchPad.*;
+import Team4450.Robot11.Lift.ForkReleaseState;
 import Team4450.Robot11.Lift.LiftHeight;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -49,6 +50,7 @@ class Teleop extends GamePhase
 		// Motor safety turned off during initialization.
 		Devices.robotDrive.setSafetyEnabled(false);
 		Devices.resetServo();
+		Devices.lowGear();
 		
 		Devices.SetCANTalonBrakeMode(false); //For 2018 force coast
 
@@ -90,6 +92,9 @@ class Teleop extends GamePhase
 		rightStick = new JoyStick(Devices.rightStick, "RightStick", JoyStickButtonIDs.TRIGGER, this);
 		//Example on how to track button:
 		//rightStick.AddButton(JoyStickButtonIDs.BUTTON_NAME_HERE);
+		rightStick.AddButton(JoyStickButtonIDs.TOP_BACK);
+		rightStick.AddButton(JoyStickButtonIDs.TOP_LEFT);
+		rightStick.AddButton(JoyStickButtonIDs.TOP_RIGHT);
 		rightStick.addJoyStickEventListener(new RightStickListener());
 		rightStick.Start();
 
@@ -216,20 +221,6 @@ class Teleop extends GamePhase
 
 		Util.consoleLog("end");
 	}
-	
-	public void lowGear() {
-		if (Robot.isComp)
-			Devices.gearShifter.SetA();
-		else
-			Devices.gearShifter.SetB();
-	}
-	
-	public void highGear() {
-		if (Robot.isComp)
-			Devices.gearShifter.SetB();
-		else
-			Devices.gearShifter.SetA();
-	}
 
 	private boolean leftRightEqual(double left, double right, double percent)
 	{
@@ -287,21 +278,21 @@ class Teleop extends GamePhase
 				break;
 			 */
 			case BUTTON_BLUE: //Trigger forklift drop
-				Devices.armReleaseServo.setAngle(60);
+				Lift.getInstance(robot).setForkRelease(ForkReleaseState.HALF);
 				break;
 
 			case BUTTON_RED_RIGHT: //Toggle wrist
 				if (launchPadEvent.control.latchedState)
-					Lift.getInstance(robot).retractWrist();
-				else 
 					Lift.getInstance(robot).extendWrist();
+				else 
+					Lift.getInstance(robot).retractWrist();
 				break;
 
 			case BUTTON_RED: //Gear Shift
 				if (launchPadEvent.control.latchedState)
-					highGear();
+					Devices.highGear();
 				else
-					lowGear();
+					Devices.lowGear();
 				break;
 				
 			case BUTTON_BLUE_RIGHT: //Intake Cube Auto
@@ -393,6 +384,19 @@ class Teleop extends GamePhase
 					DoOtherThing();
 				break;
 				 */
+				
+			case TOP_RIGHT:
+				Lift.getInstance(robot).setForkRelease(ForkReleaseState.HALF);
+				break;
+				
+			case TOP_BACK:
+				Lift.getInstance(robot).setForkRelease(ForkReleaseState.RETRACT);
+				break;
+				
+			case TOP_LEFT:
+				Lift.getInstance(robot).setForkRelease(ForkReleaseState.RELEASE);
+				break;
+				
 			default:
 				break;
 			}
@@ -428,9 +432,9 @@ class Teleop extends GamePhase
 			
 			case TRIGGER:
 				if (button.latchedState)
-					highGear();
+					Devices.highGear();
 				else
-					lowGear();
+					Devices.lowGear();
 				break;
 			
 			default:
@@ -468,9 +472,9 @@ class Teleop extends GamePhase
 			
 			case TRIGGER: //Toggle Claw Pressure
 				if (button.latchedState)
-					Lift.getInstance(robot).openClaw();
-				else
 					Lift.getInstance(robot).closeClaw();
+				else
+					Lift.getInstance(robot).openClaw();
 				break;
 				
 			case TOP_MIDDLE:
