@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 @SuppressWarnings("deprecation")
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "RAC11-03.22.18-01";
+  static final String  	PROGRAM_NAME = "RAC11-03.25.18-02";
 
   public Properties		robotProperties;
   
@@ -141,8 +141,8 @@ public class Robot extends SampleRobot
 
    		// Start camera server using our class for usb cameras.
       
-       	cameraThread = CameraFeed.getInstance(); 
-       	cameraThread.start();
+       	//cameraThread = CameraFeed.getInstance(); 
+       	//cameraThread.start();
 		
 		SmartDashboard.putNumber("PValue", Autonomous.pValue);
 		SmartDashboard.putNumber("IValue", Autonomous.iValue);

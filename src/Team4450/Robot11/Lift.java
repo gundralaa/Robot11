@@ -166,7 +166,7 @@ public class Lift
 		Util.consoleLog();
 		
 		if ((robot.isClone && Devices.winchEncoder.get() > 8750) ||
-			(robot.isComp && Devices.winchEncoder.get() > 8100)) 	
+			(robot.isComp && Devices.winchEncoder.get() > 6500)) 	
 		{
 			Devices.footDeloyServo.setAngle(60);
 			footReleased = true;

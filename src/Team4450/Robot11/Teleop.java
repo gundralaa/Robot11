@@ -330,7 +330,7 @@ class Teleop
 						if (robot.isClone)
 							lift.setHeight(14000);
 						else
-							lift.setHeight(12100);
+							lift.setHeight(7900);
 					
 					break;
 					
@@ -523,7 +523,7 @@ class Teleop
 					else if (robot.isClone)
 						lift.setHeight(10100);
 					else
-						lift.setHeight(7900);
+						lift.setHeight(900);
 					
 					break;
 	

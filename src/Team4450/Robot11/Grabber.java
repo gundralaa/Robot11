@@ -116,6 +116,8 @@ public class Grabber
 	{
 		Util.consoleLog("%.2f", power);
 		
+		if (robot.isDisabled()) return;
+		
 		motorsOut(power);
 		
 		Timer.delay(2);

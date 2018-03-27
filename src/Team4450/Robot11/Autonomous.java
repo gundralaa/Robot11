@@ -77,6 +77,7 @@ public class Autonomous
 		Devices.navx.setHeading(0);
 
 		Util.consoleLog("4");
+		
 		// Determine which auto program to run as indicated by driver station.
 		switch (program)
 		{
@@ -216,14 +217,14 @@ public class Autonomous
 				return;
 				
 			case LLL: case LRL:
-				autoRotate(.50, 24);
+				autoRotate(.50, 26);
 				autoDrive(-.60, 2100, true);	// 663
 				//autoRotate(-.50, 90);
 				//autoDrive(-.40, 880, true);		// 567
 				break;
 				
 			case RRR: case RLR:
-				autoRotate(-.50, 16);
+				autoRotate(-.50, 18);
 				autoDrive(-.60, 1900, true);	// 857
 				//autoRotate(.50, 12);
 				//autoDrive(-.40, 880, true);		// 567
