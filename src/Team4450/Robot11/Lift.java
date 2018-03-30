@@ -1,5 +1,6 @@
 package Team4450.Robot11;
 
+import Team4450.Lib.LCD;
 import Team4450.Lib.Util;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Timer;
@@ -11,6 +12,11 @@ public class Lift {
 	public static Lift getInstance(Robot robot) {
 		if (instance == null) instance = new Lift(robot);
 		return instance;
+	}
+	
+	public static Lift getInstance() {
+		if (instance != null) return instance;
+		else return null;
 	}
 
 	//-----------------------------------------------------------------------------------------------
@@ -26,15 +32,21 @@ public class Lift {
 		
 		SmartDashboard.putData("Sean's Debug Table/Lift/PID", pidController);
 	}
+	
+	public PIDController getPID() {
+		return pidController;
+	}
 
 	public void extendWrist() {
-		Devices.grabberWristValve.SetA();
+		if (Robot.isComp) Devices.grabberWristValve.SetA();
+		else Devices.grabberWristValve.SetB();
 		SmartDashboard.putBoolean("Deployed", true);
 		Util.consoleLog();
 	}
 
 	public void retractWrist() {
-		Devices.grabberWristValve.SetB();
+		if (Robot.isComp) Devices.grabberWristValve.SetB();
+		else Devices.grabberWristValve.SetA();
 		SmartDashboard.putBoolean("Deployed", false);
 		Util.consoleLog();
 	}
@@ -43,21 +55,23 @@ public class Lift {
 	public boolean getClawOpen() {return clawOpen; }
 	
 	public void openClaw() {
-		Devices.grabberGrabValve.SetB();
+		if (Robot.isComp) Devices.grabberGrabValve.SetB();
+		else Devices.grabberGrabValve.SetA();
 		SmartDashboard.putBoolean("Grabber", true);
 		Util.consoleLog();
 		clawOpen = true;
 	}
 
 	public void closeClaw() {
-		Devices.grabberGrabValve.SetA();
+		if (Robot.isComp) Devices.grabberGrabValve.SetA();
+		else Devices.grabberGrabValve.SetB();
 		SmartDashboard.putBoolean("Grabber", false);
 		Util.consoleLog();
 		clawOpen = false;
 	}
 	
 	public static enum LiftHeight {
-		GROUND (0), EXCHANGE (100), SWITCH (7900, 10100), SCALE (0) /* Scale Currently Unused */, CLIMB (12100, 13300); //TODO Get correct encoder counts for exchange and scale
+		GROUND (0), EXCHANGE (900), SWITCH (7900, 10100), SCALE (0) /* Scale Currently Unused */, CLIMB (12100, 13300); //TODO Get correct encoder counts for exchange and scale
 		private int encoderCountComp;
 		private int encoderCountClone;
 		
@@ -78,8 +92,8 @@ public class Lift {
 		Util.consoleLog();
 		pidController.enable();
 		pidController.setSetpoint(height.getEncoderCount());
-		//PIDChecker pidChecker = new PIDChecker(pidController, robot);
-		//pidChecker.start();
+		PIDChecker pidChecker = new PIDChecker(pidController, robot);
+		pidChecker.start();
 	}
 	
 	public boolean isAutoLifting() {
@@ -96,10 +110,10 @@ public class Lift {
 	}
 	
 	public void releaseBrace() {
-		if (Devices.winchEncoder.get() > 8100) Devices.braceReleaseServo.setAngle(60);
+		if (Devices.winchEncoder.get() > 6500) Devices.braceReleaseServo.setAngle(60);
 	}
 	
-	public enum ForkReleaseState { RETRACT(0.2), HALF(0.82), RELEASE(0.5);
+	public enum ForkReleaseState { RETRACT(0.2), HALF(0.5), RELEASE(0.82);
 		double position;
 		ForkReleaseState(double position) {
 			this.position = position;
@@ -177,18 +191,19 @@ class IntakeThread extends Thread {
 	private double stopCurrent;
 	IntakeThread(Robot robot) {
 		this.robot = robot;
-		stopCurrent = (Robot.isClone ? 20.0 : 15.0);
+		stopCurrent = (Robot.isClone ? 18.0 : 15.0);
 	}
 
 	public void run() {
 		if (robot.isEnabled()) {
+			Util.consoleLog("AutoIntake Start");
 			SmartDashboard.putBoolean("AutoGrab", true);
 			Lift.getInstance(robot).openClaw();
 			Devices.grabberMotors.set(.5);
-			while (Devices.grabberMotorLeft.getOutputCurrent() < stopCurrent && !isInterrupted() && robot.isEnabled()) { Timer.delay(0.02); }
-			Lift.getInstance(robot).closeClaw();
+			while (Devices.grabberMotorLeft.getOutputCurrent() < stopCurrent && !isInterrupted() && robot.isEnabled()) { LCD.printLine(10, "Intake Voltage=%f", Devices.grabberMotorLeft.getOutputCurrent());Timer.delay(0.02); }
 			Devices.grabberMotors.set(0);
 			SmartDashboard.putBoolean("AutoGrab", false);
+			Util.consoleLog("AutoIntake End");
 			Lift.getInstance(robot).clearIntakeThread();
 		}
 	}
@@ -203,8 +218,8 @@ class PIDChecker extends Thread {
 	}
 	
 	public void run() {
-		Timer.delay(1);
-		while (Math.abs(pid.getSetpoint()-Devices.winchEncoder.get()) > 50 && pid.get() > 0.2 && !isInterrupted() && robot.isEnabled() && pid.isEnabled()) { Timer.delay(0.2); } //TODO Determine correct tolerances.
+		//while (Math.abs(pid.getSetpoint()-Devices.winchEncoder.get()) > 50 && pid.get() > 0.2 && !isInterrupted() && robot.isEnabled() && pid.isEnabled()) { Timer.delay(0.2); } //TODO Determine correct tolerances.
+		while (!isInterrupted() && robot.isEnabled() && pid.isEnabled()) { Timer.delay(0.2); }
 		pid.disable();
 		Util.consoleLog();
 	}

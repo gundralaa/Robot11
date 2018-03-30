@@ -39,10 +39,15 @@ class Teleop extends GamePhase
 		if (utilityStick != null) utilityStick.dispose();
 		if (launchPad != null) launchPad.dispose();
 	}
+	
+	public float adjustAngle(float angle) {
+		if (Robot.isClone) return angle*(18.0f/15.0f);
+		else return angle;
+	}
 
 	void execute()
 	{
-		double	rightY = 0, leftY = 0, utilX = 0, rightX = 0, leftX = 0;
+		double	rightY = 0, leftY = 0, utilY = 0, rightX = 0, leftX = 0;
 		double	gain = .01;
 		boolean	steeringAssistMode = false;
 		int		angle;
@@ -105,6 +110,7 @@ class Teleop extends GamePhase
 		utilityStick.AddButton(JoyStickButtonIDs.TOP_MIDDLE);
 		utilityStick.AddButton(JoyStickButtonIDs.TOP_BACK);
 		utilityStick.AddButton(JoyStickButtonIDs.TOP_LEFT);
+		utilityStick.AddButton(JoyStickButtonIDs.TOP_RIGHT);
 		utilityStick.addJoyStickEventListener(new UtilityStickListener());
 		utilityStick.Start();
 
@@ -142,18 +148,20 @@ class Teleop extends GamePhase
 			rightX = stickLogCorrection(rightStick.GetX());	// left/right
 			leftX = stickLogCorrection(leftStick.GetX());	// left/right
 
-			utilX = utilityStick.GetX();
+			utilY = utilityStick.GetY();
 
-			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilX=%.4f", leftY, rightY, utilX);
-			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), Devices.navx.getTotalYaw(), 
+			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilY=%.4f", leftY, rightY, utilY);
+			LCD.printLine(6, "yaw=%.2f, adj yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), adjustAngle(Devices.navx.getYaw()), Devices.navx.getTotalYaw(), 
 					Devices.navx.getYawRate(), Devices.navx.getHeading());
 			LCD.printLine(7, "winchEncoder=%d", Devices.winchEncoder.get());
 			LCD.printLine(8, "pressureV=%.2f  psi=%d", robot.monitorCompressorThread.getVoltage(), robot.monitorCompressorThread.getPressure());
 			LCD.printLine(9, "Drive Encoders: 1:%d 2:%d", Devices.driveEncoder1.get(), Devices.driveEncoder2.get());
 			
-			if ((Robot.isClone ? !Devices.winchLimitSwitch.get() : Devices.winchLimitSwitch.get())) {
+			if ((Robot.isClone ? !Devices.winchLimitSwitch.get() : Devices.winchLimitSwitch.get()) && !Lift.getInstance(robot).isAutoLifting()) {
 				Devices.winchEncoder.reset();
+			} else if (Lift.getInstance(robot).getPID().get() < 0 && (Robot.isClone ? !Devices.winchLimitSwitch.get() : Devices.winchLimitSwitch.get())) {
 				Lift.getInstance(robot).stopAutoLift();
+				Devices.winchEncoder.reset();
 			}
 			
 			// Set wheel motors.
@@ -175,7 +183,7 @@ class Teleop extends GamePhase
 						// It is opposite when going backward. Note that for this robot, - power means forward and
 						// + power means backward.
 
-						angle = (int) Devices.navx.getYaw();
+						angle = (int) adjustAngle(Devices.navx.getYaw());
 
 						LCD.printLine(5, "angle=%d", angle);
 
@@ -211,6 +219,8 @@ class Teleop extends GamePhase
 			// Update the robot heading indicator on the DS.
 
 			SmartDashboard.putNumber("Gyro", Devices.navx.getHeading());
+			
+			Devices.updateNetworkTables();
 
 			// End of driving loop.
 
@@ -299,8 +309,8 @@ class Teleop extends GamePhase
 				Lift.getInstance(robot).toggleIntakeCube();
 				break;
 				
-			case BUTTON_YELLOW: //Change Winch
-				//Lift.getInstance(robot).changeWinch();
+			case BUTTON_YELLOW: //Climb height
+				Lift.getInstance(robot).setLiftHeight(LiftHeight.CLIMB);
 				break;
 				
 			case BUTTON_BLACK: //Release brace
@@ -499,8 +509,9 @@ class Teleop extends GamePhase
 				
 			case TOP_LEFT:
 				Util.consoleLog("TOP_LEFT");
-				if (Lift.getInstance(robot).isAutoLifting())
+				if (Lift.getInstance(robot).isAutoLifting()) {
 					Lift.getInstance(robot).stopAutoLift();
+				}
 				else
 					Lift.getInstance(robot).setLiftHeight(LiftHeight.SWITCH);
 				

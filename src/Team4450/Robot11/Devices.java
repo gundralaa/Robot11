@@ -197,6 +197,8 @@ public class Devices
    		
    		SmartDashboard.putData("Sean's Debug Table/Servo/ForkDeploy", forkReleaseServo);
    		SmartDashboard.putData("Sean's Debug Table/Servo/BraceDeploy", braceReleaseServo);
+   		
+   		if (Lift.getInstance() != null) SmartDashboard.putBoolean("Sean's Debug Table/PID/LiftEnabled", Lift.getInstance().isAutoLifting());
 	}
 
 }
