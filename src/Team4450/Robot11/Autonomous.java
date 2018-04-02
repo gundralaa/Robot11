@@ -140,6 +140,19 @@ public class Autonomous extends GamePhase
 				moveForwardCenter();
 				break;
 			}
+			
+		case 8:
+			switch(robot.gameMessage.charAt(0)) {
+			case 'R':
+				holly2Cube();
+				break;
+			case 'L':
+				moveForwardCenter();
+				break;
+			default:
+				moveForwardCenter();
+				break;	
+			}
 		}
 
 		Util.consoleLog("end");
@@ -236,6 +249,29 @@ public class Autonomous extends GamePhase
 		autoSCurve(-.50, 6, 30,	900);
 		ejectCube();
 	}
+	
+	private void holly2Cube() { //FIXME Debug
+		moveLift(LiftHeight.SWITCH);
+		autoDrive(-.40, 100, true); //Move forward a bit
+		autoRotate(-.50, 19); //Turn to switch
+		autoDrive(-.50, 1900, true); //Go there
+		ejectCube(); //Eject Cube
+		Timer.delay(1);
+        autoDrive(0.50, 1729, true); //Backup to pile
+        Timer.delay(0.3);
+        autoRotate(0.50, 41); //Turn to pile
+        moveLift(LiftHeight.GROUND);
+        autoDrive(-0.50, 678, true); //Go to pile
+        Lift.getInstance(robot).toggleIntakeCube();
+        autoDrive(0.50, 678, true); //Backup from pile
+        moveLift(LiftHeight.SWITCH);
+        Timer.delay(0.5);
+        autoRotate(0.50, 8); //Turn to switch mostly
+        autoDrive(-0.50, 1511, true); //Go most of the way
+        autoRotate(0.50, 26); //Turn to switch
+        autoDrive(-0.50, 913, true); //Go to switch
+        ejectCube();
+	}
 
 	private void ejectCube() {	
 		Util.consoleLog("Eject Cube");
@@ -266,6 +302,8 @@ public class Autonomous extends GamePhase
 		Devices.driveEncoder1.reset();
 		Devices.driveEncoder2.reset();
 		Devices.navx.resetYaw();
+		
+		if (power > 0) gain = -gain;
 
 		while (isAutoActive() && Math.abs(Devices.driveEncoder1.get()) < encoderCounts) 
 		{
