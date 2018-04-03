@@ -41,6 +41,7 @@ public class Devices
 	public final static ValveDA		gearShifter = new ValveDA(0);
 	public final static ValveDA		grabberGrabValve = new ValveDA(2);
 	public final static ValveDA		grabberWristValve = new ValveDA(4);
+	public final static ValveDA		winchBrakeValve = new ValveDA(6);
 
 	public final static AnalogInput	pressureSensor = new AnalogInput(0);
 
@@ -52,7 +53,7 @@ public class Devices
 
 	public final static DigitalInput		winchLimitSwitch = new DigitalInput(6);
 
-	public final static Servo				forkReleaseServo = new Servo(2);
+	public final static Servo				barReleaseServo = new Servo(2);
 	public final static Servo				braceReleaseServo = new Servo(3);
 
 	// Wheel encoder is plugged into dio port 0/2 - orange=+5v blue=signal, dio port 1/3 black=gnd yellow=signal. 
@@ -105,8 +106,7 @@ public class Devices
 	}
 
 	public static void resetServo() {
-		forkReleaseServo.setPosition(0.2);
-		braceReleaseServo.set(1);
+		barReleaseServo.setPosition(0.5);
 	}
 
 	// Initialize and Log status indication from CANTalon. If we see an exception
@@ -195,7 +195,7 @@ public class Devices
    		SmartDashboard.putData("Sean's Debug Table/Encoders/Drive2", driveEncoder1);
    		SmartDashboard.putData("Sean's Debug Table/Encoders/Winch", winchEncoder);
    		
-   		SmartDashboard.putData("Sean's Debug Table/Servo/ForkDeploy", forkReleaseServo);
+   		SmartDashboard.putData("Sean's Debug Table/Servo/ForkDeploy", barReleaseServo);
    		SmartDashboard.putData("Sean's Debug Table/Servo/BraceDeploy", braceReleaseServo);
    		
    		if (Lift.getInstance() != null) SmartDashboard.putBoolean("Sean's Debug Table/PID/LiftEnabled", Lift.getInstance().isAutoLifting());

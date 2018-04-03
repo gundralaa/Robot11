@@ -109,13 +109,17 @@ public class Lift {
 		SmartDashboard.putBoolean("Override", toggleOverride);
 	}
 	
-	public void releaseBrace() {
-		if (Devices.winchEncoder.get() > 6500) Devices.braceReleaseServo.setAngle(60);
+	public void setWinchBreak(boolean enableBrake) {
+		if (enableBrake)
+			Devices.winchBrakeValve.SetA();
+		else 
+			Devices.winchBrakeValve.SetB();
+		
 	}
 	
-	public enum ForkReleaseState { RETRACT(0.2), HALF(0.5), RELEASE(0.82);
+	public enum BarReleaseState { RETRACTPIN(0.2), EXTENDPIN(0.5);
 		double position;
-		ForkReleaseState(double position) {
+		BarReleaseState(double position) {
 			this.position = position;
 		}
 		
@@ -124,8 +128,8 @@ public class Lift {
 		}
 	};
 	
-	public void setForkRelease(ForkReleaseState newForkState) {
-		Devices.forkReleaseServo.setPosition(newForkState.getPosition());
+	public void setBarRelease(BarReleaseState newBarState) {
+		Devices.barReleaseServo.setPosition(newBarState.getPosition());
 	}
 	
 	public void setMotor(double power) {
@@ -218,7 +222,7 @@ class PIDChecker extends Thread {
 	}
 	
 	public void run() {
-		//while (Math.abs(pid.getSetpoint()-Devices.winchEncoder.get()) > 50 && pid.get() > 0.2 && !isInterrupted() && robot.isEnabled() && pid.isEnabled()) { Timer.delay(0.2); } //TODO Determine correct tolerances.
+		//while (Math.abs(pid.getSetpoint()-Devices.winchEncoder.get()) > 50 && pid.get() > 0.2 && !isInterrupted() && robot.isEnabled() && pid.isEnabled()) { Timer.delay(0.2); }
 		while (!isInterrupted() && robot.isEnabled() && pid.isEnabled()) { Timer.delay(0.2); }
 		pid.disable();
 		Util.consoleLog();

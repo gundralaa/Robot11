@@ -6,7 +6,7 @@ import java.lang.Math;
 import Team4450.Lib.*;
 import Team4450.Lib.JoyStick.*;
 import Team4450.Lib.LaunchPad.*;
-import Team4450.Robot11.Lift.ForkReleaseState;
+import Team4450.Robot11.Lift.BarReleaseState;
 import Team4450.Robot11.Lift.LiftHeight;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -56,6 +56,7 @@ class Teleop extends GamePhase
 		Devices.robotDrive.setSafetyEnabled(false);
 		Devices.resetServo();
 		Devices.lowGear();
+		Lift.getInstance(robot).setWinchBreak(false);
 		
 		Devices.SetCANTalonBrakeMode(false); //For 2018 force coast
 
@@ -115,7 +116,7 @@ class Teleop extends GamePhase
 		utilityStick.Start();
 
 		// Tighten up dead zone for smoother climber movement.
-		utilityStick.deadZone = .05;
+		utilityStick.deadZone = .08;
 
 		// Set CAN Talon brake mode by rocker switch setting.
 		// We do this here so that the Utility stick thread has time to read the initial state
@@ -288,7 +289,7 @@ class Teleop extends GamePhase
 				break;
 			 */
 			case BUTTON_BLUE: //Trigger forklift drop
-				Lift.getInstance(robot).setForkRelease(ForkReleaseState.HALF);
+				Lift.getInstance(robot).setBarRelease(BarReleaseState.EXTENDPIN);
 				break;
 
 			case BUTTON_RED_RIGHT: //Toggle wrist
@@ -313,8 +314,8 @@ class Teleop extends GamePhase
 				Lift.getInstance(robot).setLiftHeight(LiftHeight.CLIMB);
 				break;
 				
-			case BUTTON_BLACK: //Release brace
-				Lift.getInstance(robot).releaseBrace();
+			case BUTTON_BLACK: //Toggle break
+				Lift.getInstance(robot).setWinchBreak(control.latchedState);
 				break;
 				
 			case BUTTON_GREEN:
@@ -396,15 +397,11 @@ class Teleop extends GamePhase
 				 */
 				
 			case TOP_RIGHT:
-				Lift.getInstance(robot).setForkRelease(ForkReleaseState.HALF);
+				Lift.getInstance(robot).setBarRelease(BarReleaseState.EXTENDPIN);
 				break;
 				
 			case TOP_BACK:
-				Lift.getInstance(robot).setForkRelease(ForkReleaseState.RETRACT);
-				break;
-				
-			case TOP_LEFT:
-				Lift.getInstance(robot).setForkRelease(ForkReleaseState.RELEASE);
+				Lift.getInstance(robot).setBarRelease(BarReleaseState.RETRACTPIN);
 				break;
 				
 			default:

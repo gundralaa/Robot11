@@ -41,6 +41,7 @@ public class Autonomous extends GamePhase
 		
 		Lift.getInstance(robot).extendWrist();
 		Lift.getInstance(robot).closeClaw();
+		Lift.getInstance(robot).setWinchBreak(false);
 
 		// Initialize encoder.
 		Devices.driveEncoder1.reset();
@@ -140,6 +141,7 @@ public class Autonomous extends GamePhase
 				moveForwardCenter();
 				break;
 			}
+			break;
 			
 		case 8:
 			switch(robot.gameMessage.charAt(0)) {
@@ -153,6 +155,7 @@ public class Autonomous extends GamePhase
 				moveForwardCenter();
 				break;	
 			}
+			break;
 		}
 
 		Util.consoleLog("end");
@@ -240,13 +243,13 @@ public class Autonomous extends GamePhase
 	
 	private void scoreCenterRightCurve() {
 		moveLift(LiftHeight.SWITCH);
-		autoSCurve(-.50, -6, 30, 900);
+		autoSCurve(-.50, -6, 30, 800);
 		ejectCube();
 	}
 	
 	private void scoreCenterLeftCurve() {
 		moveLift(LiftHeight.SWITCH);
-		autoSCurve(-.50, 6, 30,	900);
+		autoSCurve(-.50, 6, 30,	600);
 		ejectCube();
 	}
 	
@@ -283,8 +286,6 @@ public class Autonomous extends GamePhase
 		Lift.getInstance(robot).setLiftHeight(height);
 	}
 
-	//TODO Will need modification to work.
-
 	// Auto drive in set direction and power for specified encoder count. Stops
 	// with or without brakes on CAN bus drive system. Uses gyro/NavX to go straight.
 
@@ -297,7 +298,7 @@ public class Autonomous extends GamePhase
 
 		if (Robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
 
-		Timer.delay(0.3); //TODO: DEBUG
+		if (Robot.isClone) Timer.delay(0.3);
 		
 		Devices.driveEncoder1.reset();
 		Devices.driveEncoder2.reset();
@@ -382,7 +383,7 @@ public class Autonomous extends GamePhase
 
 		Devices.navx.resetYaw();
 		
-		Devices.robotDrive.curvatureDrive(power, -curve * gain, false);
+		Devices.robotDrive.curvatureDrive(power*.7, -curve * gain, false);
 		
 		while (isAutoActive() && Math.abs((int) adjustAngle(Devices.navx.getYaw())) < targetAngle) 
 		{
