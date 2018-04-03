@@ -132,10 +132,6 @@ public class Autonomous
 		Util.consoleLog();
 		
 		autoDrive(-.30, 1970, true);	// 1270
-		
-		//autoRotate(.50, -45);
-		
-		//autoDrive(.50, 1000, true);
 	}
 
 	// Start from center (offset right). Evaluate game information. Determine which switch we
@@ -184,13 +180,6 @@ public class Autonomous
 		// Dump cube.
 		
 		grabber.spit(spitPower);
-		
-		// Back up and drop the lift.
-		
-		lift.setHeight(-1);
-//		autoDrive(.30, 500, true);
-//		lift.setHeight(0);
-//		Timer.delay(3.0);
 	}
 
 	private void startCenterScore2()
@@ -235,12 +224,6 @@ public class Autonomous
 		
 		grabber.spit(spitPower);
 		
-		// Back up and drop the lift.
-		
-		//lift.setHeight(-1);
-//		autoDrive(.30, 500, true);
-//		lift.setHeight(0);
-//		Timer.delay(3.0);
 	}
 
 	private void startCenterScore3()
@@ -276,7 +259,7 @@ public class Autonomous
 //				autoSCurve(-.50, SmartDashboard.getNumber("PValue", -6),
 //						(int) SmartDashboard.getNumber("IValue", 30),
 //						(int) SmartDashboard.getNumber("DValue", 900));
-				autoSCurve(-.50, -6, 30,	900);
+				autoSCurve(-.50, -6, 30, 900);
 
 				break;
 		}
@@ -284,13 +267,6 @@ public class Autonomous
 		// Dump cube.
 		
 		grabber.spit(spitPower);
-		
-		// Back up and drop the lift.
-		
-		//lift.setHeight(-1);
-//		autoDrive(.30, 500, true);
-//		lift.setHeight(0);
-//		Timer.delay(3.0);
 	}
 
 	// Start left or right. Evaluate game information. Determine if we should score on the switch, 
@@ -381,12 +357,6 @@ public class Autonomous
 		
 		grabber.spit(spitPower);
 		
-		// Back up and drop the lift.
-		
-		lift.setHeight(-1);
-//		autoDrive(.30, 500, true);
-//		lift.setHeight(0);
-//		Timer.delay(3.0);
 	}
 	
 	// Auto drive straight in set direction and power for specified encoder count. Stops
@@ -404,6 +374,8 @@ public class Autonomous
 		Devices.wheelEncoder.reset();
 		Devices.wheelEncoder2.reset();
 		
+		if (robot.isClone) Timer.delay(0.3);
+			
 		Devices.navx.resetYaw();
 		
 		while (isAutoActive() && Math.abs(Devices.wheelEncoder.get()) < encoderCounts) 
@@ -422,7 +394,7 @@ public class Autonomous
 
 			LCD.printLine(5, "angle=%d", angle);
 			
-			//Util.consoleLog("angle=%d", angle);
+			Util.consoleLog("angle=%d", angle);
 			
 			// Note we invert sign on the angle because we want the robot to turn in the opposite
 			// direction than it is currently going to correct it. So a + angle says robot is veering
@@ -441,7 +413,7 @@ public class Autonomous
 			Timer.delay(.020);
 		}
 
-		Devices.robotDrive.tankDrive(0, 0, true);				
+		Devices.robotDrive.tankDrive(0, 0);				
 		
 		Util.consoleLog("end: actual count=%d", Math.abs(Devices.wheelEncoder.get()));
 	}
@@ -458,6 +430,8 @@ public class Autonomous
 		Devices.navx.resetYaw();
 		
 		Devices.robotDrive.tankDrive(power, -power);
+		
+		angle = navxFix(angle);
 
 		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) {Timer.delay(.020);} 
 		
@@ -470,6 +444,8 @@ public class Autonomous
 		
 		Util.consoleLog("pwr=%.2f  curve=%.2f  angle=%d  counts=%d", power, curve, targetAngle, straightEncoderCounts);
 		
+		targetAngle = navxFix(targetAngle);
+		
 		// We start out driving in a curve until we have turned the desired angle.
 		// Then we drive straight the desired distance then curve back to starting
 		// angle. Curve is - for right, + for left.
@@ -478,25 +454,35 @@ public class Autonomous
 		
 		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) 
 		{
-			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());
-			Util.consoleLog("angle=%.2f", Devices.navx.getYaw());
 			Timer.delay(.020);
+			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());
+			Util.consoleLog("angle=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
 		}
-		
-		autoDrive(power, straightEncoderCounts, false);
 
+		Util.consoleLog("end angle=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
+
+		autoDrive(power, straightEncoderCounts, false);
+		
 		Devices.navx.resetYaw();
 		
-		Devices.robotDrive.curvatureDrive(power, -curve * gain, false);
+		Devices.SetCANTalonBrakeMode(true);
+
+		// Reduce target angle to stop over rotation.
+		targetAngle -= 10;
+		
+		// Reduce power so don't slam the switch too hard.
+		Devices.robotDrive.curvatureDrive(power * .60, -curve * gain, false);
 		
 		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) 
 		{
-			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());
-			Util.consoleLog("angle=%.2f", Devices.navx.getYaw());
 			Timer.delay(.020);
+			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());
+			Util.consoleLog("angle=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
 		}
 
-		Devices.robotDrive.tankDrive(0, 0, true);
+		Util.consoleLog("end angle=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
+
+		Devices.robotDrive.tankDrive(0, 0);
 	}
 	
 	private enum PlateStates
@@ -507,4 +493,15 @@ public class Autonomous
 		LRL,
 		RLR;
  	}
+	
+	private int navxFix(int targetAngle)
+	{
+		if (robot.isComp)
+			return targetAngle;
+		else
+		{
+			Util.consoleLog("ta=%d  fa=%d", targetAngle, Math.round(targetAngle * .8333f));
+			return Math.round(targetAngle * .8333f);
+		}
+	}
 }

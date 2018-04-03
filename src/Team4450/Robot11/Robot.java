@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 @SuppressWarnings("deprecation")
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "RAC11-03.25.18-02";
+  static final String  	PROGRAM_NAME = "RAC11-04.02.18-01";
 
   public Properties		robotProperties;
   
@@ -119,9 +119,9 @@ public class Robot extends SampleRobot
    		Devices.robotDrive.setSafetyEnabled(false);
    		Devices.robotDrive.setExpiration(0.1);
              
-   		// Create NavX object here so it has time to calibrate before we
-   		// use it. Takes 10 seconds. Must appear before CamerFeed is created.
-   		
+   		// Create NavX object here since must done before CameraFeed is created (don't remember why).
+   		// Navx calibrates at power on and must complete before robot moves. Takes 12 seconds.
+
    		Devices.navx = NavX.getInstance(NavX.PortType.SPI);
    		
    		Devices.navx.dumpValuesToNetworkTables();
@@ -141,8 +141,8 @@ public class Robot extends SampleRobot
 
    		// Start camera server using our class for usb cameras.
       
-       	//cameraThread = CameraFeed.getInstance(); 
-       	//cameraThread.start();
+       	cameraThread = CameraFeed.getInstance(); 
+       	cameraThread.start();
 		
 		SmartDashboard.putNumber("PValue", Autonomous.pValue);
 		SmartDashboard.putNumber("IValue", Autonomous.iValue);

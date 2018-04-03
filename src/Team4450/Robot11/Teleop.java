@@ -26,6 +26,9 @@ class Teleop
 	Teleop(Robot robot)
 	{
 		Util.consoleLog();
+		
+		// Motor safety turned off during initialization.
+		Devices.robotDrive.setSafetyEnabled(false);
 
 		this.robot = robot;
 
@@ -61,7 +64,7 @@ class Teleop
 		int		angle;
 
 		// Motor safety turned off during initialization.
-		Devices.robotDrive.setSafetyEnabled(false);
+		//Devices.robotDrive.setSafetyEnabled(false);
 
 		Util.consoleLog();
 
@@ -158,7 +161,7 @@ class Teleop
 			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilY=%.4f", leftY, rightY, utilY);
 			LCD.printLine(5, "Wheel=%d  wheel2=%d  winch=%d  switch=%b", Devices.wheelEncoder.get(), 
 					Devices.wheelEncoder2.get(), Devices.winchEncoder.get(), Devices.winchSwitch.get());
-			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), 
+			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw() * 1.2, 
 					Devices.navx.getTotalYaw(), Devices.navx.getYawRate(), Devices.navx.getHeading());
 			LCD.printLine(7, "intake current=%f", Devices.intakeMotorL.getOutputCurrent());
 			LCD.printLine(8, "pressureV=%.2f  psi=%d", robot.monitorCompressorThread.getVoltage(), 
@@ -236,6 +239,9 @@ class Teleop
 
 		// End of teleop mode.
 
+		// ensure we start next time in low gear.
+		gearBox.lowSpeed();
+		
 		Util.consoleLog("end");
 	}
 
@@ -299,15 +305,15 @@ class Teleop
 					
 					break;
 					
-				case BUTTON_BLUE:
-					lift.releaseForks();
+//				case BUTTON_BLUE:
+//					lift.releaseForks();
+//					
+//					break;
 					
-					break;
-					
-				case BUTTON_BLACK:
-					lift.releaseFoot();
-					
-					break;
+//				case BUTTON_BLACK:
+//					lift.releaseFoot();
+//					
+//					break;
 					
 				case BUTTON_BLUE_RIGHT:
 					// Automatic cube intake function.
@@ -319,11 +325,6 @@ class Teleop
 					break;
 					
 				case BUTTON_YELLOW:
-//					if (lift.isClimbWinchSelected())
-//						lift.selectLiftWinch();
-//					else
-//						lift.selectClimbWinch();
-					
 					if (lift.isHoldingHeight())
 						lift.setHeight(-1);
 					else
@@ -381,7 +382,6 @@ class Teleop
 	    			else
 	    				Devices.winchEncoderEnabled = false;
 	    			
-					//if (robot.cameraThread != null) robot.cameraThread.ChangeCamera();
 	    			break;
 	
 				default:
@@ -407,20 +407,20 @@ class Teleop
 					altDriveMode = !altDriveMode;
 					break;
 					
-				case TOP_BACK:
-					lift.forkRetract();
-					
-					break;
-					
-				case TOP_LEFT:
-					lift.forkExtendHalf();
-					
-					break;
-					
-				case TOP_RIGHT:
-					lift.forkExtendFull();
-					
-					break;
+//				case TOP_BACK:
+//					lift.forkRetract();
+//					
+//					break;
+//					
+//				case TOP_LEFT:
+//					lift.forkExtendHalf();
+//					
+//					break;
+//					
+//				case TOP_RIGHT:
+//					lift.forkExtendFull();
+//					
+//					break;
 
 			//Example of Joystick Button case:
 			/*
@@ -523,7 +523,7 @@ class Teleop
 					else if (robot.isClone)
 						lift.setHeight(10100);
 					else
-						lift.setHeight(900);
+						lift.setHeight(900);	// 7900
 					
 					break;
 	

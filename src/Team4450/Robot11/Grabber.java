@@ -116,8 +116,6 @@ public class Grabber
 	{
 		Util.consoleLog("%.2f", power);
 		
-		if (robot.isDisabled()) return;
-		
 		motorsOut(power);
 		
 		Timer.delay(2);
@@ -215,7 +213,7 @@ public class Grabber
 	    	Util.consoleLog();
 	    	
 	    	if (robot.isClone)
-	    		stopCurrent = 20.0;
+	    		stopCurrent = 17.0;	// 20.0;
 	    	else
 	    		stopCurrent = 15.0;
 	    		
@@ -228,7 +226,7 @@ public class Grabber
 	    		motorsIn(.50);
 	    		sleep(250);
 	    		
-    	    	while (!isInterrupted() && Devices.intakeMotorL.getOutputCurrent() < stopCurrent)	// 15 // 5.0
+    	    	while (!isInterrupted() && robot.isEnabled() && Devices.intakeMotorL.getOutputCurrent() < stopCurrent)	// 15 // 5.0
     	    	{
     	            // We sleep since JS updates come from DS every 20ms or so. We wait 50ms so this thread
     	            // does not run at the same time as the teleop thread.
@@ -236,7 +234,7 @@ public class Grabber
     	            sleep(50);
     	    	}
     	    	
-    	    	if (!interrupted()) Util.consoleLog("  Cube detected");
+    	    	if (!interrupted() && robot.isEnabled()) Util.consoleLog("  Cube detected");
     	    	
     	    	sleep(500);
 	    	}
@@ -249,6 +247,5 @@ public class Grabber
 			updateDS();
 	    }
 	}	// end of AutoIntake thread class.
-
 }
 
