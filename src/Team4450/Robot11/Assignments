@@ -54,6 +54,8 @@ Right Joystick
 Button Name				Function
 -----------------------------------------------------------------------------------
 TRIGGER					Toggle alternate driving mode.
+TOP_RIGHT				Lock buddy bar (extend linear actuator to 50%).
+TOP_BACK				Release buddy bar (retract linear actuator to 0%).
 
 Utility Joystick
 Button Name				Function
@@ -80,7 +82,7 @@ BUTTON_RED				Shift gears.
 BUTTON_BLUE_RIGHT		Toggle Claw intake motors with auto shut off.
 BUTTON_YELLOW			Auto move to climb height.
 BUTTON_GREEN			Reset wheel encoder.
-BUTON_BLACK				Deploy climb foot.
+BUTON_BLACK				Deploy buddy bar.
 ROCKER_LEFT_FRONT		Switch Cameras.
 ROCKER_LEFT_BACK		Toggle drive talon brake mode.
 ROCKER_RIGHT			Switch climb winch encoder on/off.

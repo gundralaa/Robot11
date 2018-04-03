@@ -251,7 +251,7 @@ public class Autonomous
 //				autoSCurve(-.50, SmartDashboard.getNumber("PValue", 6),
 //							(int) SmartDashboard.getNumber("IValue", 30),
 //							(int) SmartDashboard.getNumber("DValue", 900));
-				autoSCurve(-.50, 6, 30,	900);
+				autoSCurve(-.50, 6, 30,	600);
 
 				break;
 				
@@ -259,7 +259,7 @@ public class Autonomous
 //				autoSCurve(-.50, SmartDashboard.getNumber("PValue", -6),
 //						(int) SmartDashboard.getNumber("IValue", 30),
 //						(int) SmartDashboard.getNumber("DValue", 900));
-				autoSCurve(-.50, -6, 30, 900);
+				autoSCurve(-.50, -6, 30, 800);
 
 				break;
 		}
@@ -471,7 +471,7 @@ public class Autonomous
 		targetAngle -= 10;
 		
 		// Reduce power so don't slam the switch too hard.
-		Devices.robotDrive.curvatureDrive(power * .60, -curve * gain, false);
+		Devices.robotDrive.curvatureDrive(power * 0.7, -curve * gain, false);
 		
 		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) 
 		{
@@ -493,6 +493,9 @@ public class Autonomous
 		LRL,
 		RLR;
  	}
+	
+	// Correction for clone navx which reads 15 degrees to low. This routine adjusts
+	// the target angle for the error.
 	
 	private int navxFix(int targetAngle)
 	{

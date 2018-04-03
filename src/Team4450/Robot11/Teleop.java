@@ -310,10 +310,10 @@ class Teleop
 //					
 //					break;
 					
-//				case BUTTON_BLACK:
-//					lift.releaseFoot();
-//					
-//					break;
+				case BUTTON_BLACK:
+					lift.forkRetract();
+					
+					break;
 					
 				case BUTTON_BLUE_RIGHT:
 					// Automatic cube intake function.
@@ -407,20 +407,20 @@ class Teleop
 					altDriveMode = !altDriveMode;
 					break;
 					
-//				case TOP_BACK:
-//					lift.forkRetract();
-//					
-//					break;
+				case TOP_BACK:
+					lift.forkRetract();
+					
+					break;
 //					
 //				case TOP_LEFT:
 //					lift.forkExtendHalf();
 //					
 //					break;
 //					
-//				case TOP_RIGHT:
-//					lift.forkExtendFull();
-//					
-//					break;
+				case TOP_RIGHT:
+					lift.forkExtendHalf();
+					
+					break;
 
 			//Example of Joystick Button case:
 			/*
