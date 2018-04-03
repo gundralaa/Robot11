@@ -311,8 +311,11 @@ class Teleop
 //					break;
 					
 				case BUTTON_BLACK:
-					lift.forkRetract();
-					
+					if (lift.isBrakeEngaged())
+						lift.releaseBrake();
+					else
+						lift.engageBrake();
+
 					break;
 					
 				case BUTTON_BLUE_RIGHT:
@@ -408,17 +411,17 @@ class Teleop
 					break;
 					
 				case TOP_BACK:
-					lift.forkRetract();
+					lift.servoRetract();
 					
 					break;
 //					
 //				case TOP_LEFT:
-//					lift.forkExtendHalf();
+//					lift.servoExtendHalf();
 //					
 //					break;
 //					
 				case TOP_RIGHT:
-					lift.forkExtendHalf();
+					lift.servoExtendHalf();
 					
 					break;
 

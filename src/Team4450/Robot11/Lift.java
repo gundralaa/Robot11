@@ -9,8 +9,8 @@ public class Lift
 {
 	private final Robot			robot;
 	// Only climb winch in use at the moment.
-	private boolean				climbWinch = true, holdingPosition, holdingHeight, footReleased;
-	private boolean				forksReleased;
+	private boolean				climbWinch = true, holdingPosition, holdingHeight;
+	private boolean				buddyBarReleased, brakeEngaged;
 	private final PIDController	liftPidController;
 	
 	public Lift(Robot robot)
@@ -19,9 +19,10 @@ public class Lift
 		
 		this.robot = robot;
 
+		releaseBrake();
 		//Devices.armDeployServo.setAngle(0);
-		Devices.forkDeployServo.setPosition(0.2);
-		Devices.footDeloyServo.set(1);
+		Devices.buddyBarDeployServo.setPosition(0.2);
+		//Devices.footDeloyServo.set(1);
 
 		liftPidController = new PIDController(0.0, 0.0, 0.0, Devices.winchEncoder, Devices.climbWinch);
 		
@@ -65,36 +66,59 @@ public class Lift
 		updateDS();
 	}
 	
-	public void forkExtendHalf()
+	public void servoExtendHalf()
 	{
 		Util.consoleLog();
 		
-		Devices.forkDeployServo.setPosition(0.5);
+		Devices.buddyBarDeployServo.setPosition(0.5);
 		
-		forksReleased = true;
+		buddyBarReleased = true;
 	}
 	
-	public void forkExtendFull()
+	public void servoExtendFull()
 	{
 		Util.consoleLog();
 		
-		Devices.forkDeployServo.setPosition(0.82);
+		Devices.buddyBarDeployServo.setPosition(0.82);
 		
-		forksReleased = true;
+		buddyBarReleased = true;
 	}
 	
-	public void forkRetract()
+	public void servoRetract()
 	{
 		Util.consoleLog();
 		
-		Devices.forkDeployServo.setPosition(0.2);
+		Devices.buddyBarDeployServo.setPosition(0.2);
 		
-		forksReleased = false;
+		buddyBarReleased = false;
 	}
 	
-	public boolean isForksReleased()
+	public boolean isBuddyBarReleased()
 	{
-		return forksReleased;
+		return buddyBarReleased;
+	}
+	
+	public void releaseBrake()
+	{
+		Util.consoleLog();
+		
+		Devices.brakeValve.Open();
+		
+		brakeEngaged = false;
+	}
+	
+	public void engageBrake()
+	{
+		Util.consoleLog();
+		
+		Devices.brakeValve.Close();
+		
+		brakeEngaged = true;
+	}
+	
+	public boolean isBrakeEngaged()
+	{
+		return brakeEngaged;
 	}
 	
 	public void updateDS()
@@ -153,25 +177,24 @@ public class Lift
 			Devices.liftWinch.set(power);
 	}
 	
-	public void releaseForks()
+	public void releaseBuddyBar()
 	{
 		Util.consoleLog();
 		
-		//Devices.armDeployServo.setAngle(60);
-		forkExtendHalf();
+		servoExtendHalf();
 	}
 	
-	public void releaseFoot()
-	{
-		Util.consoleLog();
-		
-		if ((robot.isClone && Devices.winchEncoder.get() > 8750) ||
-			(robot.isComp && Devices.winchEncoder.get() > 6500)) 	
-		{
-			Devices.footDeloyServo.setAngle(60);
-			footReleased = true;
-		}
-	}
+//	public void releaseFoot()
+//	{
+//		Util.consoleLog();
+//		
+//		if ((robot.isClone && Devices.winchEncoder.get() > 8750) ||
+//			(robot.isComp && Devices.winchEncoder.get() > 6500)) 	
+//		{
+//			Devices.footDeloyServo.setAngle(60);
+//			footReleased = true;
+//		}
+//	}
 	
 	// Automatically move lift to specified encoder count and hold it there.
 	// count < 0 turns pid controller off.
