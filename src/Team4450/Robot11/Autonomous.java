@@ -5,6 +5,7 @@ import Team4450.Lib.*;
 import Team4450.Robot11.Devices;
 import Team4450.Robot11.Lift.LiftHeight;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.MatchType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Autonomous extends GamePhase
@@ -41,7 +42,7 @@ public class Autonomous extends GamePhase
 		
 		Lift.getInstance(robot).extendWrist();
 		Lift.getInstance(robot).closeClaw();
-		Lift.getInstance(robot).setWinchBreak(false);
+		Lift.getInstance(robot).setWinchBrake(false);
 
 		// Initialize encoder.
 		Devices.driveEncoder1.reset();
@@ -85,14 +86,6 @@ public class Autonomous extends GamePhase
 			case 'L':
 				scoreLeftSwitch();
 				break;
-			case 'R':
-				//if (robot.gameMessage.charAt(1) == 'L') {
-				//	scoreLeftScale();
-				//} else {
-				//moveForwardSide(); //Removed Scale functionality
-				//}
-				moveForwardAndTurnLeft();
-				break;
 			default:
 				moveForwardSide();
 			}
@@ -101,14 +94,6 @@ public class Autonomous extends GamePhase
 			switch(robot.gameMessage.charAt(0)) {
 			case 'R':
 				scoreRightSwitch();
-				break;
-			case 'L':
-				//if (robot.gameMessage.charAt(1) == 'R') {
-				//	scoreRightScale();
-				//} else {
-				//moveForwardSide(); //Removed Scale functionality
-				//}
-				moveForwardAndTurnRight();
 				break;
 			default:
 				moveForwardSide();
@@ -209,18 +194,6 @@ public class Autonomous extends GamePhase
 		autoDrive(-.3, 1970, true); //Move out a little
 	}
 
-	private void moveForwardAndTurnRight() {
-		autoDrive(-.5, 4600, true); //-done
-		autoRotate(.5, 90);
-		autoDrive(-.5, 1470, true); //-done
-	}
-
-	private void moveForwardAndTurnLeft() {
-		autoDrive(-.5, 4600, true); //-done
-		autoRotate(-.5, 90);
-		autoDrive(-.5, 1470, true); //-done
-	}
-	
 	private void scoreCenterRightAlt() {
 		moveLift(LiftHeight.SWITCH);
 		autoDrive(-.40, 100, true); //Move forward a bit
@@ -243,13 +216,13 @@ public class Autonomous extends GamePhase
 	
 	private void scoreCenterRightCurve() {
 		moveLift(LiftHeight.SWITCH);
-		autoSCurve(-.50, -6, 30, 800);
+		autoSCurve(-.50, -6, 30, 950); //TODO Test
 		ejectCube();
 	}
 	
 	private void scoreCenterLeftCurve() {
 		moveLift(LiftHeight.SWITCH);
-		autoSCurve(-.50, 6, 30,	600);
+		autoSCurve(-.50, 6, 30,	900);
 		ejectCube();
 	}
 	
@@ -385,7 +358,7 @@ public class Autonomous extends GamePhase
 		
 		Devices.robotDrive.curvatureDrive(power*.7, -curve * gain, false);
 		
-		while (isAutoActive() && Math.abs((int) adjustAngle(Devices.navx.getYaw())) < targetAngle) 
+		while (isAutoActive() && Math.abs((int) adjustAngle(Devices.navx.getYaw())) < (targetAngle-10) && ((Devices.ds.getMatchType() != MatchType.None) ? Devices.ds.getMatchTime() > 5 : true)) 
 		{
 			LCD.printLine(6, "angle=%.2f adjusted angle=%.2f", Devices.navx.getYaw(), adjustAngle(Devices.navx.getYaw()));
 			Util.consoleLog("angle=%.2f adjusted angle=%.2f", Devices.navx.getYaw(), adjustAngle(Devices.navx.getYaw()));

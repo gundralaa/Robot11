@@ -106,6 +106,7 @@ public class Devices
 	}
 
 	public static void resetServo() {
+		Util.consoleLog();
 		barReleaseServo.setPosition(0.5);
 	}
 
@@ -164,13 +165,25 @@ public class Devices
 				RRCanTalon.getMotorOutputVoltage(), RRCanTalon.getOutputCurrent());
 	}
 	
+	private static boolean highGear = false;
+	public static boolean isHighGear() { return highGear; }
+	
+	public static void toggleGear() {
+		if (highGear)
+			lowGear();
+		else
+			highGear();
+	}
+	
 	public static void lowGear() {
+		Util.consoleLog("Low Gear");
 		Devices.gearShifter.SetA();
 		SmartDashboard.putBoolean("Low", true);
 		SmartDashboard.putBoolean("High", false);
 	}
 	
 	public static void highGear() { //TODO Check Clone v Comp
+		Util.consoleLog("High Gear");
 		Devices.gearShifter.SetB();
 		SmartDashboard.putBoolean("Low", false);
 		SmartDashboard.putBoolean("High", true);

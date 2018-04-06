@@ -31,10 +31,21 @@ public class Lift {
 		pidController.setPercentTolerance(1); //1%
 		
 		SmartDashboard.putData("Sean's Debug Table/Lift/PID", pidController);
+		Util.consoleLog("Lift Created."); //Life created.
 	}
 	
 	public PIDController getPID() {
 		return pidController;
+	}
+	
+	private boolean wristExtended = true;
+	public boolean isWristExtended() { return wristExtended; }
+	
+	public void toggleWrist() {
+		if (wristExtended)
+			retractWrist();
+		else
+			extendWrist();
 	}
 
 	public void extendWrist() {
@@ -42,6 +53,7 @@ public class Lift {
 		else Devices.grabberWristValve.SetB();
 		SmartDashboard.putBoolean("Deployed", true);
 		Util.consoleLog();
+		wristExtended = true;
 	}
 
 	public void retractWrist() {
@@ -49,10 +61,18 @@ public class Lift {
 		else Devices.grabberWristValve.SetA();
 		SmartDashboard.putBoolean("Deployed", false);
 		Util.consoleLog();
+		wristExtended = false;
 	}
 
 	private boolean clawOpen = false;
 	public boolean getClawOpen() {return clawOpen; }
+	
+	public void toggleClaw() {
+		if (clawOpen)
+			closeClaw();
+		else
+			openClaw();
+	}
 	
 	public void openClaw() {
 		if (Robot.isComp) Devices.grabberGrabValve.SetB();
@@ -89,7 +109,7 @@ public class Lift {
 	};
 		
 	public void setLiftHeight(LiftHeight height) {
-		Util.consoleLog();
+		Util.consoleLog("Set Height to " + height.name());
 		pidController.enable();
 		pidController.setSetpoint(height.getEncoderCount());
 		PIDChecker pidChecker = new PIDChecker(pidController, robot);
@@ -101,6 +121,7 @@ public class Lift {
 	}
 	
 	public void stopAutoLift() {
+		Util.consoleLog();
 		pidController.disable();
 	}
 
@@ -109,8 +130,10 @@ public class Lift {
 		SmartDashboard.putBoolean("Override", toggleOverride);
 	}
 	
-	public void setWinchBreak(boolean enableBrake) {
-		if (enableBrake)
+	public void setWinchBrake(boolean enableBrake) {
+		Util.consoleLog("Set Winch Brake: " + enableBrake);
+		SmartDashboard.putBoolean("Brake", enableBrake);
+		if (!enableBrake)
 			Devices.winchBrakeValve.SetA();
 		else 
 			Devices.winchBrakeValve.SetB();
@@ -202,7 +225,6 @@ class IntakeThread extends Thread {
 		if (robot.isEnabled()) {
 			Util.consoleLog("AutoIntake Start");
 			SmartDashboard.putBoolean("AutoGrab", true);
-			Lift.getInstance(robot).openClaw();
 			Devices.grabberMotors.set(.5);
 			while (Devices.grabberMotorLeft.getOutputCurrent() < stopCurrent && !isInterrupted() && robot.isEnabled()) { LCD.printLine(10, "Intake Voltage=%f", Devices.grabberMotorLeft.getOutputCurrent());Timer.delay(0.02); }
 			Devices.grabberMotors.set(0);

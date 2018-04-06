@@ -56,7 +56,7 @@ class Teleop extends GamePhase
 		Devices.robotDrive.setSafetyEnabled(false);
 		Devices.resetServo();
 		Devices.lowGear();
-		Lift.getInstance(robot).setWinchBreak(false);
+		Lift.getInstance(robot).setWinchBrake(false);
 		
 		Devices.SetCANTalonBrakeMode(false); //For 2018 force coast
 
@@ -66,7 +66,8 @@ class Teleop extends GamePhase
 		LCD.printLine(2, "All=%s, Start=%d, FMS=%b", robot.alliance.name(), robot.location, Devices.ds.isFMSAttached());
 
 		// Configure LaunchPad and Joystick event handlers.
-
+		Util.consoleLog("Begin Joystick Setup");
+		
 		launchPad = new LaunchPad(Devices.launchPad, LaunchPadControlIDs.BUTTON_BLUE, this);
 
 		LaunchPadControl lpControl = launchPad.AddControl(LaunchPadControlIDs.ROCKER_LEFT_BACK);
@@ -74,18 +75,21 @@ class Teleop extends GamePhase
 
 		lpControl = launchPad.AddControl(LaunchPadControlIDs.ROCKER_LEFT_FRONT);
 		lpControl.controlType = LaunchPadControlTypes.SWITCH;
+		
+		lpControl = launchPad.AddControl(LaunchPadControlIDs.ROCKER_RIGHT);
+		lpControl.controlType = LaunchPadControlTypes.SWITCH;
 
 		//Example on how to track button:
 		//launchPad.AddControl(LaunchPadControlIDs.BUTTON_COLOR_HERE);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLUE);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED_RIGHT);
-		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED);
+		//launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLUE_RIGHT);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_YELLOW);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLACK);
 		launchPad.AddControl(LaunchPadControlIDs.BUTTON_GREEN);
 		launchPad.AddControl(LaunchPadControlIDs.ROCKER_LEFT_BACK);
-		launchPad.AddControl(LaunchPadControlIDs.ROCKER_RIGHT);
+		
 		launchPad.addLaunchPadEventListener(new LaunchPadListener());
 		launchPad.Start();
 
@@ -116,7 +120,9 @@ class Teleop extends GamePhase
 		utilityStick.Start();
 
 		// Tighten up dead zone for smoother climber movement.
-		utilityStick.deadZone = .08;
+		utilityStick.deadZone = .15;
+		
+		Util.consoleLog("Joystick Setup Finished.");
 
 		// Set CAN Talon brake mode by rocker switch setting.
 		// We do this here so that the Utility stick thread has time to read the initial state
@@ -293,29 +299,25 @@ class Teleop extends GamePhase
 				break;
 
 			case BUTTON_RED_RIGHT: //Toggle wrist
-				if (launchPadEvent.control.latchedState)
-					Lift.getInstance(robot).extendWrist();
-				else 
-					Lift.getInstance(robot).retractWrist();
+				Lift.getInstance(robot).toggleWrist();
 				break;
 
 			case BUTTON_RED: //Gear Shift
-				if (launchPadEvent.control.latchedState)
-					Devices.highGear();
-				else
-					Devices.lowGear();
+				Devices.toggleGear();
 				break;
 				
 			case BUTTON_BLUE_RIGHT: //Intake Cube Auto
 				Lift.getInstance(robot).toggleIntakeCube();
 				break;
 				
-			case BUTTON_YELLOW: //Climb height
+			/*
+			 	case BUTTON_YELLOW: //Climb height
 				Lift.getInstance(robot).setLiftHeight(LiftHeight.CLIMB);
 				break;
+			*/
 				
-			case BUTTON_BLACK: //Toggle break
-				Lift.getInstance(robot).setWinchBreak(control.latchedState);
+			case BUTTON_YELLOW: //Toggle break (BLACK)
+				Lift.getInstance(robot).setWinchBrake(control.latchedState);
 				break;
 				
 			case BUTTON_GREEN:
@@ -438,10 +440,7 @@ class Teleop extends GamePhase
 			 */
 			
 			case TRIGGER:
-				if (button.latchedState)
-					Devices.highGear();
-				else
-					Devices.lowGear();
+				Devices.toggleGear();
 				break;
 			
 			default:
@@ -478,10 +477,7 @@ class Teleop extends GamePhase
 			 */
 			
 			case TRIGGER: //Toggle Claw Pressure
-				if (button.latchedState)
-					Lift.getInstance(robot).closeClaw();
-				else
-					Lift.getInstance(robot).openClaw();
+				Lift.getInstance(robot).toggleClaw();
 				break;
 				
 			case TOP_MIDDLE:
@@ -506,9 +502,8 @@ class Teleop extends GamePhase
 				
 			case TOP_LEFT:
 				Util.consoleLog("TOP_LEFT");
-				if (Lift.getInstance(robot).isAutoLifting()) {
+				if (Lift.getInstance(robot).isAutoLifting())
 					Lift.getInstance(robot).stopAutoLift();
-				}
 				else
 					Lift.getInstance(robot).setLiftHeight(LiftHeight.SWITCH);
 				
