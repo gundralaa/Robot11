@@ -157,6 +157,7 @@ class Teleop extends GamePhase
 
 			utilY = utilityStick.GetY();
 
+			LCD.printLine(3, "limit switch= %b", Devices.winchLimitSwitch.get());
 			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilY=%.4f", leftY, rightY, utilY);
 			LCD.printLine(6, "yaw=%.2f, adj yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), adjustAngle(Devices.navx.getYaw()), Devices.navx.getTotalYaw(), 
 					Devices.navx.getYawRate(), Devices.navx.getHeading());

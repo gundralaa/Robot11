@@ -180,6 +180,7 @@ public class Devices
 		Devices.gearShifter.SetA();
 		SmartDashboard.putBoolean("Low", true);
 		SmartDashboard.putBoolean("High", false);
+		highGear = false;
 	}
 	
 	public static void highGear() { //TODO Check Clone v Comp
@@ -187,6 +188,7 @@ public class Devices
 		Devices.gearShifter.SetB();
 		SmartDashboard.putBoolean("Low", false);
 		SmartDashboard.putBoolean("High", true);
+		highGear = true;
 	}
 
 	public static void updateNetworkTables() {

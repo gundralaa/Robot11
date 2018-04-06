@@ -218,12 +218,18 @@ public class Autonomous extends GamePhase
 		moveLift(LiftHeight.SWITCH);
 		autoSCurve(-.50, -6, 30, 950); //TODO Test
 		ejectCube();
+		autoDrive(.50, 1400, true);
+		Lift.getInstance(robot).setLiftHeight(LiftHeight.GROUND);
+		autoRotate(.50, 45); //Turn to pile
 	}
 	
 	private void scoreCenterLeftCurve() {
 		moveLift(LiftHeight.SWITCH);
-		autoSCurve(-.50, 6, 30,	900);
+		autoSCurve(-.50, 6, 35,	1050);
 		ejectCube();
+		autoDrive(.50, 1400, true);
+		Lift.getInstance(robot).setLiftHeight(LiftHeight.GROUND);
+		autoRotate(-.50, 45); //Turn to pile
 	}
 	
 	private void holly2Cube() { //FIXME Debug
