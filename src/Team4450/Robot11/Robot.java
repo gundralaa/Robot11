@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "SWF11.3-04.05.18-03";
+  static final String  	PROGRAM_NAME = "SWF11.3-04.06.18-01";
 
   public Properties		robotProperties;
   
@@ -230,9 +230,8 @@ public class Robot extends SampleRobot
     	  matchNumber = Devices.ds.getMatchNumber();
     	  gameMessage = Devices.ds.getGameSpecificMessage();
         
-          Util.consoleLog("Alliance=%s, Location=%d, FMS=%b event=%s match=%d msg=%s", 
-        		  		   alliance.name(), location, Devices.ds.isFMSAttached(), eventName, matchNumber, 
-        		  		   gameMessage);
+          Util.consoleLog("Alliance=%s, Location=%d, FMS=%b event=%s match=%d matchType=%s msg=%s", 
+        		  		   alliance.name(), location, Devices.ds.isFMSAttached(), eventName, matchNumber, Devices.ds.getMatchType().name(), gameMessage);
 
     	  // Reset persistent fault flags in control system modules.
           Devices.PDP.clearStickyFaults();

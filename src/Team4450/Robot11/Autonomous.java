@@ -30,7 +30,7 @@ public class Autonomous extends GamePhase
 
 	public void execute()
 	{
-		Util.consoleLog("Alliance=%s, Location=%d, Program=%d, FMS=%b, msg=%s", robot.alliance.name(), robot.location, program, 
+		Util.consoleLog("Alliance=%s, Location=%d, Program=%d, FMS=%b, msg=%s, match", robot.alliance.name(), robot.location, program, 
 				Devices.ds.isFMSAttached(), robot.gameMessage);
 		LCD.printLine(2, "Alliance=%s, Location=%d, FMS=%b, Program=%d, msg=%s", robot.alliance.name(), robot.location, 
 				Devices.ds.isFMSAttached(), program, robot.gameMessage);
@@ -216,11 +216,15 @@ public class Autonomous extends GamePhase
 	
 	private void scoreCenterRightCurve() {
 		moveLift(LiftHeight.SWITCH);
-		autoSCurve(-.50, -6, 30, 950); //TODO Test
+		autoSCurve(-.50, -6, 30, 950);
 		ejectCube();
 		autoDrive(.50, 1400, true);
 		Lift.getInstance(robot).setLiftHeight(LiftHeight.GROUND);
-		autoRotate(.50, 45); //Turn to pile
+		autoRotate(.50, 90); //Turn to center
+		autoDrive(-.50, 850, true); //Go to center //FIXME Find Encoder Count
+		autoRotate(-.50, 90); //Turn to pile
+		autoDrive(-.50, 300, true); //Go to front of pile //FIXME Find Encoder Count
+		Lift.getInstance(robot).toggleIntakeCube(); //Get cube
 	}
 	
 	private void scoreCenterLeftCurve() {
@@ -229,7 +233,11 @@ public class Autonomous extends GamePhase
 		ejectCube();
 		autoDrive(.50, 1400, true);
 		Lift.getInstance(robot).setLiftHeight(LiftHeight.GROUND);
-		autoRotate(-.50, 45); //Turn to pile
+		autoRotate(-.50, 90); //Turn to center
+		autoDrive(-.50, 850, true); //Go to center //FIXME Find Encoder Count
+		autoRotate(.50, 90); //Turn to pile
+		autoDrive(-.50, 300, true); //Go to front of pile //FIXME Find Encoder Count
+		Lift.getInstance(robot).toggleIntakeCube(); //Get cube
 	}
 	
 	private void holly2Cube() { //FIXME Debug
@@ -302,7 +310,7 @@ public class Autonomous extends GamePhase
 
 			if (power > 0) angle = -angle;
 
-			Util.consoleLog("adjusted yaw=%.2f heading=%.2f", adjustAngle(Devices.navx.getYaw()), Devices.navx.getHeading());
+			//Util.consoleLog("adjusted yaw=%.2f heading=%.2f", adjustAngle(Devices.navx.getYaw()), Devices.navx.getHeading());
 
 			// Note we invert sign on the angle because we want the robot to turn in the opposite
 			// direction than it is currently going to correct it. So a + angle says robot is veering
@@ -333,7 +341,7 @@ public class Autonomous extends GamePhase
 		Util.consoleLog("AutoRotate: " + power);
 		Devices.robotDrive.tankDrive(power, -power);
 
-		while (isAutoActive() && Math.abs((int) adjustAngle(Devices.navx.getYaw())) < angle) {Util.consoleLog("Angle: %.2f", adjustAngle(Devices.navx.getYaw()));Timer.delay(.020);} 
+		while (isAutoActive() && Math.abs((int) adjustAngle(Devices.navx.getYaw())) < angle) {Timer.delay(.020);} 
 
 		Util.consoleLog("AutoRotate: Stop. Adjusted Angle traveled: " + adjustAngle(Devices.navx.getYaw()));
 		Devices.robotDrive.tankDrive(0, 0);
@@ -354,7 +362,6 @@ public class Autonomous extends GamePhase
 		while (isAutoActive() && Math.abs((int) adjustAngle(Devices.navx.getYaw())) < targetAngle) 
 		{
 			LCD.printLine(6, "angle=%.2f adjusted angle=%.2f", Devices.navx.getYaw(), adjustAngle(Devices.navx.getYaw()));
-			Util.consoleLog("angle=%.2f adjusted angle=%.2f", Devices.navx.getYaw(), adjustAngle(Devices.navx.getYaw()));
 			Timer.delay(.020);
 		}
 		
@@ -367,7 +374,6 @@ public class Autonomous extends GamePhase
 		while (isAutoActive() && Math.abs((int) adjustAngle(Devices.navx.getYaw())) < (targetAngle-10) && ((Devices.ds.getMatchType() != MatchType.None) ? Devices.ds.getMatchTime() > 5 : true)) 
 		{
 			LCD.printLine(6, "angle=%.2f adjusted angle=%.2f", Devices.navx.getYaw(), adjustAngle(Devices.navx.getYaw()));
-			Util.consoleLog("angle=%.2f adjusted angle=%.2f", Devices.navx.getYaw(), adjustAngle(Devices.navx.getYaw()));
 			Timer.delay(.020);
 		}
 		

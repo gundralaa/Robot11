@@ -8,6 +8,7 @@ import Team4450.Lib.JoyStick.*;
 import Team4450.Lib.LaunchPad.*;
 import Team4450.Robot11.Lift.BarReleaseState;
 import Team4450.Robot11.Lift.LiftHeight;
+import edu.wpi.first.wpilibj.DriverStation.MatchType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -63,7 +64,7 @@ class Teleop extends GamePhase
 		Util.consoleLog();
 
 		LCD.printLine(1, "Mode: OperatorControl");
-		LCD.printLine(2, "All=%s, Start=%d, FMS=%b", robot.alliance.name(), robot.location, Devices.ds.isFMSAttached());
+		LCD.printLine(2, "Alliance=%s, Start=%d, FMS=%b", robot.alliance.name(), robot.location, Devices.ds.isFMSAttached());
 
 		// Configure LaunchPad and Joystick event handlers.
 		Util.consoleLog("Begin Joystick Setup");
@@ -318,7 +319,8 @@ class Teleop extends GamePhase
 			*/
 				
 			case BUTTON_YELLOW: //Toggle break (BLACK)
-				Lift.getInstance(robot).setWinchBrake(control.latchedState);
+				if (Devices.ds.getMatchTime() <= 45) 
+					Lift.getInstance(robot).setWinchBrake(control.latchedState);
 				break;
 				
 			case BUTTON_GREEN:
@@ -400,11 +402,13 @@ class Teleop extends GamePhase
 				 */
 				
 			case TOP_RIGHT:
-				Lift.getInstance(robot).setBarRelease(BarReleaseState.EXTENDPIN);
+				if (Devices.ds.getMatchTime() <= 45 || Devices.ds.getMatchType() == MatchType.None) 
+					Lift.getInstance(robot).setBarRelease(BarReleaseState.EXTENDPIN);
 				break;
 				
 			case TOP_BACK:
-				Lift.getInstance(robot).setBarRelease(BarReleaseState.RETRACTPIN);
+				if (Devices.ds.getMatchTime() <= 45 || Devices.ds.getMatchType() == MatchType.None) 
+					Lift.getInstance(robot).setBarRelease(BarReleaseState.RETRACTPIN);
 				break;
 				
 			default:
