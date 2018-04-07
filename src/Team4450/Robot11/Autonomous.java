@@ -220,11 +220,13 @@ public class Autonomous extends GamePhase
 		ejectCube();
 		autoDrive(.50, 1400, true);
 		Lift.getInstance(robot).setLiftHeight(LiftHeight.GROUND);
-		autoRotate(.50, 90); //Turn to center
-		autoDrive(-.50, 850, true); //Go to center //FIXME Find Encoder Count
-		autoRotate(-.50, 90); //Turn to pile
-		autoDrive(-.50, 300, true); //Go to front of pile //FIXME Find Encoder Count
+		autoRotate(.60, 90); //Turn to center
+		autoDrive(-.60, 850, true); //Go to center //FIXME Find Encoder Count
+		autoRotate(-.60, 90); //Turn to pile
 		Lift.getInstance(robot).toggleIntakeCube(); //Get cube
+		autoDrive(-.60, 350, true); //Go to front of pile //FIXME Find Encoder Count
+		Lift.getInstance(robot).closeClaw();
+		autoDrive(.60, 300, true);
 	}
 	
 	private void scoreCenterLeftCurve() {
@@ -236,8 +238,10 @@ public class Autonomous extends GamePhase
 		autoRotate(-.50, 90); //Turn to center
 		autoDrive(-.50, 850, true); //Go to center //FIXME Find Encoder Count
 		autoRotate(.50, 90); //Turn to pile
-		autoDrive(-.50, 300, true); //Go to front of pile //FIXME Find Encoder Count
 		Lift.getInstance(robot).toggleIntakeCube(); //Get cube
+		autoDrive(-.60, 350, true); //Go to front of pile //FIXME Find Encoder Count
+		Lift.getInstance(robot).closeClaw();
+		autoDrive(.60, 300, true);
 	}
 	
 	private void holly2Cube() { //FIXME Debug
