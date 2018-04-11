@@ -3,6 +3,7 @@ package Team4450.Robot11;
 
 import Team4450.Lib.*;
 import Team4450.Robot11.Devices;
+import edu.wpi.first.wpilibj.DriverStation.MatchType;
 //import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 //import edu.wpi.first.wpilibj.CounterBase.EncodingType;
@@ -57,6 +58,7 @@ public class Autonomous
 				Devices.ds.isFMSAttached(), program, robot.gameMessage);
 		
 		// Get the randomized scoring plate state.
+		
 		try
 		{
 			plateState = PlateStates.valueOf(robot.gameMessage);
@@ -65,19 +67,14 @@ public class Autonomous
 		
 		Devices.robotDrive.setSafetyEnabled(false);
 
-		Util.consoleLog("1");
 		// Initialize encoder.
 		Devices.wheelEncoder.reset();
         
-		Util.consoleLog("2");
        // Set NavX to heading 0.
 		Devices.navx.resetYaw();
 
-		Util.consoleLog("3");
 		Devices.navx.setHeading(0);
 
-		Util.consoleLog("4");
-		
 		// Determine which auto program to run as indicated by driver station.
 		switch (program)
 		{
@@ -251,7 +248,7 @@ public class Autonomous
 //				autoSCurve(-.50, SmartDashboard.getNumber("PValue", 6),
 //							(int) SmartDashboard.getNumber("IValue", 30),
 //							(int) SmartDashboard.getNumber("DValue", 900));
-				autoSCurve(-.50, 6, 30,	600);
+				autoSCurve(-.50, 6, 30,	900);
 
 				break;
 				
@@ -259,7 +256,7 @@ public class Autonomous
 //				autoSCurve(-.50, SmartDashboard.getNumber("PValue", -6),
 //						(int) SmartDashboard.getNumber("IValue", 30),
 //						(int) SmartDashboard.getNumber("DValue", 900));
-				autoSCurve(-.50, -6, 30, 800);
+				autoSCurve(-.50, -6, 30, 950);
 
 				break;
 		}
@@ -360,7 +357,7 @@ public class Autonomous
 	}
 	
 	// Auto drive straight in set direction and power for specified encoder count. Stops
-	// with or without brakes on CAN bus drive system. Uses NavX to go straight.
+	// with or without brakes on CAN bus drive system. Uses NavX to drive straight.
 	
 	private void autoDrive(double power, int encoderCounts, boolean enableBrakes)
 	{
@@ -473,7 +470,7 @@ public class Autonomous
 		// Reduce power so don't slam the switch too hard.
 		Devices.robotDrive.curvatureDrive(power * 0.7, -curve * gain, false);
 		
-		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) 
+		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle && (Devices.ds.getMatchType() != MatchType.None ? Devices.ds.getMatchTime() > 5 : true)) 
 		{
 			Timer.delay(.020);
 			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());

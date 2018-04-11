@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 @SuppressWarnings("deprecation")
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "RAC11-04.02.18-01";
+  static final String  	PROGRAM_NAME = "RAC11-04.11.18-01";
 
   public Properties		robotProperties;
   
@@ -201,6 +201,10 @@ public class Robot extends SampleRobot
     	  eventName = Devices.ds.getEventName();
     	  matchNumber = Devices.ds.getMatchNumber();
     	  gameMessage = Devices.ds.getGameSpecificMessage();
+          
+          Util.consoleLog("Alliance=%s, Location=%d, FMS=%b event=%s match=%d msg=%s", 
+        		  		   alliance.name(), location, Devices.ds.isFMSAttached(), eventName, matchNumber, 
+        		  		   gameMessage);
 
     	  // This code turns off the automatic compressor management if requested by DS.
     	  Devices.compressor.setClosedLoopControl(SmartDashboard.getBoolean("CompressorEnabled", true));

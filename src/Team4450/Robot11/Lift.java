@@ -111,6 +111,8 @@ public class Lift
 	{
 		Util.consoleLog();
 		
+		if (Devices.ds.getMatchTime() > 30) return;
+		
 		Devices.brakeValve.Close();
 		
 		brakeEngaged = true;
@@ -125,6 +127,7 @@ public class Lift
 	{
 		SmartDashboard.putBoolean("Winch", climbWinch);
 		SmartDashboard.putBoolean("TargetLocked", holdingHeight);
+		SmartDashboard.putBoolean("Brake", brakeEngaged);
 	}
 	
 	public void setWinchPower(double power)

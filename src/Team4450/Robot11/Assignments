@@ -106,4 +106,5 @@ Spit					boolean			True when cube grabber motors running in spit direction.
 Grabber					boolean			True when cube grabber is in the open position.
 Winch					boolean			True when climb winch is selected.
 AutoGrab				boolean			True when intake auto grab is enabled.
+Brake                	boolean			True when climber brake engaged.
 		  
