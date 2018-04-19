@@ -20,10 +20,8 @@ public class Lift
 		this.robot = robot;
 
 		releaseBrake();
-		//Devices.armDeployServo.setAngle(0);
-		Devices.buddyBarDeployServo.setPosition(0.2);
-		//Devices.footDeloyServo.set(1);
-
+		servoExtendHalf();
+		
 		liftPidController = new PIDController(0.0, 0.0, 0.0, Devices.winchEncoder, Devices.climbWinch);
 		
 		Devices.winchEncoder.reset();

@@ -152,7 +152,7 @@ public class Devices
 	  
 	  public static void SetCANTalonRampRate(double seconds)
 	  {
-		  Util.consoleLog("%f", seconds);
+		  Util.consoleLog("%.2f", seconds);
 		  
 		  LFCanTalon.configOpenloopRamp(seconds, 0);
 		  LRCanTalon.configOpenloopRamp(seconds, 0);

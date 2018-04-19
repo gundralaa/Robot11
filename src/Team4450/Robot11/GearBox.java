@@ -45,6 +45,8 @@ public class GearBox
 
 		Devices.highLowValve.SetA();
 		
+		Devices.SetCANTalonBrakeMode(false);
+		
 		lowSpeed = true;
 		
 		displayStatus();
@@ -60,6 +62,8 @@ public class GearBox
 		lowSpeed = false;
 		
 		Devices.highLowValve.SetB();
+		
+		Devices.SetCANTalonBrakeMode(true);
 		
 		highSpeed = true;
 		

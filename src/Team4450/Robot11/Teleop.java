@@ -120,7 +120,7 @@ class Teleop
 		utilityStick.Start();
 
 		// Set dead zone for smoother climber movement.
-		utilityStick.deadZone = .15;
+		utilityStick.deadZone = .20;
 
 		// Set CAN Talon brake mode by rocker switch setting.
 		// We do this here so that the Utility stick thread has time to read the initial state
@@ -128,9 +128,11 @@ class Teleop
 		// launch pad as the one that controls brake mode.
 		//if (robot.isComp) Devices.SetCANTalonBrakeMode(lpControl.latchedState);
 
-		Devices.SetCANTalonBrakeMode(false);	// force coast for 2018.
+		//Devices.SetCANTalonBrakeMode(false);	// force coast for 2018.
 		
-		//Devices.SetCANTalonRampRate(0.5);		// Try for 2018.
+		// Post season testing showed Anakin liked this setting, smoothing driving.
+		// He also asked for brakes off in low gear, brakes on in high. See GearBox.
+		Devices.SetCANTalonRampRate(0.5);
 		
 		// Set Navx current yaw to 0.
 		Devices.navx.resetYaw();
@@ -305,12 +307,7 @@ class Teleop
 					
 					break;
 					
-//				case BUTTON_BLUE:
-//					lift.releaseForks();
-//					
-//					break;
-					
-				case BUTTON_BLACK:
+				case BUTTON_YELLOW:
 					if (lift.isBrakeEngaged())
 						lift.releaseBrake();
 					else
@@ -327,16 +324,16 @@ class Teleop
 					
 					break;
 					
-				case BUTTON_YELLOW:
-					if (lift.isHoldingHeight())
-						lift.setHeight(-1);
-					else
-						if (robot.isClone)
-							lift.setHeight(14000);
-						else
-							lift.setHeight(7900);
+//				case BUTTON_YELLOW:
+//					if (lift.isHoldingHeight())
+//						lift.setHeight(-1);
+//					else
+//						if (robot.isClone)
+//							lift.setHeight(14000);
+//						else
+//							lift.setHeight(7900);
 					
-					break;
+//					break;
 					
 				case BUTTON_GREEN:
 					Devices.wheelEncoder.reset();
