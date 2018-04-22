@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "SWF11.3-04.07.18-01";
+  static final String  	PROGRAM_NAME = "SWF11.3-04.16.18-01";
 
   public Properties		robotProperties;
   
@@ -223,7 +223,7 @@ public class Robot extends SampleRobot
             
       	  SmartDashboard.putBoolean("Disabled", false);
       	  SmartDashboard.putBoolean("Teleop Mode", true);
-        
+      	  
       	  alliance = Devices.ds.getAlliance();
       	  location = Devices.ds.getLocation();
     	  eventName = Devices.ds.getEventName();

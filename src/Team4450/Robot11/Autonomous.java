@@ -221,10 +221,10 @@ public class Autonomous extends GamePhase
 		autoDrive(.50, 1400, true);
 		Lift.getInstance(robot).setLiftHeight(LiftHeight.GROUND);
 		autoRotate(.60, 90); //Turn to center
-		autoDrive(-.60, 850, true); //Go to center //FIXME Find Encoder Count
+		autoDrive(-.60, 850, true); //Go to center
 		autoRotate(-.60, 90); //Turn to pile
 		Lift.getInstance(robot).toggleIntakeCube(); //Get cube
-		autoDrive(-.60, 350, true); //Go to front of pile //FIXME Find Encoder Count
+		autoDrive(-.60, 350, true); //Go to front of pile
 		Lift.getInstance(robot).closeClaw();
 		autoDrive(.60, 300, true);
 	}
@@ -236,10 +236,10 @@ public class Autonomous extends GamePhase
 		autoDrive(.50, 1400, true);
 		Lift.getInstance(robot).setLiftHeight(LiftHeight.GROUND);
 		autoRotate(-.50, 90); //Turn to center
-		autoDrive(-.50, 850, true); //Go to center //FIXME Find Encoder Count
+		autoDrive(-.50, 850, true); //Go to center
 		autoRotate(.50, 90); //Turn to pile
 		Lift.getInstance(robot).toggleIntakeCube(); //Get cube
-		autoDrive(-.60, 350, true); //Go to front of pile //FIXME Find Encoder Count
+		autoDrive(-.60, 350, true); //Go to front of pile
 		Lift.getInstance(robot).closeClaw();
 		autoDrive(.60, 300, true);
 	}
