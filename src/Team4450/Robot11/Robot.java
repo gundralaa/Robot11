@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 @SuppressWarnings("deprecation")
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "RAC11-04.18.18-02";
+  static final String  	PROGRAM_NAME = "RAC11ID-04.23.18-01";
 
   public Properties		robotProperties;
   
@@ -111,7 +111,7 @@ public class Robot extends SampleRobot
 		
 		if (isClone) Devices.climbWinch.setInverted(true);
    		
-		// Competition needs encoder reversed to reads + as winch goes up.
+		// Competition needs encoder reversed to read + as winch goes up.
 		
    		if (isComp) Devices.winchEncoder.setReverseDirection(false);
 
@@ -144,10 +144,6 @@ public class Robot extends SampleRobot
        	cameraThread = CameraFeed.getInstance(); 
        	cameraThread.start();
 		
-		SmartDashboard.putNumber("PValue", Autonomous.pValue);
-		SmartDashboard.putNumber("IValue", Autonomous.iValue);
-		SmartDashboard.putNumber("DValue", Autonomous.dValue);
-
    		Util.consoleLog("end");
     }
     catch (Exception e) {Util.logException(e);}

@@ -19,10 +19,6 @@ public class Autonomous
 	private final GearBox	gearBox;
 	private final double	spitPower = .50;
 	
-	public static double	pValue = -6;
-	public static double	iValue = 30;
-	public static double	dValue = 900;
-	
 	Autonomous(Robot robot)
 	{
 		Util.consoleLog();
@@ -118,7 +114,7 @@ public class Autonomous
 	{
 		Util.consoleLog();
 		
-		autoDrive(-.50, 2490, true);	// 1606
+		autoDrive(.50, 2490, true);	// 1606
 	}
 
 	// Start from center (offset right). Move forward a bit to get off the wall. 
@@ -128,7 +124,7 @@ public class Autonomous
 	{
 		Util.consoleLog();
 		
-		autoDrive(-.30, 1970, true);	// 1270
+		autoDrive(.30, 1970, true);	// 1270
 	}
 
 	// Start from center (offset right). Evaluate game information. Determine which switch we
@@ -151,7 +147,7 @@ public class Autonomous
 		else
 			lift.setHeight(7900);
 		
-		autoDrive(-.40, 925, true);		// 596
+		autoDrive(.40, 925, true);		// 596
 		
 		switch (plateState)
 		{
@@ -160,17 +156,17 @@ public class Autonomous
 				return;
 				
 			case LLL: case LRL:
-				autoRotate(.50, 90);
-				autoDrive(-.60, 928, true);		// 663
 				autoRotate(-.50, 90);
-				autoDrive(-.40, 880, true);		// 567
+				autoDrive(.60, 928, true);		// 663
+				autoRotate(.50, 90);
+				autoDrive(.40, 880, true);		// 567
 				break;
 				
 			case RRR: case RLR:
-				autoRotate(-.50, 90);
-				autoDrive(-.60, 900, true);		// 857
 				autoRotate(.50, 90);
-				autoDrive(-.40, 880, true);		// 567
+				autoDrive(.60, 900, true);		// 857
+				autoRotate(-.50, 90);
+				autoDrive(.40, 880, true);		// 567
 				break;
 		}
 		
@@ -194,7 +190,7 @@ public class Autonomous
 		else
 			lift.setHeight(7900);
 		
-		autoDrive(-.40, 100, true);		// 596
+		autoDrive(.40, 100, true);		// 596
 		
 		switch (plateState)
 		{
@@ -203,17 +199,17 @@ public class Autonomous
 				return;
 				
 			case LLL: case LRL:
-				autoRotate(.50, 26);
-				autoDrive(-.60, 2100, true);	// 663
+				autoRotate(-.50, 26);
+				autoDrive(.60, 2100, true);	// 663
 				//autoRotate(-.50, 90);
-				//autoDrive(-.40, 880, true);		// 567
+				//autoDrive(.40, 880, true);		// 567
 				break;
 				
 			case RRR: case RLR:
-				autoRotate(-.50, 18);
-				autoDrive(-.60, 1900, true);	// 857
+				autoRotate(.50, 18);
+				autoDrive(.60, 1900, true);	// 857
 				//autoRotate(.50, 12);
-				//autoDrive(-.40, 880, true);		// 567
+				//autoDrive(.40, 880, true);		// 567
 				break;
 		}
 		
@@ -245,18 +241,12 @@ public class Autonomous
 				return;
 				
 			case LLL: case LRL:
-//				autoSCurve(-.50, SmartDashboard.getNumber("PValue", 6),
-//							(int) SmartDashboard.getNumber("IValue", 30),
-//							(int) SmartDashboard.getNumber("DValue", 900));
-				autoSCurve(-.50, 6, 30,	900);
+				autoSCurve(.50, -6, 30,	900);
 
 				break;
 				
 			case RRR: case RLR:
-//				autoSCurve(-.50, SmartDashboard.getNumber("PValue", -6),
-//						(int) SmartDashboard.getNumber("IValue", 30),
-//						(int) SmartDashboard.getNumber("DValue", 900));
-				autoSCurve(-.50, -6, 30, 950);
+				autoSCurve(.50, 6, 30, 950);
 
 				break;
 		}
@@ -302,7 +292,7 @@ public class Autonomous
 					//break;
 					
 				case RRR:  case RLR:	// No plate available.
-					autoDrive(-.50, 2500, true);	// 4600/2967
+					autoDrive(.50, 2500, true);	// 4600/2967
 					//autoRotate(-.50, 90);
 					//autoDrive(-.50, 1470, true);	// 948
 					
@@ -313,9 +303,9 @@ public class Autonomous
 					return;
 					
 				case LRL: case LLL:		// Switch available.
-					autoDrive(-.50, 3180, true);	// 2051
+					autoDrive(.50, 3180, true);	// 2051
 					autoRotate(-.50, 90);
-					autoDrive(-.30, 320, true);		// 206
+					autoDrive(.30, 320, true);		// 206
 					break;
 			}
 		}
@@ -327,7 +317,7 @@ public class Autonomous
 					return;
 					
 				case LLL: case LRL:	// No plate available.
-					autoDrive(-.50, 2500, true);	// 4600/2967
+					autoDrive(.50, 2500, true);	// 4600/2967
 					//autoRotate(.50, 90);
 					//autoDrive(-.50, 1470, true);	// 948
 					
@@ -343,9 +333,9 @@ public class Autonomous
 //					break;
 //					
 				case RLR: case RRR:	// Switch available.
-					autoDrive(-.50, 3180, true);	// 2051
+					autoDrive(.50, 3180, true);	// 2051
 					autoRotate(.50, 90);
-					autoDrive(-.30, 320, true);		// 206s
+					autoDrive(.30, 320, true);		// 206s
 					break;
 			}
 		}
@@ -356,9 +346,13 @@ public class Autonomous
 		
 	}
 	
-	// Auto drive straight in set direction and power for specified encoder count. Stops
-	// with or without brakes on CAN bus drive system. Uses NavX to drive straight.
-	
+	/**
+	 * Auto drive straight in set direction and power for specified encoder count. Stops
+	 * with or without brakes on CAN bus drive system. Uses NavX to drive straight.
+	 * @param power Speed, + is forward.
+	 * @param encoderCounts encoder counts to travel.
+	 * @param enableBrakes True to enable brakes.
+	 */
 	private void autoDrive(double power, int encoderCounts, boolean enableBrakes)
 	{
 		int		angle;
@@ -387,7 +381,7 @@ public class Autonomous
 			
 			// Invert angle for backwards.
 			
-			if (power > 0) angle = -angle;
+			if (power < 0) angle = -angle;
 
 			LCD.printLine(5, "angle=%d", angle);
 			
@@ -405,7 +399,9 @@ public class Autonomous
 			// the code and would match what curvatureDrive expects. Will wait on that until after
 			// 2018 season. After fixing that, the angle would again need to be inverted.
 			
-			Devices.robotDrive.curvatureDrive(power, angle * gain, false);
+			// Done in this branch for testing 4-23-18.
+			
+			Devices.robotDrive.curvatureDrive(power, -angle * gain, false);
 			
 			Timer.delay(.020);
 		}
@@ -415,11 +411,11 @@ public class Autonomous
 		Util.consoleLog("end: actual count=%d", Math.abs(Devices.wheelEncoder.get()));
 	}
 	
-	// Auto rotate left or right the specified angle. Left/right from robots forward view.
-	// Turn right, power is -
-	// Turn left, power is +
-	// angle of rotation is always +.
-	
+	/**
+	 * Auto rotate left or right the specified angle. Left/right from robots forward looking view.
+	 * @param power Speed of rotation, + is rotate right, - is rotate left.
+	 * @param angle Angle to rotate, always +.
+	 */
 	private void autoRotate(double power, int angle)
 	{
 		Util.consoleLog("pwr=%.2f  angle=%d", power, angle);
@@ -435,6 +431,13 @@ public class Autonomous
 		Devices.robotDrive.tankDrive(0, 0);
 	}
 	
+	/**
+	 * Drive in S curve, curve one direction, drive straight, curve back to starting heading.
+	 * @param power Speed to drive, + is forward.
+	 * @param curve Rate of rotation (-1.0 <-> 1.0), + is right or clockwise.
+	 * @param targetAngle Angle to turn, always +.
+	 * @param straightEncoderCounts Counts to travel on straight leg.
+	 */
 	private void autoSCurve(double power, double curve, int targetAngle, int straightEncoderCounts)
 	{
 		double	gain = .05;
@@ -445,7 +448,7 @@ public class Autonomous
 		
 		// We start out driving in a curve until we have turned the desired angle.
 		// Then we drive straight the desired distance then curve back to starting
-		// angle. Curve is - for right, + for left.
+		// heading. Curve is + for right, - for left.
 		
 		Devices.robotDrive.curvatureDrive(power, curve * gain, false);
 		

@@ -91,12 +91,12 @@ public class Devices
 	      intakeMotorR.setNeutralMode(NeutralMode.Brake);
 	      
 	      // Configure CAN Talons with correct inversions.
-	      LFCanTalon.setInverted(false);
-		  LRCanTalon.setInverted(false);
+	      LFCanTalon.setInverted(true);
+		  LRCanTalon.setInverted(true);
 		  
-		  RFCanTalon.setInverted(false);
-		  RRCanTalon.setInverted(false);
-	      
+		  RFCanTalon.setInverted(true);
+		  RRCanTalon.setInverted(true);
+
 	      // Turn on brake mode for drive CAN Talons.
 	      SetCANTalonBrakeMode(true);
 	      

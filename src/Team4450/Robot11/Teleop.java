@@ -56,7 +56,7 @@ class Teleop
 		if (grabber != null) grabber.dispose();
 	}
 
-	void OperatorControl()
+	void OperatorControl() throws Exception
 	{
 		double	rightY = 0, leftY = 0, utilX = 0, utilY = 0, rightX = 0, leftX = 0;
 		double	gain = .05;
@@ -64,7 +64,7 @@ class Teleop
 		int		angle;
 
 		// Motor safety turned off during initialization.
-		//Devices.robotDrive.setSafetyEnabled(false);
+		Devices.robotDrive.setSafetyEnabled(false);
 
 		Util.consoleLog();
 
@@ -120,18 +120,21 @@ class Teleop
 		utilityStick.Start();
 
 		// Set dead zone for smoother climber movement.
-		utilityStick.deadZone = .20;
+		utilityStick.deadZone(.20);
+		
+		// Invert driving joy sticks so + values mean forward.
+		leftStick.invertY(true);
+		rightStick.invertY(true);
 
 		// Set CAN Talon brake mode by rocker switch setting.
 		// We do this here so that the Utility stick thread has time to read the initial state
 		// of the rocker switch. Depends on lpcontrol being the last control defined for the 
 		// launch pad as the one that controls brake mode.
 		//if (robot.isComp) Devices.SetCANTalonBrakeMode(lpControl.latchedState);
-
-		//Devices.SetCANTalonBrakeMode(false);	// force coast for 2018.
 		
 		// Post season testing showed Anakin liked this setting, smoothing driving.
 		// He also asked for brakes off in low gear, brakes on in high. See GearBox.
+		// It controls brake setting.
 		Devices.SetCANTalonRampRate(0.5);
 		
 		// Set Navx current yaw to 0.
@@ -160,10 +163,10 @@ class Teleop
 
 			utilY = utilityStick.GetY();
 
-			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilY=%.4f", leftY, rightY, utilY);
+			LCD.printLine(4, "leftY=%.3f  rightY=%.3f  utilY=%.3f", leftY, rightY, utilY);
 			LCD.printLine(5, "Wheel=%d  wheel2=%d  winch=%d  switch=%b", Devices.wheelEncoder.get(), 
 					Devices.wheelEncoder2.get(), Devices.winchEncoder.get(), Devices.winchSwitch.get());
-			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw() * 1.2, 
+			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), 
 					Devices.navx.getTotalYaw(), Devices.navx.getYawRate(), Devices.navx.getHeading());
 			LCD.printLine(7, "intake current=%f", Devices.intakeMotorL.getOutputCurrent());
 			LCD.printLine(8, "pressureV=%.2f  psi=%d", robot.monitorCompressorThread.getVoltage(), 
@@ -209,8 +212,9 @@ class Teleop
 						// Y axis sign to be + for forward. This would make more sense and simplify understanding
 						// the code and would match what curvatureDrive expects. Will wait on that until after
 						// 2018 season. After fixing that, the angle would again need to be inverted.
+						// Fixed for testing 4-23-18.
 
-						Devices.robotDrive.curvatureDrive(rightY, angle * gain, false);
+						Devices.robotDrive.curvatureDrive(rightY, -angle * gain, false);
 
 						steeringAssistMode = true;
 					}
@@ -249,8 +253,6 @@ class Teleop
 
 	private boolean isLeftRightEqual(double left, double right, double percent)
 	{
-		//if (left == right) return true;
-
 		if (Math.abs(left - right) <= (1 * (percent / 100))) return true;
 
 		return false;
@@ -338,7 +340,6 @@ class Teleop
 				case BUTTON_GREEN:
 					Devices.wheelEncoder.reset();
 					Devices.wheelEncoder2.reset();
-					
 					break;
 					
 				default:
@@ -409,17 +410,23 @@ class Teleop
 					
 				case TOP_BACK:
 					lift.servoRetract();
-					
 					break;
-//					
-//				case TOP_LEFT:
+					
+				case TOP_LEFT:
 //					lift.servoExtendHalf();
-//					
 //					break;
-//					
+//		
+					if (lift.isHoldingHeight())
+						lift.setHeight(-1);
+					else if (robot.isClone)
+						lift.setHeight(14000);
+					else
+						lift.setHeight(7900);
+				
+					break;
+					
 				case TOP_RIGHT:
 					lift.servoExtendHalf();
-					
 					break;
 
 			//Example of Joystick Button case:
@@ -521,9 +528,9 @@ class Teleop
 					if (lift.isHoldingHeight())
 						lift.setHeight(-1);
 					else if (robot.isClone)
-						lift.setHeight(10100);
+						lift.setHeight(900);
 					else
-						lift.setHeight(900);	// 7900
+						lift.setHeight(900);	// vault opening height.
 					
 					break;
 	
