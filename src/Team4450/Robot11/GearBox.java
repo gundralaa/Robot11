@@ -36,6 +36,7 @@ public class GearBox
 
 	/**
 	 * Set gear boxes into low speed. Pushes the dog ring to the inside.
+	 * Brake mode off.
 	 */
 	public void lowSpeed()
 	{
@@ -54,6 +55,7 @@ public class GearBox
 
 	/**
 	 * Set gear boxes into high speed. Pushes the dog ring to the outside.
+	 * Brake mode on.
 	 */
 	public void highSpeed()
 	{
