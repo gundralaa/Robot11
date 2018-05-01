@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 @SuppressWarnings("deprecation")
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "RAC11ID-04.23.18-01";
+  static final String  	PROGRAM_NAME = "RAC11ID-05.01.18-01";
 
   public Properties		robotProperties;
   
@@ -38,7 +38,10 @@ public class Robot extends SampleRobot
   Thread               	monitorBatteryThread, monitorPDPThread;
   MonitorCompressor		monitorCompressorThread;
   CameraFeed			cameraThread;
-      
+  
+  Teleop 				teleOp;
+  Autonomous 			autonomous;
+  
   // Constructor.
   
   public Robot() //throws IOException
@@ -211,16 +214,19 @@ public class Robot extends SampleRobot
              
     	  // Start autonomous process contained in the Autonomous class.
         
-    	  Autonomous autonomous = new Autonomous(this);
+    	  autonomous = new Autonomous(this);
         
     	  autonomous.execute();
-        
-    	  autonomous.dispose();
-    	  
-    	  SmartDashboard.putBoolean("Auto Mode", false);
-    	  Util.consoleLog("end");
       }
       catch (Exception e) {Util.logException(e);}
+      
+      finally
+      {
+      	  autonomous.dispose();
+
+      	  SmartDashboard.putBoolean("Auto Mode", false);
+      	  Util.consoleLog("end");
+      }
   }
 
   // Called at the start of the teleop period.
@@ -256,15 +262,18 @@ public class Robot extends SampleRobot
         
           // Start operator control process contained in the Teleop class.
         
-          Teleop teleOp = new Teleop(this);
+          teleOp = new Teleop(this);
        
           teleOp.OperatorControl();
-        
-          teleOp.dispose();
-        	
-          Util.consoleLog("end");
        }
        catch (Exception e) {Util.logException(e);} 
+       
+       finally
+       {
+           teleOp.dispose();
+         	
+           Util.consoleLog("end");
+       }
   }
     
   public void test() 

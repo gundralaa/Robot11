@@ -66,11 +66,16 @@ public class Autonomous
 		// Initialize encoder.
 		Devices.wheelEncoder.reset();
         
-       // Set NavX to heading 0.
+       // Set NavX yaw tracking to 0.
 		Devices.navx.resetYaw();
 
+		// Set heading to initial angle (0 is robot pointed down the field) so
+		// NavX class can track which way the robot is pointed during the match.
 		Devices.navx.setHeading(0);
-
+		
+		// Set Talon ramp rate for smooth acceleration from stop.
+		//Devices.SetCANTalonRampRate(0.5);
+		
 		// Determine which auto program to run as indicated by driver station.
 		switch (program)
 		{
@@ -98,13 +103,16 @@ public class Autonomous
 				break;
 				
 			case 6:		// Start center score cube.
-				startCenterScore2();
+				startCenterScoreFast();
 				break;
 				
 			case 7:		// Start center score cube.
-				startCenterScore3();
+				startCenterScoreCurve();
 				break;
 		}
+		
+		
+		Util.consoleLog("y=%.2f  x=%.2f", Devices.navx.getAHRS().getDisplacementY(), Devices.navx.getAHRS().getDisplacementX());
 		
 		Util.consoleLog("end");
 	}
@@ -175,7 +183,7 @@ public class Autonomous
 		grabber.spit(spitPower);
 	}
 
-	private void startCenterScore2()
+	private void startCenterScoreFast()
 	{
 		Util.consoleLog(plateState.toString());
 		
@@ -219,7 +227,7 @@ public class Autonomous
 		
 	}
 
-	private void startCenterScore3()
+	private void startCenterScoreCurve()
 	{
 		Util.consoleLog(plateState.toString());
 		
@@ -241,12 +249,12 @@ public class Autonomous
 				return;
 				
 			case LLL: case LRL:
-				autoSCurve(.50, -6, 30,	900);
+				autoSCurve(.50, -.3, 30, 900);
 
 				break;
 				
 			case RRR: case RLR:
-				autoSCurve(.50, 6, 30, 950);
+				autoSCurve(.50, .3, 30, 950);
 
 				break;
 		}
@@ -357,6 +365,12 @@ public class Autonomous
 	{
 		int		angle;
 		double	gain = .05;
+		int		error = 0;
+		double	power2 = 0, pFactor, kP = .0002, minPower = .10;
+
+		// Min power is determined experimentally for each robot as the lowest power that
+		// will move the robot. We don't want the pid reduction in power at the end of
+		// the drive to fall below this level and cause the drive to stall before done.
 		
 		Util.consoleLog("pwr=%.2f, count=%d, brakes=%b", power, encoderCounts, enableBrakes);
 
@@ -366,13 +380,27 @@ public class Autonomous
 		Devices.wheelEncoder2.reset();
 		
 		if (robot.isClone) Timer.delay(0.3);
+		
+		Util.consoleLog("before reset=%.2f  y2=%.2f", Devices.navx.getYaw(), Devices.navx.getYaw2());
 			
 		Devices.navx.resetYaw();
+		Devices.navx.resetYaw2();
+		
+		//Devices.navx.resetYawWait(1, 50);
+		
+		Util.consoleLog("after reset=%.2f  y2=%.2f", Devices.navx.getYaw(), Devices.navx.getYaw2());
 		
 		while (isAutoActive() && Math.abs(Devices.wheelEncoder.get()) < encoderCounts) 
 		{
 			LCD.printLine(4, "wheel encoder=%d  winch encoder=%d", Devices.wheelEncoder.get(), Devices.winchEncoder.get());
-			
+
+			// Quick and dirty PID control to reduce power as we approach target encoder counts.
+			error = encoderCounts - Math.abs(Devices.wheelEncoder.get());
+			pFactor = error * kP;
+			power2 = power * pFactor;
+			Util.clampValue(power2, minPower, power);
+			Util.consoleLog("error=%d pfactor=%.2f power2=%.2f", error, pFactor, power2);
+
 			// Angle is negative if robot veering left, positive if veering right when going forward.
 			// It is opposite when going backward. Note that for this robot, - power means forward and
 			// + power means backward.
@@ -380,12 +408,12 @@ public class Autonomous
 			angle = (int) Devices.navx.getYaw();
 			
 			// Invert angle for backwards.
-			
+	
 			if (power < 0) angle = -angle;
 
 			LCD.printLine(5, "angle=%d", angle);
 			
-			Util.consoleLog("angle=%d", angle);
+			Util.consoleLog("angle=%d  y2=%.2f", angle, Devices.navx.getYaw2());
 			
 			// Note we invert sign on the angle because we want the robot to turn in the opposite
 			// direction than it is currently going to correct it. So a + angle says robot is veering
@@ -403,7 +431,7 @@ public class Autonomous
 			
 			Devices.robotDrive.curvatureDrive(power, -angle * gain, false);
 			
-			Timer.delay(.020);
+			Timer.delay(.010);
 		}
 
 		Devices.robotDrive.tankDrive(0, 0);				
@@ -418,17 +446,50 @@ public class Autonomous
 	 */
 	private void autoRotate(double power, int angle)
 	{
+		int		error = 0;
+		double	power2 = 0, pFactor, kP = .02, minPower = .10;
+
+		// Min power is determined experimentally for each robot as the lowest power that
+		// will rotate the robot. We don't want the pid reduction in power at the end of
+		// the rotation to fall below this level and cause the rotation to stall before done.
+		
 		Util.consoleLog("pwr=%.2f  angle=%d", power, angle);
 		
+		// Try to prevent over rotation.
+		Devices.SetCANTalonBrakeMode(true);
+
 		Devices.navx.resetYaw();
+		Devices.navx.resetYaw2();
 		
-		Devices.robotDrive.tankDrive(power, -power);
+		// Start rotation.
+		//Devices.robotDrive.tankDrive(power, -power);
 		
 		angle = navxFix(angle);
 
-		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) {Timer.delay(.020);} 
+		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) 
+		{
+			// Quick and dirty PID control to reduce power as we approach target angle.
+			error = angle - Math.abs((int) Devices.navx.getYaw());
+			pFactor = error * kP;
+			power2 = power * pFactor;
+			Util.clampValue(power2, minPower, power);
+			Devices.robotDrive.tankDrive(power, -power);
+			Util.consoleLog("angle=%f error=%d pfactor=%.2f power2=%.2f y2=%.2f", Devices.navx.getYaw(), error, pFactor, 
+					power2, Devices.navx.getYaw2());
+			Timer.delay(.010);
+		} 
+
+		Util.consoleLog("end angle1=%f y2=%.2f", Devices.navx.getYaw(), Devices.navx.getYaw2());
 		
+		// Stop rotation.
 		Devices.robotDrive.tankDrive(0, 0);
+
+		Util.consoleLog("end angle2=%f y2=%.2f", Devices.navx.getYaw(), Devices.navx.getYaw2());
+
+		// Wait for robot to stop moving.
+		while (isAutoActive() && Devices.navx.isRotating()) {Timer.delay(.010);}
+		
+		Util.consoleLog("end angle3=%f y2=%.2f", Devices.navx.getYaw(), Devices.navx.getYaw2());
 	}
 	
 	/**
@@ -436,7 +497,7 @@ public class Autonomous
 	 * @param power Speed to drive, + is forward.
 	 * @param curve Rate of rotation (-1.0 <-> 1.0), + is right or clockwise.
 	 * @param targetAngle Angle to turn, always +.
-	 * @param straightEncoderCounts Counts to travel on straight leg.
+	 * @param straightEncoderCounts Counts to travel on straight leg, always +.
 	 */
 	private void autoSCurve(double power, double curve, int targetAngle, int straightEncoderCounts)
 	{
@@ -450,11 +511,11 @@ public class Autonomous
 		// Then we drive straight the desired distance then curve back to starting
 		// heading. Curve is + for right, - for left.
 		
-		Devices.robotDrive.curvatureDrive(power, curve * gain, false);
+		Devices.robotDrive.curvatureDrive(power, curve, false);
 		
 		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) 
 		{
-			Timer.delay(.020);
+			Timer.delay(.010);
 			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());
 			Util.consoleLog("angle=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
 		}
@@ -471,7 +532,7 @@ public class Autonomous
 		targetAngle -= 10;
 		
 		// Reduce power so don't slam the switch too hard.
-		Devices.robotDrive.curvatureDrive(power * 0.7, -curve * gain, false);
+		Devices.robotDrive.curvatureDrive(power * 0.7, -curve, false);
 		
 		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle && (Devices.ds.getMatchType() != MatchType.None ? Devices.ds.getMatchTime() > 5 : true)) 
 		{

@@ -122,7 +122,8 @@ class Teleop
 		// Set dead zone for smoother climber movement.
 		utilityStick.deadZone(.20);
 		
-		// Invert driving joy sticks so + values mean forward.
+		// Invert driving joy sticks Y axis so + values mean forward. New for 2018
+		// post season.
 		leftStick.invertY(true);
 		rightStick.invertY(true);
 
@@ -163,6 +164,7 @@ class Teleop
 
 			utilY = utilityStick.GetY();
 
+			LCD.printLine(3, "leftY=%.3f  rightY=%.3f  utilY=%.3f", leftStick.GetY(), rightStick.GetY(), utilY);
 			LCD.printLine(4, "leftY=%.3f  rightY=%.3f  utilY=%.3f", leftY, rightY, utilY);
 			LCD.printLine(5, "Wheel=%d  wheel2=%d  winch=%d  switch=%b", Devices.wheelEncoder.get(), 
 					Devices.wheelEncoder2.get(), Devices.winchEncoder.get(), Devices.winchSwitch.get());
