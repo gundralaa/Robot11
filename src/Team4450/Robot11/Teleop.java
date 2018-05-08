@@ -229,7 +229,9 @@ class Teleop
 					SmartDashboard.putBoolean("Overload", steeringAssistMode);
 				}
 				else
-					Devices.robotDrive.tankDrive(leftY, rightY);		// Normal tank drive.
+					//Devices.robotDrive.tankDrive(leftY, rightY);		// Normal tank drive.
+					// Don't forget to uncomment right stick trigger function in event handler.
+					Devices.robotDrive.curvatureDrive(rightY, rightX, rightStick.GetLatchedState(JoyStickButtonIDs.TRIGGER));
 			}
 
 			// Set winch power.
@@ -407,7 +409,7 @@ class Teleop
 			switch(button.id)
 			{
 				case TRIGGER:
-					altDriveMode = !altDriveMode;
+					//altDriveMode = !altDriveMode;
 					break;
 					
 				case TOP_BACK:
