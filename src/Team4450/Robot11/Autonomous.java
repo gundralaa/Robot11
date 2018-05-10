@@ -131,13 +131,14 @@ public class Autonomous
 	}
 
 	// Start from center (offset right). Move forward a bit to get off the wall. 
-	// Turn right 45, drive forward to break the line and stop.
+	// Drive forward to break the line and stop.
  
 	private void startCenterNoScore()
 	{
 		Util.consoleLog();
 		
-		autoDrive(.30, 1970, true);	// 1270
+		//autoDrive(.30, 1970, true);	// 1270
+		autoDrive3(.50, 1970, true, true, true);
 	}
 
 	// Start from center (offset right). Evaluate game information. Determine which switch we
@@ -518,6 +519,123 @@ public class Autonomous
 	}
 	
 	/**
+	 * Auto drive straight in set direction and power for specified encoder count. Stops
+	 * with or without brakes on CAN bus drive system. Uses NavX yaw to drive straight.
+	 * @param power Power applied, + is forward.
+	 * @param encoderCounts Target encoder counts to move.
+	 * @param enableBrakes True is brakes on, false is brakes off.
+	 * @param usePid True is use PID to control movement, false is simple drive.
+	 * @param useHeading True is measure steering yaw from last set navx target heading, false is measure yaw
+	 * from direction robot is pointing when driving starts.
+	 */
+	private void autoDrive3(double power, int encoderCounts, boolean enableBrakes, boolean usePid, boolean useHeading)
+	{
+		double			angle, steeringGain = .05, elapsedTime = 0, lastPidCallTime = 0, pidCallTime = 0;
+		double			kP = .002, kI = 0.0, kD = 0.0;
+		
+		SynchronousPID	pid = null;
+
+		Util.consoleLog("pwr=%.2f  count=%d  brakes=%b  pid=%b  hdg=%b", power, encoderCounts, enableBrakes, usePid,
+				useHeading);
+
+		Devices.SetCANTalonBrakeMode(enableBrakes);
+
+		Devices.wheelEncoder.reset();
+		Devices.wheelEncoder2.reset();
+		
+		if (robot.isClone) Timer.delay(0.3);
+		
+		// If not measuring yaw from current heading, reset yaw based on current direction robot is facing.
+		
+		if (!useHeading)
+		{
+			Util.consoleLog("before reset=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
+			
+			//Devices.navx.resetYaw();
+			
+			Util.consoleLog("after reset1=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
+			
+			Devices.navx.resetYawWait(1, 500);
+			
+			Util.consoleLog("after reset2=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
+		}
+		
+		// If using PID to control distance, configure the PID object.
+		
+		if (usePid)
+		{
+			pid = new SynchronousPID(kP, kI, kD);
+			
+			pid.setOutputRange(0, power);
+			pid.setSetpoint(encoderCounts);
+			lastPidCallTime = Timer.getFPGATimestamp();
+		}
+		
+		// Drive until we  get there.
+		
+		while (isAutoActive() && Math.abs(Devices.wheelEncoder.get()) < encoderCounts) 
+		{
+			LCD.printLine(4, "wheel encoder=%d  winch encoder=%d", Devices.wheelEncoder.get(), Devices.winchEncoder.get());
+
+			// Use PID to determine the power applied. Should reduce power as we get close
+			// to the target encoder value.
+			
+			if (usePid)
+			{
+				pidCallTime = Timer.getFPGATimestamp();
+				elapsedTime = pidCallTime - lastPidCallTime;
+				
+				pid.calculate(Math.abs(Devices.wheelEncoder.get()), elapsedTime);
+				
+				lastPidCallTime = pidCallTime;
+				
+				power = pid.get();
+				
+				Util.consoleLog("error=%d  power2=%.2f  time=%f", pid.getError(), power, elapsedTime);
+			}
+
+			// Angle is negative if robot veering left, positive if veering right when going forward.
+			// It is opposite when going backward. Note that for this robot, + power means forward and
+			// - power means backward.
+			
+			if (useHeading)
+				angle = Devices.navx.getHeadingYaw();
+			else
+				angle = Devices.navx.getYaw();
+			
+			// Invert yaw angle for backwards.
+	
+			if (power < 0) angle = -angle;
+
+			LCD.printLine(5, "angle=%.2f", angle);
+			
+			Util.consoleLog("angle=%.2f  hdg=%.2f", angle, Devices.navx.getHeading());
+			
+			// Note we invert sign on the angle because we want the robot to turn in the opposite
+			// direction than it is currently going to correct it. So a + angle says robot is veering
+			// right so we set the turn value to - because - is a turn left which corrects our right
+			// drift.
+			
+			// Update: The new curvatureDrive function expects the power to be + for forward motion.
+			// Since our power value is - for forward, we do not invert the sign of the angle like
+			// we did with previous drive functions. This code base should be updated to fix the
+			// Y axis sign to be + for forward. This would make more sense and simplify understanding
+			// the code and would match what curvatureDrive expects. Will wait on that until after
+			// 2018 season. After fixing that, the angle would again need to be inverted.
+			
+			// Done in this branch for testing 4-23-18.
+			
+			Devices.robotDrive.curvatureDrive(power, Util.clampValue(-angle * steeringGain, 1.0), false);
+			
+			Timer.delay(.010);
+		}
+
+		Devices.robotDrive.stopMotor();				
+		
+		Util.consoleLog("end: actual count=%d  active=%b", Math.abs(Devices.wheelEncoder.get()), isAutoActive());
+	}
+	
+	/**
 	 * Auto rotate left or right the specified angle. Left/right from robots forward looking view.
 	 * @param power Speed of rotation, + is rotate right, - is rotate left. Uses NavX yaw to measure
 	 * rotation.
@@ -626,6 +744,91 @@ public class Autonomous
 		Util.consoleLog("2  hdg=%.2f  yaw=%.2f  ena=%b  auto=%b", Devices.navx.getHeading(), Devices.navx.getHeadingYaw(),
 				robot.isEnabled(), robot.isAutonomous());
 	}
+	
+	/**
+	 * Auto rotate the specified target angle from where the robot is currently pointing or rotate
+	 * to a target heading.
+	 * @param power Max power for rotation. When rotating an angle, -power is rotate left, +power is rotate right.
+	 * When rotating to specified heading, power is always +.
+	 * @param target Target angle to rotate from robot current direction -180..+180, or target heading to rotate to
+	 * from robot current heading. Target heading cannot be more than 180 degrees from current heading.
+	 * @param usePid False for simple rotation, true to use PID controller to manage the rotation.
+	 * @param useHeading False is target is an angle, true is target is a heading.
+	 */
+	private void autoRotate3(double power, double target, boolean usePid, boolean useHeading)
+	{
+		double	kP = .03, kI = 0.0, kD = 0.0, elapsedTime, lastPidCallTime = 0, pidCallTime = 0;
+		
+		SynchronousPID	pid = null;
+
+		Util.consoleLog("pwr=%.2f  target=%.2f  pid=%b  hdg=%b", power, target, usePid, useHeading);
+		
+		// Try to prevent over rotation.
+		Devices.SetCANTalonBrakeMode(true);
+
+		// Reset yaw to current robot direction or target heading.
+		
+		if (useHeading) 
+			Devices.navx.setTargetHeading(target);
+		else
+			Devices.navx.resetYawWait(1, 500);
+		
+		// Use PID to control power as we turn slowing as we approach target heading.
+		
+		if (usePid)
+		{
+			pid = new SynchronousPID(kP, kI, kD);
+			
+			pid.setOutputRange(0, power);
+			pid.setSetpoint(target);
+			lastPidCallTime = Timer.getFPGATimestamp();
+			
+			while (isAutoActive() && !pid.onTarget(1.0)) 
+			{
+				pidCallTime = Timer.getFPGATimestamp();
+				elapsedTime = pidCallTime - lastPidCallTime;
+				
+				pid.calculate(Math.abs(Devices.wheelEncoder.get()), elapsedTime);
+				
+				lastPidCallTime = pidCallTime;
+				
+				power = pid.get();
+				
+				Devices.robotDrive.curvatureDrive(0, power, true);
+				
+				Util.consoleLog("power2=%.2f  hdg=%.2f  yaw=%.2f  time=%f  en=%b auto=%b", power, Devices.navx.getHeading(), 
+						pid.getError(), elapsedTime, robot.isEnabled(), robot.isAutonomous());
+				
+				Timer.delay(.010);
+			} 
+		}
+		else
+		{
+			while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < target) 
+			{
+				Devices.robotDrive.curvatureDrive(0, power, true);
+				
+				Util.consoleLog("angle=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
+				
+				Timer.delay(.010);
+			} 			
+		}
+		
+		Util.consoleLog("end loop  hdg=%.2f  yaw=%.2f", Devices.navx.getHeading(), Devices.navx.getHeadingYaw());
+		
+		// Stop rotation.
+		Devices.robotDrive.stopMotor();	//.tankDrive(0, 0);
+
+		Util.consoleLog("after stop  hdg=%.2f  yaw=%.2f", Devices.navx.getHeading(), Devices.navx.getHeadingYaw());
+
+		// Wait for robot to stop moving.
+		Util.consoleLog("moving=%b", Devices.navx.isRotating());
+		//while (isAutoActive() && Devices.navx.isRotating()) {Timer.delay(.10);}
+		//Util.consoleLog("moving=%b", Devices.navx.isRotating());
+		
+		Util.consoleLog("2  hdg=%.2f  yaw=%.2f  ena=%b  auto=%b", Devices.navx.getHeading(), Devices.navx.getHeadingYaw(),
+				robot.isEnabled(), robot.isAutonomous());
+	}
 
 	/**
 	 * Drive in S curve, curve one direction, drive straight, curve back to starting heading.
@@ -636,7 +839,6 @@ public class Autonomous
 	 */
 	private void autoSCurve(double power, double curve, int targetAngle, int straightEncoderCounts)
 	{
-		double	gain = .05;
 		
 		Util.consoleLog("pwr=%.2f  curve=%.2f  angle=%d  counts=%d", power, curve, targetAngle, straightEncoderCounts);
 		
