@@ -151,14 +151,14 @@ public class Autonomous
 		
 		// close, deploy grabber then lift.
 		
-		grabber.close();
-		grabber.deploy();
+		//grabber.close();
+		//grabber.deploy();
 		Timer.delay(0.5);
 		
-		if (robot.isClone)
-			lift.setHeight(9100);
-		else
-			lift.setHeight(7900);
+//		if (robot.isClone)
+//			lift.setHeight(9100);
+//		else
+//			lift.setHeight(7900);
 		
 		autoDrive2(.40, 925, true, true);		// 596
 		
@@ -169,23 +169,23 @@ public class Autonomous
 				return;
 				
 			case LLL: case LRL:
-				autoRotate2(.50, 270);
+				autoRotate2(.30, 270);
 				autoDrive2(.60, 928, true, true);		// 663
-				autoRotate2(.50, 0);
-				autoDrive2(.40, 880, true, true);		// 567
+				autoRotate2(.30, 0);
+				autoDrive2(.60, 880, true, true);		// 567
 				break;
 				
 			case RRR: case RLR:
-				autoRotate2(.50, 90);
+				autoRotate2(.30, 90);
 				autoDrive2(.60, 900, true, true);		// 857
-				autoRotate2(.50, 0);
-				autoDrive2(.40, 880, true, true);		// 567
+				autoRotate2(.30, 0);
+				autoDrive2(.60, 880, true, true);		// 567
 				break;
 		}
 		
 		// Dump cube.
 		
-		grabber.spit(spitPower);
+		//grabber.spit(spitPower);
 	}
 
 	private void startCenterScoreFast()
@@ -194,16 +194,16 @@ public class Autonomous
 		
 		// close, deploy grabber then lift.
 		
-		grabber.close();
-		grabber.deploy();
+		//grabber.close();
+		//grabber.deploy();
 		Timer.delay(0.5);
 		
-		if (robot.isClone)
-			lift.setHeight(9100);
-		else
-			lift.setHeight(7900);
+//		if (robot.isClone)
+//			lift.setHeight(9100);
+//		else
+//			lift.setHeight(7900);
 		
-		autoDrive(.40, 100, true);		// 596
+		autoDrive2(.40, 100, true, true);		// 596
 		
 		switch (plateState)
 		{
@@ -212,14 +212,14 @@ public class Autonomous
 				return;
 				
 			case LLL: case LRL:
-				autoRotate(-.50, 26);
-				autoDrive(.60, 2100, true);	// 663
+				autoRotate2(.50, 334);				// 26 -.50
+				autoDrive2(.60, 2100, true, true);	// 663
 				//autoRotate(-.50, 90);
 				//autoDrive(.40, 880, true);		// 567
 				break;
 				
 			case RRR: case RLR:
-				autoRotate(.50, 18);
+				autoRotate2(.50, 18);
 				autoDrive(.60, 1900, true);	// 857
 				//autoRotate(.50, 12);
 				//autoDrive(.40, 880, true);		// 567
@@ -228,7 +228,7 @@ public class Autonomous
 		
 		// Dump cube.
 		
-		grabber.spit(spitPower);
+		//grabber.spit(spitPower);
 		
 	}
 
@@ -386,16 +386,15 @@ public class Autonomous
 		
 		if (robot.isClone) Timer.delay(0.3);
 		
-		Util.consoleLog("before reset=%.2f  y2=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getYaw2(), Devices.navx.getHeading());
+		Util.consoleLog("before reset=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
 			
 		//Devices.navx.resetYaw();
-		Devices.navx.resetYaw2();
 		
-		Util.consoleLog("after reset1=%.2f  y2=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getYaw2(), Devices.navx.getHeading());
+		Util.consoleLog("after reset1=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
 		
 		Devices.navx.resetYawWait(1, 500);
 		
-		Util.consoleLog("after reset2=%.2f  y2=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getYaw2(), Devices.navx.getHeading());
+		Util.consoleLog("after reset2=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
 		
 		while (isAutoActive() && Math.abs(Devices.wheelEncoder.get()) < encoderCounts) 
 		{
@@ -419,7 +418,7 @@ public class Autonomous
 
 			LCD.printLine(5, "angle=%d", angle);
 			
-			Util.consoleLog("angle=%d  y2=%.2f  hdg=%.2f", angle, Devices.navx.getYaw2(), Devices.navx.getHeading());
+			Util.consoleLog("angle=%d  hdg=%.2f", angle, Devices.navx.getHeading());
 			
 			// Note we invert sign on the angle because we want the robot to turn in the opposite
 			// direction than it is currently going to correct it. So a + angle says robot is veering
@@ -449,7 +448,7 @@ public class Autonomous
 	{
 		double	angle, gain = .05;
 		int		error = 0;
-		double	power2 = 0, pFactor, kP = .002, minPower = .10;
+		double	power2 = 0, pFactor, kP = .002, minPower = .15;
 
 		// Min power is determined experimentally for each robot as the lowest power that
 		// will move the robot. We don't want the pid reduction in power at the end of
@@ -515,7 +514,7 @@ public class Autonomous
 
 		Devices.robotDrive.stopMotor();	//.tankDrive(0, 0);				
 		
-		Util.consoleLog("end: actual count=%d", Math.abs(Devices.wheelEncoder.get()));
+		Util.consoleLog("end: actual count=%d  active=%b", Math.abs(Devices.wheelEncoder.get()), isAutoActive());
 	}
 	
 	/**
@@ -539,7 +538,6 @@ public class Autonomous
 		Devices.SetCANTalonBrakeMode(true);
 
 		Devices.navx.resetYaw();
-		Devices.navx.resetYaw2();
 		
 		// Start rotation.
 		//Devices.robotDrive.tankDrive(power, -power);
@@ -559,62 +557,54 @@ public class Autonomous
 				
 			Devices.robotDrive.tankDrive(power2, -power2);
 			
-			Util.consoleLog("angle=%.2f error=%d pfactor=%.2f power2=%.2f y2=%.2f  hdg=%.2f", Devices.navx.getYaw(), error, 
-					pFactor, power2, Devices.navx.getYaw2(), Devices.navx.getHeading());
+			Util.consoleLog("angle=%.2f  error=%d  pfactor=%.2f  power2=%.2f  hdg=%.2f", Devices.navx.getYaw(), error, 
+					pFactor, power2, Devices.navx.getHeading());
 			
 			Timer.delay(.010);
 		} 
 
-		Util.consoleLog("end angle1=%.2f y2=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getYaw2(), Devices.navx.getHeading());
+		Util.consoleLog("end angle1=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
 		
 		// Stop rotation.
 		Devices.robotDrive.tankDrive(0, 0);
 
-		Util.consoleLog("end angle2=%.2f y2=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getYaw2(), Devices.navx.getHeading());
+		Util.consoleLog("end angle2=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
 
 		// Wait for robot to stop moving.
 		//while (isAutoActive() && Devices.navx.isRotating()) {Timer.delay(.010);}
 		Util.consoleLog("moving=%b", Devices.navx.isRotating());
 		
-		Util.consoleLog("end angle3=%.2f y2=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getYaw2(), Devices.navx.getHeading());
+		Util.consoleLog("end angle3=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
 	}
 	
 	private void autoRotate2(double power, double targetHeading)
 	{
-		double	power2 = 0,  minPower = .30, rotation, error, saveRotation = 0;
+		double	error, pFactor, kP = .03, power2, kMinPower = .15;
 
-		// Min power is determined experimentally for each robot as the lowest power that
-		// will effectively rotate the robot.
-		
 		Util.consoleLog("pwr=%.2f  hdg=%.2f", power, targetHeading);
 		
 		// Try to prevent over rotation.
 		Devices.SetCANTalonBrakeMode(true);
 
 		Devices.navx.setTargetHeading(targetHeading);
-		 
-		power2 = power;
 		
 		error = Devices.navx.getHeadingYaw();
 		
 		while (isAutoActive() && !Util.checkRange(error, 1.0)) 
 		{
-			if (error < 0)
-				rotation = -1;
-			else
-				rotation = 1;
+			pFactor = error * kP;
 			
-			// Watch for change in rotation which indicates overshoot. If we overshoot
-			// reduce power (reduce oscillation) to home in on target.
+			power2 = Util.clampValue(power * pFactor, power) * -1;
 			
-			if (saveRotation != 0 && rotation != saveRotation) power2 = minPower;
+			if (Util.checkRange(power2, kMinPower))
+				if (power2 < 0)
+					power2 = -kMinPower;
+				else
+					power2 = kMinPower;
 			
-			saveRotation = rotation;
+			Devices.robotDrive.curvatureDrive(0, power2, true);
 			
-			Devices.robotDrive.curvatureDrive(power2, rotation, true);
-			
-			Util.consoleLog("power2=%.2f  hdg=%.2f  yaw=%.2f  rot=%.0f", power2, Devices.navx.getHeading(),
-					error, rotation);
+			Util.consoleLog("power2=%.2f  hdg=%.2f  yaw=%.2f en=%b auto=%b", power2, Devices.navx.getHeading(), error, robot.isEnabled(), robot.isAutonomous());
 			
 			Timer.delay(.010);
 			
@@ -630,10 +620,11 @@ public class Autonomous
 
 		// Wait for robot to stop moving.
 		Util.consoleLog("moving=%b", Devices.navx.isRotating());
-		while (isAutoActive() && Devices.navx.isRotating()) {Timer.delay(.010);}
+		//while (isAutoActive() && Devices.navx.isRotating()) {Timer.delay(.10);}
 		Util.consoleLog("moving=%b", Devices.navx.isRotating());
 		
-		Util.consoleLog("2  hdg=%.2f  yaw=%.2f", Devices.navx.getHeading(), Devices.navx.getHeadingYaw());
+		Util.consoleLog("2  hdg=%.2f  yaw=%.2f  ena=%b  auto=%b", Devices.navx.getHeading(), Devices.navx.getHeadingYaw(),
+				robot.isEnabled(), robot.isAutonomous());
 	}
 
 	/**
