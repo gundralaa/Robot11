@@ -240,7 +240,7 @@ class Teleop
 			
 			// Update the robot heading indicator on the DS.
 
-			SmartDashboard.putNumber("Gyro", Devices.navx.getHeading());
+			SmartDashboard.putNumber("Gyro", Devices.navx.getHeadingInt());
 
 			// End of driving loop.
 
