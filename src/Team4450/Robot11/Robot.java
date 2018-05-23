@@ -1,7 +1,7 @@
 /**
  * 2018 competition robot code.
  *
- * For Robot "TBA" built for FRC game "FIRST POWER UP".
+ * For Robot "Odyssey" built for FRC game "FIRST POWER UP".
 */
 
 package Team4450.Robot11;
@@ -24,11 +24,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "RAC11-01.12.18-01";
+  static final String  	PROGRAM_NAME = "SWF11.3-04.16.18-01";
 
   public Properties		robotProperties;
   
-  public boolean		isClone = false, isComp = false;
+  public static boolean		isClone = false, isComp = false;
     	
   DriverStation.Alliance	alliance;
   int                       location, matchNumber;
@@ -55,6 +55,8 @@ public class Robot extends SampleRobot
     	Util.consoleLog(PROGRAM_NAME);
 
     	Util.consoleLog("RobotLib=%s", LibraryVersion.version);
+    	
+    	SmartDashboard.putString("Sean's Debug Table/ProgramInfo/RobotLib Version", LibraryVersion.version);
     }
     catch (Exception e) {Util.logException(e);}
   }
@@ -90,6 +92,9 @@ public class Robot extends SampleRobot
    		Devices.PDP.clearStickyFaults();
    		Devices.compressor.clearAllPCMStickyFaults();
    		
+   		SmartDashboard.putData("Sean's Debug Table/ControlSystem/PDP", Devices.PDP);
+   		SmartDashboard.putData("Sean's Debug Table/ControlSystem/Compressor", Devices.compressor);
+   		
    		// Configure motor controllers and RobotDrive.
    		
    		Devices.InitializeCANTalonDrive();
@@ -97,7 +102,12 @@ public class Robot extends SampleRobot
    		Devices.robotDrive.stopMotor();
    		Devices.robotDrive.setSafetyEnabled(false);
    		Devices.robotDrive.setExpiration(0.1);
-             
+   		
+   		Devices.driveEncoder1.setReverseDirection(false);
+   		Devices.driveEncoder2.setReverseDirection(false);
+   		
+   		Devices.winchEncoder.setReverseDirection(!isComp);
+   		
    		// Create NavX object here so it has time to calibrate before we
    		// use it. Takes 10 seconds. Must appear before CamerFeed is created.
    		
@@ -122,6 +132,8 @@ public class Robot extends SampleRobot
       
        	cameraThread = CameraFeed.getInstance(); 
        	cameraThread.start();
+       	
+       	Devices.updateNetworkTables();
    		
    		Util.consoleLog("end");
     }
@@ -211,16 +223,15 @@ public class Robot extends SampleRobot
             
       	  SmartDashboard.putBoolean("Disabled", false);
       	  SmartDashboard.putBoolean("Teleop Mode", true);
-        
+      	  
       	  alliance = Devices.ds.getAlliance();
       	  location = Devices.ds.getLocation();
     	  eventName = Devices.ds.getEventName();
     	  matchNumber = Devices.ds.getMatchNumber();
     	  gameMessage = Devices.ds.getGameSpecificMessage();
         
-          Util.consoleLog("Alliance=%s, Location=%d, FMS=%b event=%s match=%d msg=%s", 
-        		  		   alliance.name(), location, Devices.ds.isFMSAttached(), eventName, matchNumber, 
-        		  		   gameMessage);
+          Util.consoleLog("Alliance=%s, Location=%d, FMS=%b event=%s match=%d matchType=%s msg=%s", 
+        		  		   alliance.name(), location, Devices.ds.isFMSAttached(), eventName, matchNumber, Devices.ds.getMatchType().name(), gameMessage);
 
     	  // Reset persistent fault flags in control system modules.
           Devices.PDP.clearStickyFaults();
@@ -233,7 +244,7 @@ public class Robot extends SampleRobot
         
           Teleop teleOp = new Teleop(this);
        
-          teleOp.OperatorControl();
+          teleOp.execute();
         
           teleOp.dispose();
         	
