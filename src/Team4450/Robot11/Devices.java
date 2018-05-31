@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 public class Devices
 {
 	  // Motor CAN ID/PWM port assignments (1=left-front, 2=left-rear, 3=right-front, 4=right-rear)
-	  private static WPI_TalonSRX	LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon;
+	  public static WPI_TalonSRX		LFCanTalon, LRCanTalon, RFCanTalon, RRCanTalon;
 	  
 	  public final static WPI_TalonSRX	intakeMotorL = new WPI_TalonSRX(5);
 	  public final static WPI_TalonSRX	intakeMotorR = new WPI_TalonSRX(6);

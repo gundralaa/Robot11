@@ -131,7 +131,7 @@ public class Autonomous
 	{
 		Util.consoleLog();
 		
-		autoDrive3(.50, 2490, true, true, true, true);	// 1606
+		autoDrive(.50, 2490, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 1606
 	}
 
 	// Start from center (offset right). Drive forward to break the line and stop.
@@ -140,7 +140,7 @@ public class Autonomous
 	{
 		Util.consoleLog();
 		
-		autoDrive3(.50, 1970, true, true, true, true);
+		autoDrive(.50, 1970, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);
 	}
 
 	// Start from center (offset right). Evaluate game information. Determine which switch we
@@ -163,7 +163,7 @@ public class Autonomous
 //		else
 //			lift.setHeight(7900);
 		
-		autoDrive3(.40, 925, true, true, true, true);		// 596
+		autoDrive(.40, 925, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 596
 		
 		switch (plateState)
 		{
@@ -172,17 +172,17 @@ public class Autonomous
 				return;
 				
 			case LLL: case LRL:
-				autoRotate3(.30, 270, true, true);
-				autoDrive3(.60, 928, true, true, true, true);		// 663
-				autoRotate3(.30, 0, true, true);
-				autoDrive3(.60, 880, true, true, true, true);		// 567
+				autoRotate(.30, 270, true, true);
+				autoDrive(.60, 928, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 663
+				autoRotate(.30, 0, true, true);
+				autoDrive(.60, 880, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 567
 				break;
 				
 			case RRR: case RLR:
-				autoRotate3(.30, 90, true, true);
-				autoDrive3(.60, 900, true, true, true, true);		// 857
-				autoRotate3(.30, 0, true, true);
-				autoDrive3(.60, 880, true, true, true, true);		// 567
+				autoRotate(.30, 90, true, true);
+				autoDrive(.60, 900, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 857
+				autoRotate(.30, 0, true, true);
+				autoDrive(.60, 880, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 567
 				break;
 		}
 		
@@ -206,7 +206,7 @@ public class Autonomous
 //		else
 //			lift.setHeight(7900);
 		
-		autoDrive3(.40, 100, true, true, true, true);		// 596
+		autoDrive(.40, 100, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 596
 		
 		switch (plateState)
 		{
@@ -215,13 +215,13 @@ public class Autonomous
 				return;
 				
 			case LLL: case LRL:
-				autoRotate3(.50, 334, true, true);				// 26 -.50
-				autoDrive3(.60, 2100, true, true, true, true);		// 663
+				autoRotate(.50, 334, true, true);				// 26 -.50
+				autoDrive(.60, 2100, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 663
 				break;
 				
 			case RRR: case RLR:
-				autoRotate3(.50, 18, true, true);
-				autoDrive3(.60, 1900, true, true, true, true);	// 857
+				autoRotate(.50, 18, true, true);
+				autoDrive(.60, 1900, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 857
 				break;
 		}
 		
@@ -254,13 +254,13 @@ public class Autonomous
 				
 			case LLL: case LRL:
 				//autoSCurve(.50, -.3, 30, 900);
-				autoSCurve2(.50, .30, 330, 900);
+				autoSCurve(.50, .30, 330, 900);
 
 				break;
 				
 			case RRR: case RLR:
 				//autoSCurve(.50, .3, 30, 950);
-				autoSCurve2(.50, .30, 30, 950);
+				autoSCurve(.50, .30, 30, 950);
 				break;
 		}
 		
@@ -305,16 +305,16 @@ public class Autonomous
 					//break;
 					
 				case RRR:  case RLR:	// No plate available.
-					autoDrive3(.50, 2500, true, true, true, true);	// 4600/2967
+					autoDrive(.50, 2500, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 4600/2967
 					
 					// Drop the lift.
 					lift.setHeight(-1);
 					return;
 					
 				case LRL: case LLL:		// Switch available.
-					autoDrive3(.50, 3180, true, true, true, true);	// 2051
-					autoRotate3(.50, 90, true, true);
-					autoDrive3(.30, 320, true, true, true, true);		// 206
+					autoDrive(.50, 3180, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 2051
+					autoRotate(.50, 90, true, true);
+					autoDrive(.30, 320, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 206
 					break;
 			}
 		}
@@ -326,7 +326,7 @@ public class Autonomous
 					return;
 					
 				case LLL: case LRL:	// No plate available.
-					autoDrive3(.50, 2500, true, true, true, true);	// 4600/2967
+					autoDrive(.50, 2500, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 4600/2967
 					//autoRotate(.50, 90);
 					//autoDrive(-.50, 1470, true);	// 948
 					
@@ -342,9 +342,9 @@ public class Autonomous
 //					break;
 //					
 				case RLR: case RRR:	// Switch available.
-					autoDrive3(.50, 3180, true, true, true, true);	// 2051
-					autoRotate3(.50, 270, true, true);
-					autoDrive3(.30, 320, true, true, true, true);		// 206s
+					autoDrive(.50, 3180, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 2051
+					autoRotate(.50, 270, true, true);
+					autoDrive(.30, 320, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 206s
 					break;
 			}
 		}
@@ -352,121 +352,6 @@ public class Autonomous
 		// Dump cube.
 		
 		grabber.spit(spitPower);
-		
-	}
-	
-	/**
-	 * Auto drive straight in set direction and power for specified encoder count. Stops
-	 * with or without brakes on CAN bus drive system. Uses NavX yaw from current direction to drive straight.
-	 * @param power Speed, + is forward.
-	 * @param encoderCounts encoder counts to travel, always +.
-	 * @param enableBrakes True to enable brakes.
-	 */
-	private void autoDrive(double power, int encoderCounts, boolean enableBrakes)
-	{
-		int		yaw;
-		double	gain = .05;
-
-		// Min power is determined experimentally for each robot as the lowest power that
-		// will move the robot. We don't want the pid reduction in power at the end of
-		// the drive to fall below this level and cause the drive to stall before done.
-		
-		Util.consoleLog("pwr=%.2f  count=%d  brakes=%b", power, encoderCounts, enableBrakes);
-
-		Devices.SetCANTalonBrakeMode(enableBrakes);
-
-		Devices.wheelEncoder.reset();
-		Devices.wheelEncoder2.reset();
-		
-		Util.consoleLog("before reset=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
-			
-		Devices.navx.resetYawWait(1, 500);
-		
-		Util.consoleLog("after reset2=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
-		
-		while (isAutoActive() && Math.abs(Devices.wheelEncoder.get()) < encoderCounts) 
-		{
-			LCD.printLine(4, "wheel encoder=%d  winch encoder=%d", Devices.wheelEncoder.get(), Devices.winchEncoder.get());
-
-			// Yaw is negative if robot veering left, positive if veering right when going forward.
-			// It is opposite when going backward. Note that for this robot, + power means forward and
-			// - power means backward.
-			
-			yaw = (int) Devices.navx.getYaw();
-			
-			// Invert yaw angle for backwards.
-	
-			//if (power < 0) yaw = -yaw;
-
-			LCD.printLine(5, "yaw=%d", yaw);
-			
-			Util.consoleLog("yaw=%d  hdg=%.2f", yaw, Devices.navx.getHeading());
-			
-			// Note we invert sign on the yaw angle because we want the robot to turn in the opposite
-			// direction than it is currently going to correct it. So a + yaw angle says robot is veering
-			// right so we set the turn value to - because - is a turn left which corrects our right
-			// drift.
-			
-			Devices.robotDrive.curvatureDrive(power, Util.clampValue(-yaw * gain, 1.0), false);
-			
-			Timer.delay(.010);
-		}
-
-		Devices.robotDrive.tankDrive(0, 0);				
-		
-		Util.consoleLog("end: actual count=%d", Math.abs(Devices.wheelEncoder.get()));
-	}
-	
-	/**
-	 * Auto drive straight in set direction and power for specified encoder count. Stops
-	 * with or without brakes on CAN bus drive system. Uses NavX yaw from current target heading
-	 * (as set with Navx.setTargetHeading()) to actual heading to drive straight.
-	 * @param power Speed, + is forward.
-	 * @param encoderCounts encoder counts to travel, always +.
-	 * @param enableBrakes True to enable brakes.
-	 */
-	private void autoDrive2(double power, int encoderCounts, boolean enableBrakes)
-	{
-		double	yaw, gain = .05;
-		
-		Util.consoleLog("pwr=%.2f  count=%d  brakes=%b", power, encoderCounts, enableBrakes);
-
-		Devices.SetCANTalonBrakeMode(enableBrakes);
-
-		Devices.wheelEncoder.reset();
-		Devices.wheelEncoder2.reset();
-		
-		while (isAutoActive() && Math.abs(Devices.wheelEncoder.get()) < encoderCounts) 
-		{
-			LCD.printLine(4, "wheel encoder=%d  winch encoder=%d", Devices.wheelEncoder.get(), Devices.winchEncoder.get());
-
-			// Yaw angle is negative if robot veering left, positive if veering right when going forward.
-			// It is opposite when going backward. Note that for this robot, + power means forward and
-			// - power means backward.
-			
-			yaw = Devices.navx.getHeadingYaw();
-			
-			// Invert yaw angle for backwards.a
-	
-			//if (power < 0) yaw = -yaw;
-
-			LCD.printLine(5, "yaw=%.2f", yaw);
-			
-			Util.consoleLog("yaw=%.2f  hdg=%.2f", yaw, Devices.navx.getHeading());
-			
-			// Note we invert sign on the angle because we want the robot to turn in the opposite
-			// direction than it is currently going to correct it. So a + angle says robot is veering
-			// right so we set the turn value to - because - is a turn left which corrects our right
-			// drift.
-			
-			Devices.robotDrive.curvatureDrive(power, Util.clampValue(-yaw * gain, 1.0), false);
-			
-			Timer.delay(.010);
-		}
-
-		Devices.robotDrive.stopMotor();		
-		
-		Util.consoleLog("end: actual count=%d  active=%b", Math.abs(Devices.wheelEncoder.get()), isAutoActive());
 	}
 	
 	/**
@@ -474,33 +359,36 @@ public class Autonomous
 	 * with or without brakes on CAN bus drive system. Uses NavX yaw to drive straight.
 	 * @param power Power applied, + is forward.
 	 * @param encoderCounts Target encoder counts to move, always +.
-	 * @param stop True stops motors at end of curve, false leaves power on to flow into next move.
-	 * @param enableBrakes True is brakes on, false is brakes off.
-	 * @param usePid True is use PID to control movement, false is simple drive.
-	 * @param useHeading True is measure steering yaw from last set navx target heading, false is measure yaw
+	 * @param stop Stop stops motors at end of curve, dontStop leaves power on to flow into next move.
+	 * @param brakes Brakes on or off.
+	 * @param pid On is use PID to control movement, off is simple drive.
+	 * @param heading Heading is measure steering yaw from last set navx target heading, angle is measure yaw
 	 * from direction robot is pointing when driving starts.
 	 * 
-	 * Note: This routine is designed for tank drive and the P,I,D values will likely need adjusting for each
+	 * Note: This routine is designed for tank drive and the P,I,D,steering gain values will likely need adjusting for each
 	 * new drive base as gear ratios and wheel configuration may require different values to stop smoothly
 	 * and accurately.
 	 */
-	private void autoDrive3(double power, int encoderCounts, boolean stop, boolean enableBrakes, boolean usePid, 
-						    boolean useHeading)
+	private void autoDrive(double power, int encoderCounts, StopMotors stop, Brakes brakes, Pid pid, 
+						    Heading heading)
 	{
-		double			yaw, steeringGain = .07, elapsedTime = 0, lastPidCallTime = 0, pidCallTime = 0;
+		double			yaw, kSteeringGain = .10, elapsedTime = 0, lastPidCallTime = 0, pidCallTime = 0;
 		double			kP = .002, kI = 0.001, kD = 0.001;
 		
-		SynchronousPID	pid = null;
+		SynchronousPID	pidController = null;
 
-		Util.consoleLog("pwr=%.2f  count=%d  stop=%b  brakes=%b  pid=%b  hdg=%b", power, encoderCounts, stop, enableBrakes, 
-				usePid,	useHeading);
+		Util.consoleLog("pwr=%.2f  count=%d  stop=%s  brakes=%s  pid=%s  hdg=%s", power, encoderCounts, stop, brakes, 
+						pid, heading);
 
 		Util.checkRange(power, 1.0);
 		
 		if (encoderCounts <= 0) throw new IllegalArgumentException("Encoder counts < 1");
 		
-		Devices.SetCANTalonBrakeMode(enableBrakes);
-
+		if (brakes == Brakes.on)
+			Devices.SetCANTalonBrakeMode(true);
+		else
+			Devices.SetCANTalonBrakeMode(false);
+			
 		Devices.wheelEncoder.reset();
 		Devices.wheelEncoder2.reset();
 		
@@ -508,7 +396,7 @@ public class Autonomous
 		
 		// If not measuring yaw from current heading, reset yaw based on current direction robot is facing.
 		
-		if (!useHeading)
+		if (heading == Heading.angle)
 		{
 			Util.consoleLog("before reset=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
 			
@@ -519,19 +407,19 @@ public class Autonomous
 		
 		// If using PID to control distance, configure the PID object.
 		
-		if (usePid)
+		if (pid == Pid.on)
 		{
-			pid = new SynchronousPID(kP, kI, kD);
+			pidController = new SynchronousPID(kP, kI, kD);
 			
 			if (power < 0)
 			{
-				pid.setSetpoint(-encoderCounts);
-				pid.setOutputRange(power, 0);
+				pidController.setSetpoint(-encoderCounts);
+				pidController.setOutputRange(power, 0);
 			}
 			else
 			{
-				pid.setSetpoint(encoderCounts);
-				pid.setOutputRange(0, power);
+				pidController.setSetpoint(encoderCounts);
+				pidController.setOutputRange(0, power);
 			}
 
 			lastPidCallTime = Timer.getFPGATimestamp();
@@ -546,121 +434,45 @@ public class Autonomous
 			// Use PID to determine the power applied. Should reduce power as we get close
 			// to the target encoder value.
 			
-			if (usePid)
+			if (pid == Pid.on)
 			{
 				pidCallTime = Timer.getFPGATimestamp();
 				elapsedTime = pidCallTime - lastPidCallTime;
 				
-				pid.calculate(Devices.wheelEncoder.get(), elapsedTime);
+				pidController.calculate(Devices.wheelEncoder.get(), elapsedTime);
 				
 				lastPidCallTime = pidCallTime;
 				
-				power = pid.get();
+				power = pidController.get();
 				
-				Util.consoleLog("error=%.2f  power2=%.2f  time=%f", pid.getError(), power, elapsedTime);
+				Util.consoleLog("error=%.2f  power2=%.2f  time=%f", pidController.getError(), power, elapsedTime);
 			}
 
 			// Yaw angle is negative if robot veering left, positive if veering right when going forward.
 			
-			if (useHeading)
+			if (heading == Heading.heading)
 				yaw = Devices.navx.getHeadingYaw();
 			else
 				yaw = Devices.navx.getYaw();
 			
 			LCD.printLine(5, "yaw=%.2f", yaw);
 			
-			Util.consoleLog("yaw=%.2f  hdg=%.2f  rot=%.2f", yaw, Devices.navx.getHeading(), -yaw * steeringGain);
+			Util.consoleLog("yaw=%.2f  hdg=%.2f  rot=%.2f", yaw, Devices.navx.getHeading(), -yaw * kSteeringGain);
 			
 			// Note we invert sign on the angle because we want the robot to turn in the opposite
 			// direction than it is currently going to correct it. So a + angle says robot is veering
 			// right so we set the turn value to - because - is a turn left which corrects our right
-			// drift. SteeringGain controls how aggressively we turn to stay on course.
+			// drift. kSteeringGain controls how aggressively we turn to stay on course.
 			
-			Devices.robotDrive.curvatureDrive(power, Util.clampValue(-yaw * steeringGain, 1.0), false);
+			Devices.robotDrive.curvatureDrive(power, Util.clampValue(-yaw * kSteeringGain, 1.0), false);
 			
 			Timer.delay(.010);
 		}
 
-		if (stop) Devices.robotDrive.stopMotor();				
+		if (stop == StopMotors.stop) Devices.robotDrive.stopMotor();				
 		
 		Util.consoleLog("end: actual count=%d  error=%.3f  ena=%b  isa=%b", Math.abs(Devices.wheelEncoder.get()), 
 				(double) Math.abs(Devices.wheelEncoder.get()) / encoderCounts, robot.isEnabled(), robot.isAutonomous());
-	}
-	
-	/**
-	 * Auto rotate left or right the specified angle. Left/right from robots forward looking view.
-	 * @param power Speed of rotation, + is rotate right, - is rotate left. Uses NavX yaw to measure
-	 * rotation. This is the original autoRotate function.
-	 * @param angle Angle to rotate, always +.
-	 */
-	private void autoRotate(double power, int angle)
-	{
-		Util.consoleLog("pwr=%.2f  angle=%d", power, angle);
-		
-		// Try to prevent over rotation.
-		Devices.SetCANTalonBrakeMode(true);
-
-		Devices.navx.resetYaw();
-		
-		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) 
-		{
-			Devices.robotDrive.tankDrive(power, -power);
-			
-			Util.consoleLog("yaw=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
-			
-			Timer.delay(.010);
-		} 
-
-		Util.consoleLog("endloop yaw=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
-		
-		// Stop rotation.
-		Devices.robotDrive.stopMotor();
-
-		Util.consoleLog("end yaw=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
-	}
-	
-	/**
-	 * Auto rotate to new heading. 
-	 * @param power Power to rotate at. Always +.
-	 * @param targetHeading New heading in degrees. Heading 0 always points down the field
-	 * and is set in autonomous and maintained from there. Left or right rotate determined
-	 * by the initial yaw between current and target headings.
-	 */
-	private void autoRotate2(double power, double targetHeading)
-	{
-		double	yaw;
-
-		Util.consoleLog("pwr=%.2f  hdg=%.2f", power, targetHeading); 
-		
-		// Try to prevent over rotation.
-		Devices.SetCANTalonBrakeMode(true);
-
-		Devices.navx.setTargetHeading(targetHeading);
-		
-		yaw = Devices.navx.getHeadingYaw();
-		
-		if (yaw < 0) power = power * -1;
-		
-		// 1 degree target tolerance.
-		
-		while (isAutoActive() && !Util.checkRange(yaw, 1.0)) 
-		{
-			Devices.robotDrive.curvatureDrive(0, power, true);
-			
-			Util.consoleLog("hdg=%.2f  yaw=%.2f  ena=%b", Devices.navx.getHeading(), yaw, robot.isEnabled());
-			
-			Timer.delay(.010);
-			
-			yaw = Devices.navx.getHeadingYaw();
-		} 
-
-		Util.consoleLog("endloop  hdg=%.2f  yaw=%.2f", Devices.navx.getHeading(), yaw);
-		
-		// Stop rotation.
-		Devices.robotDrive.stopMotor();
-
-		Util.consoleLog("end hdg=%.2f  yaw=%.2f  ena=%b", Devices.navx.getHeading(), Devices.navx.getHeadingYaw(),
-				robot.isEnabled());
 	}
 	
 	/**
@@ -674,11 +486,11 @@ public class Autonomous
 	 * target is reached.
 	 * @param useHeading False target is an angle, true target is a heading.
 	 * 
-	 * Note: This routine is designed for tank drive and the P,I,D values will likely need adjusting for each
+	 * Note: This routine is designed for tank drive and the P,I,D,tolerance values will likely need adjusting for each
 	 * new drive base as gear ratios and wheel configuration may require different values to turn smoothly
 	 * and accurately.
 	 */
-	private void autoRotate3(double power, double target, boolean usePid, boolean useHeading)
+	private void autoRotate(double power, double target, boolean usePid, boolean useHeading)
 	{
 		double	kP = .02, kI = 0.003, kD = 0.001, kTolerance = 1.0;
 		double	elapsedTime, lastPidCallTime = 0, pidCallTime = 0, yaw = 0;
@@ -819,32 +631,39 @@ public class Autonomous
 	 * @param curve Speed of rotation 0..1.0, always +.
 	 * @param target Target angle to turn. If not using heading, this is 0..180, - left, + right. If using heading
 	 * this is the target heading 0..359.
-	 * @param stop True stops motors at end of curve, false leaves power on to flow into next move.
-	 * @param useBrakes True turns on brakes for end of curve.
-	 * @param usePid True uses PID controller to manage the curve slowing rotation as target is reached. False
+	 * @param stop Stop stops motors at end of curve, dontStop leaves power on to flow into next move.
+	 * @param brakes On turns on brakes for end of curve, off turns them off.
+	 * @param pid On uses PID controller to manage the curve slowing rotation as target is reached. Off
 	 * uses the fixed curve value for whole rotation.
-	 * @param useHeading True target is a heading, false target is an angle from current direction.
+	 * @param heading Heading: target is a heading, angle: target is an angle from current direction.
+	 * 
+	 * Note: This routine is designed for tank drive and the P,I,D,tolerance values will likely need adjusting for each
+	 * new drive base as gear ratios and wheel configuration may require different values to stop smoothly
+	 * and accurately.
 	 */
-	private void autoCurve(double power, double curve, double target, boolean stop, boolean useBrakes, boolean usePid, 
-						   boolean useHeading)
+	private void autoCurve(double power, double curve, double target, StopMotors stop, Brakes brakes, Pid pid, 
+						   Heading heading)
 	{
-		double	kP = .05, kI = 0.001, kD = 0.001, kTolerance= 1.0;
-		double	elapsedTime, lastPidCallTime = 0, pidCallTime = 0, yaw = 0;
+		double	kP = .04, kI = 0.003, kD = 0.001, kTolerance= 1.0;
+		double	elapsedTime, lastPidCallTime = 0, pidCallTime = 0, yaw = 0, originalCurve, power2;
 		
-		SynchronousPID	pid = null;
+		SynchronousPID	pidController = null;
 
-		Util.consoleLog("pwr=%.2f  curve=%.2f  target=%.2f  stop=%b  brakes=%b  pid=%b  hdg=%b", power, curve, target, 
-						stop, useBrakes, usePid, useHeading);
+		Util.consoleLog("pwr=%.2f  curve=%.2f  target=%.2f  stop=%s  brakes=%s  pid=%s  hdg=%s  kP=%.3f  kI=%.3f", 
+						power, curve, target, stop, brakes, pid, heading, kP, kI);
 		
 		Util.checkRange(power, 1.0, "power");
 		
 		Util.checkRange(curve, 0, 1.0, "curve");
 		
-		Devices.SetCANTalonBrakeMode(useBrakes);
+		if (brakes == Brakes.on)
+			Devices.SetCANTalonBrakeMode(true);
+		else
+			Devices.SetCANTalonBrakeMode(false);
 
 		// Reset yaw to current robot direction or target heading.
 		
-		if (useHeading) 
+		if (heading == Heading.heading) 
 		{
 			Util.checkRange(target, 0, 359.999, "target");
 			
@@ -857,29 +676,31 @@ public class Autonomous
 			Devices.navx.resetYawWait(1, 500);
 		}
 		
-		if (usePid)
+		if (pid == Pid.on)
 		{
 			// Use PID to control power as we turn slowing as we approach target heading.
 			
-			pid = new SynchronousPID(kP, kI, kD);
+			pidController = new SynchronousPID(kP, kI, kD);
 			
-			pid.setOutputRange(-Math.abs(curve) , Math.abs(curve));
+			pidController.setOutputRange(-Math.abs(curve) , Math.abs(curve));
 			
-			if (useHeading)
-				pid.setSetpoint(0);			// We are trying to get the yaw to zero.
+			originalCurve = curve;
+			
+			if (heading == Heading.heading)
+				pidController.setSetpoint(0);		// We are trying to get the yaw to zero.
 			else
-				pid.setSetpoint(target);	// We are trying to get to the target yaw.
+				pidController.setSetpoint(target);	// We are trying to get to the target yaw.
 			
 			// The PID class needs delta time between calls to calculate the I term.
 			
 			lastPidCallTime = Timer.getFPGATimestamp();
 			
-			while (isAutoActive() && !pid.onTarget(kTolerance)) 
+			while (isAutoActive() && !pidController.onTarget(kTolerance)) 
 			{
 				pidCallTime = Timer.getFPGATimestamp();
 				elapsedTime = pidCallTime - lastPidCallTime;
 				
-				if (useHeading)
+				if (heading == Heading.heading)
 					yaw = Devices.navx.getHeadingYaw();
 				else
 					yaw = Devices.navx.getYaw();
@@ -890,20 +711,27 @@ public class Autonomous
 				// approaches zero. So our turn should slow and not overshoot. If
 				// it does, the PID controller will reverse curve and turn it back.
 				
-				pid.calculate(yaw, elapsedTime);
+				pidController.calculate(yaw, elapsedTime);
 				
 				lastPidCallTime = pidCallTime;
 				
-				curve = pid.get();
+				curve = pidController.get();
 				
 				// When quick turn is false, power is constant, curve is fed to the
 				// rate of turn parameter. PID controller takes care of the sign, that 
-				// is the left/right direction of the turn.
+				// is the left/right direction of the turn. If stopping at end of curve
+				// we use the PID calculated curve (which is getting smaller) to also
+				// reduce motor power for smooth stop.
 				
-				Devices.robotDrive.curvatureDrive(power, curve, false);
+				if (stop == StopMotors.stop)
+					power2 = power * Math.abs(curve / originalCurve);
+				else
+					power2 = power;
 				
-				Util.consoleLog("power=%.2f  hdg=%.2f  yaw=%.2f  curve=%.2f  err=%.2f  time=%f  ena=%b", power, Devices.navx.getHeading(), 
-						yaw, curve, pid.getError(), elapsedTime, robot.isEnabled());
+				Devices.robotDrive.curvatureDrive(power2, curve, false);
+				
+				Util.consoleLog("power=%.2f  hdg=%.2f  yaw=%.2f  curve=%.2f  err=%.2f  time=%f  ena=%b", power2, Devices.navx.getHeading(), 
+						yaw, curve, pidController.getError(), elapsedTime, robot.isEnabled());
 				
 				Timer.delay(.010);
 			} 
@@ -912,7 +740,7 @@ public class Autonomous
 		{
 			// Simple turn, full curve until target reached.
 			
-			if (useHeading)
+			if (heading == Heading.heading)
 			{
 				yaw = Devices.navx.getHeadingYaw();
 
@@ -950,8 +778,8 @@ public class Autonomous
 		
 		Util.consoleLog("end loop  hdg=%.2f  yaw=%.2f", Devices.navx.getHeading(), yaw);
 		
-		// Stop motors.
-		if (stop) Devices.robotDrive.stopMotor();
+		// Stop motors. If you don't use stop, motors will keep running.
+		if (stop == StopMotors.stop) Devices.robotDrive.stopMotor();
 
 		Util.consoleLog("after stop  hdg=%.2f  yaw=%.2f", Devices.navx.getHeading(), yaw);
 
@@ -962,59 +790,6 @@ public class Autonomous
 		
 		Util.consoleLog("end hdg=%.2f  yaw=%.2f  ena=%b", Devices.navx.getHeading(), yaw, robot.isEnabled());
 	}
-
-	/**
-	 * Drive in S curve, curve one direction, drive straight, curve back to starting heading.
-	 * @param power Speed to drive, + is forward.
-	 * @param curve Rate of rotation (-1.0..1.0), + is right or clockwise.
-	 * @param targetAngle Angle to turn, always +.
-	 * @param straightEncoderCounts Counts to travel on straight leg, always +.
-	 */
-	private void autoSCurve(double power, double curve, int targetAngle, int straightEncoderCounts)
-	{
-		
-		Util.consoleLog("pwr=%.2f  curve=%.2f  angle=%d  counts=%d", power, curve, targetAngle, straightEncoderCounts);
-		
-		targetAngle = navxFix(targetAngle);
-		
-		// We start out driving in a curve until we have turned the desired angle.
-		// Then we drive straight the desired distance then curve back to starting
-		// heading. Curve is + for right, - for left.
-		
-		Devices.robotDrive.curvatureDrive(power, curve, false);
-		
-		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle) 
-		{
-			Timer.delay(.010);
-			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());
-			Util.consoleLog("angle=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
-		}
-
-		Util.consoleLog("end angle=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
-
-		autoDrive(power, straightEncoderCounts, false);
-		
-		Devices.navx.resetYaw();
-		
-		Devices.SetCANTalonBrakeMode(true);
-
-		// Reduce target angle to stop over rotation.
-		targetAngle -= 10;
-		
-		// Reduce power so don't slam the switch too hard.
-		Devices.robotDrive.curvatureDrive(power * 0.7, -curve, false);
-		
-		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < targetAngle && (Devices.ds.getMatchType() != MatchType.None ? Devices.ds.getMatchTime() > 5 : true)) 
-		{
-			Timer.delay(.020);
-			LCD.printLine(6, "angle=%.2f", Devices.navx.getYaw());
-			Util.consoleLog("angle=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
-		}
-
-		Util.consoleLog("end angle=%.2f  hdg=%.2f", Devices.navx.getYaw(), Devices.navx.getHeading());
-
-		Devices.robotDrive.tankDrive(0, 0);
-	}
 	
 	/**
 	 * Drive in S curve, curve one direction, drive straight, curve back to starting heading.
@@ -1024,7 +799,7 @@ public class Autonomous
 	 * @param target Heading to turn to 0..359.
 	 * @param straightEncoderCounts Length of straight led between curves.
 	 */
-	private void autoSCurve2(double power, double curve, double target, int straightEncoderCounts)
+	private void autoSCurve(double power, double curve, double target, int straightEncoderCounts)
 	{
 		double	saveHeading = Devices.navx.getHeading();
 		
@@ -1036,11 +811,11 @@ public class Autonomous
 		// Then we drive straight the desired distance then curve back to starting
 		// heading. PID controller in autoCurve will determine the sign of curve.
 		
-		autoCurve(-power, curve, target, false, false, true, true);
+		autoCurve(power, curve, target, StopMotors.dontStop, Brakes.off, Pid.on, Heading.heading);
 		
-		autoDrive3(-power, straightEncoderCounts, false, false, false, true);
+		autoDrive(power, straightEncoderCounts, StopMotors.dontStop, Brakes.off, Pid.off, Heading.heading);
 		
-		autoCurve(-power, curve, saveHeading, true, true, true, true);
+		autoCurve(power, curve, saveHeading, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);
 	}
 
 	private enum PlateStates
@@ -1049,20 +824,30 @@ public class Autonomous
 		LLL,
 		RRR,
 		LRL,
-		RLR;
+		RLR
  	}
 	
-	// Correction for clone navx which reads 15 degrees to low. This routine adjusts
-	// the target angle for the error.
-	
-	private int navxFix(int targetAngle)
+	private enum Brakes
 	{
-		if (robot.isComp)
-			return targetAngle;
-		else
-		{
-			Util.consoleLog("ta=%d  fa=%d", targetAngle, Math.round(targetAngle * .8333f));
-			return Math.round(targetAngle * .8333f);
-		}
+		off,
+		on
+	}
+	
+	private enum Pid
+	{
+		off,
+		on
+	}
+	
+	private enum Heading
+	{
+		angle,
+		heading
+	}
+	
+	private enum StopMotors
+	{
+		dontStop,
+		stop
 	}
 }

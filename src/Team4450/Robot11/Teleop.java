@@ -143,7 +143,12 @@ class Teleop
 
 		// Reset encoder.
 		//Devices.encoder.reset();
-
+		Devices.wheelEncoder.reset();
+		Devices.wheelEncoder2.reset();
+		//Devices.LRCanTalon.setSensorPhase(false);
+		Devices.LRCanTalon.getSensorCollection().setQuadraturePosition(0, 0);
+		//Devices.LRCanTalon.getSensorCollection().setPulseWidthPosition(1000, 0);
+		
 		// Motor safety turned on.
 		Devices.robotDrive.setSafetyEnabled(true);
 
@@ -173,6 +178,11 @@ class Teleop
 			LCD.printLine(7, "intake current=%f", Devices.intakeMotorL.getOutputCurrent());
 			LCD.printLine(8, "pressureV=%.2f  psi=%d", robot.monitorCompressorThread.getVoltage(), 
 					robot.monitorCompressorThread.getPressure());
+			LCD.printLine(9, "talon enc pw=%d rot=%d - q=%d  rot=%d ", 
+					Devices.LRCanTalon.getSensorCollection().getPulseWidthPosition(),
+					Devices.LRCanTalon.getSensorCollection().getPulseWidthPosition() / 4096,
+					Devices.LRCanTalon.getSensorCollection().getQuadraturePosition(),
+					Devices.LRCanTalon.getSensorCollection().getQuadraturePosition() / 4096);
 
 			// Set wheel motors.
 			// Do not feed JS input to robotDrive if we are controlling the motors in automatic functions.
