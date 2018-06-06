@@ -4,6 +4,9 @@ package Team4450.Robot11;
 import java.lang.Math;
 
 import Team4450.Lib.*;
+import Team4450.Lib.GamePad.GamePadButton;
+import Team4450.Lib.GamePad.GamePadEvent;
+import Team4450.Lib.GamePad.GamePadEventListener;
 import Team4450.Lib.JoyStick.*;
 import Team4450.Lib.LaunchPad.*;
 import Team4450.Robot11.Lift.BarReleaseState;
@@ -14,8 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 class Teleop extends GamePhase
 {
-	public  JoyStick			rightStick, leftStick, utilityStick;
-	public  LaunchPad			launchPad;
+	public  GamePad			xboxController;
 	private boolean				autoTarget, invertDrive, altDriveMode;
 	private Vision				vision;
 
@@ -35,10 +37,7 @@ class Teleop extends GamePhase
 	{
 		Util.consoleLog();
 
-		if (leftStick != null) leftStick.dispose();
-		if (rightStick != null) rightStick.dispose();
-		if (utilityStick != null) utilityStick.dispose();
-		if (launchPad != null) launchPad.dispose();
+		if (xboxController != null) xboxController.dispose();
 	}
 	
 	public float adjustAngle(float angle) {
@@ -69,66 +68,13 @@ class Teleop extends GamePhase
 		// Configure LaunchPad and Joystick event handlers.
 		Util.consoleLog("Begin Joystick Setup");
 		
-		launchPad = new LaunchPad(Devices.launchPad, LaunchPadControlIDs.BUTTON_BLUE, this);
-
-		LaunchPadControl lpControl = launchPad.AddControl(LaunchPadControlIDs.ROCKER_LEFT_BACK);
-		lpControl.controlType = LaunchPadControlTypes.SWITCH;
-
-		lpControl = launchPad.AddControl(LaunchPadControlIDs.ROCKER_LEFT_FRONT);
-		lpControl.controlType = LaunchPadControlTypes.SWITCH;
-		
-		lpControl = launchPad.AddControl(LaunchPadControlIDs.ROCKER_RIGHT);
-		lpControl.controlType = LaunchPadControlTypes.SWITCH;
-
-		//Example on how to track button:
-		//launchPad.AddControl(LaunchPadControlIDs.BUTTON_COLOR_HERE);
-		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLUE);
-		launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED_RIGHT);
-		//launchPad.AddControl(LaunchPadControlIDs.BUTTON_RED);
-		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLUE_RIGHT);
-		launchPad.AddControl(LaunchPadControlIDs.BUTTON_YELLOW);
-		launchPad.AddControl(LaunchPadControlIDs.BUTTON_BLACK);
-		launchPad.AddControl(LaunchPadControlIDs.BUTTON_GREEN);
-		launchPad.AddControl(LaunchPadControlIDs.ROCKER_LEFT_BACK);
-		
-		launchPad.addLaunchPadEventListener(new LaunchPadListener());
-		launchPad.Start();
-
-		leftStick = new JoyStick(Devices.leftStick, "LeftStick", JoyStickButtonIDs.TRIGGER, this);
-		//Example on how to track button:
-		//leftStick.AddButton(JoyStickButtonIDs.BUTTON_NAME_HERE);
-		leftStick.addJoyStickEventListener(new LeftStickListener());
-		leftStick.Start();
-
-		rightStick = new JoyStick(Devices.rightStick, "RightStick", JoyStickButtonIDs.TRIGGER, this);
-		//Example on how to track button:
-		//rightStick.AddButton(JoyStickButtonIDs.BUTTON_NAME_HERE);
-		rightStick.AddButton(JoyStickButtonIDs.TOP_BACK);
-		rightStick.AddButton(JoyStickButtonIDs.TOP_LEFT);
-		rightStick.AddButton(JoyStickButtonIDs.TOP_RIGHT);
-		rightStick.addJoyStickEventListener(new RightStickListener());
-		rightStick.Start();
-
-		utilityStick = new JoyStick(Devices.utilityStick, "UtilityStick", JoyStickButtonIDs.TRIGGER, this);
-		//Example on how to track button:
-		//utilityStick.AddButton(JoyStickButtonIDs.BUTTON_NAME_HERE);
-		utilityStick.AddButton(JoyStickButtonIDs.TRIGGER);
-		utilityStick.AddButton(JoyStickButtonIDs.TOP_MIDDLE);
-		utilityStick.AddButton(JoyStickButtonIDs.TOP_BACK);
-		utilityStick.AddButton(JoyStickButtonIDs.TOP_LEFT);
-		utilityStick.AddButton(JoyStickButtonIDs.TOP_RIGHT);
-		utilityStick.addJoyStickEventListener(new UtilityStickListener());
-		utilityStick.Start();
-
-		// Tighten up dead zone for smoother climber movement.
-		utilityStick.deadZone = .15;
+		xboxController = new GamePad(Devices.xboxController, "XboxController", this);
+		xboxController.addGamePadEventListener(new GamePadListener());
+		xboxController.Start();
 		
 		Util.consoleLog("Joystick Setup Finished.");
-
-		// Set CAN Talon brake mode by rocker switch setting.
-		// We do this here so that the Utility stick thread has time to read the initial state
-		// of the rocker switch.
-		if (Robot.isComp) Devices.SetCANTalonBrakeMode(lpControl.latchedState);
+		
+		if (Robot.isComp) Devices.SetCANTalonBrakeMode(true);
 
 		// Set gyro/Navx to heading 0.
 		//robot.gyro.reset();
@@ -150,13 +96,13 @@ class Teleop extends GamePhase
 			// Get joystick deflection and feed to robot drive object
 			// using calls to our JoyStick class.
 
-			rightY = stickLogCorrection(rightStick.GetY());	// fwd/back
-			leftY = stickLogCorrection(leftStick.GetY());	// fwd/back
+			rightY = stickLogCorrection(xboxController.GetRightY());	// fwd/back
+			leftY = stickLogCorrection(xboxController.GetLeftY());	// fwd/back
 
-			rightX = stickLogCorrection(rightStick.GetX());	// left/right
-			leftX = stickLogCorrection(leftStick.GetX());	// left/right
+			rightX = stickLogCorrection(xboxController.GetRightX());	// left/right
+			leftX = stickLogCorrection(xboxController.GetLeftX());	// left/right
 
-			utilY = utilityStick.GetY();
+			utilY = xboxController.GetRightTrigger() - xboxController.GetLeftTrigger();
 
 			LCD.printLine(3, "limit switch= %b", Devices.winchLimitSwitch.get());
 			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilY=%.4f", leftY, rightY, utilY);
@@ -223,7 +169,7 @@ class Teleop extends GamePhase
 					Devices.robotDrive.tankDrive(leftY, rightY);		// Normal tank drive.
 			}
 
-			Lift.getInstance(robot).setMotor(utilityStick.GetY());
+			Lift.getInstance(robot).setMotor(utilY);
 			
 			// Update the robot heading indicator on the DS.
 
@@ -275,13 +221,13 @@ class Teleop extends GamePhase
 
 
 
-	// Handle LaunchPad control events.
+	// Handle GamePad control events.
 
-	public class LaunchPadListener implements LaunchPadEventListener 
+	public class GamePadListener implements GamePadEventListener 
 	{
-		public void ButtonDown(LaunchPadEvent launchPadEvent) 
+		public void ButtonDown(GamePadEvent gamePadEvent) 
 		{
-			LaunchPadControl	control = launchPadEvent.control;
+			GamePadButton	control = gamePadEvent.button;
 
 			Util.consoleLog("%s, latchedState=%b", control.id.name(),  control.latchedState);
 
@@ -296,230 +242,58 @@ class Teleop extends GamePhase
 					DoOtherThing();
 				break;
 			 */
-			case BUTTON_BLUE: //Trigger forklift drop
+			case LEFT_BUMPER: //Trigger forklift drop
 				Lift.getInstance(robot).setBarRelease(BarReleaseState.EXTENDPIN);
 				break;
-
-			case BUTTON_RED_RIGHT: //Toggle wrist
-				Lift.getInstance(robot).toggleWrist();
+				
+			case RIGHT_BUMPER: //Toggle Camera
+				CameraFeed.getInstance().ChangeCamera();
 				break;
-
-			case BUTTON_RED: //Gear Shift
+				
+			case LEFT_STICK: //Change Gear
 				Devices.toggleGear();
 				break;
 				
-			case BUTTON_BLUE_RIGHT: //Intake Cube Auto
-				Lift.getInstance(robot).toggleIntakeCube();
-				break;
-				
-			/*
-			 	case BUTTON_YELLOW: //Climb height
-				Lift.getInstance(robot).setLiftHeight(LiftHeight.CLIMB);
-				break;
-			*/
-				
-			case BUTTON_YELLOW: //Toggle break (BLACK)
+			case RIGHT_STICK: //Toggle Winch Break
 				if (Devices.ds.getMatchTime() <= 45) 
 					Lift.getInstance(robot).setWinchBrake(control.latchedState);
 				break;
 				
-			case BUTTON_GREEN:
-				Devices.driveEncoder1.reset();
-				Devices.driveEncoder2.reset();
+			case BACK: //Toggle Kid Mode
+				//Devices.toggleKidMode(); //TODO Add Kid Mode
 				break;
 				
-			default:
-				Util.consoleLog("Unassigned button pressed: "+control.id.name());
-				break;
-			}
-		}
-
-		public void ButtonUp(LaunchPadEvent launchPadEvent) 
-		{
-			//Util.consoleLog("%s, latchedState=%b", launchPadEvent.control.name(),  launchPadEvent.control.latchedState);
-		}
-
-		public void SwitchChange(LaunchPadEvent launchPadEvent) 
-		{
-			LaunchPadControl	control = launchPadEvent.control;
-
-			Util.consoleLog("%s", control.id.name());
-
-			switch(control.id)
-			{
-			// Example of Rocker:
-			/*
-			case ROCKER_NAME_HERE:
-				if (control.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-			 */
-			case ROCKER_LEFT_FRONT: //Change Camera
-				robot.cameraThread.ChangeCamera();
-				break;
-			
-			case ROCKER_LEFT_BACK: // Toggle Brake Mode
-				Devices.SetCANTalonBrakeMode(control.latchedState);
-				break;
-				
-			case ROCKER_RIGHT: //Toggle limit switch override
+			case START: //Toggle limit switch override.
 				Lift.getInstance(robot).toggleOverride();
-			break;
-			
-			default:
-				break;
-			}
-		}
-	}
-
-	// Handle Right JoyStick Button events.
-
-	private class RightStickListener implements JoyStickEventListener 
-	{
-
-		public void ButtonDown(JoyStickEvent joyStickEvent) 
-		{
-			JoyStickButton	button = joyStickEvent.button;
-
-			Util.consoleLog("%s, latchedState=%b", button.id.name(),  button.latchedState);
-
-			switch(button.id)
-			{
-			case TRIGGER:
-				altDriveMode = !altDriveMode;
-				break;
-
-				//Example of Joystick Button case:
-				/*
-			case BUTTON_NAME_HERE:
-				if (button.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-				 */
-				
-			case TOP_RIGHT:
-				if (Devices.ds.getMatchTime() <= 45 || Devices.ds.getMatchType() == MatchType.None) 
-					Lift.getInstance(robot).setBarRelease(BarReleaseState.EXTENDPIN);
 				break;
 				
-			case TOP_BACK:
-				if (Devices.ds.getMatchTime() <= 45 || Devices.ds.getMatchType() == MatchType.None) 
-					Lift.getInstance(robot).setBarRelease(BarReleaseState.RETRACTPIN);
-				break;
-				
-			default:
-				break;
-			}
-		}
-
-		public void ButtonUp(JoyStickEvent joyStickEvent) 
-		{
-			//Util.consoleLog("%s", joyStickEvent.button.name());
-		}
-	}
-
-	// Handle Left JoyStick Button events.
-
-	private class LeftStickListener implements JoyStickEventListener 
-	{
-		public void ButtonDown(JoyStickEvent joyStickEvent) 
-		{
-			JoyStickButton	button = joyStickEvent.button;
-
-			Util.consoleLog("%s, latchedState=%b", button.id.name(),  button.latchedState);
-
-			switch(button.id)
-			{
-			//Example of Joystick Button case:
-			/*
-			case BUTTON_NAME_HERE:
-				if (button.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-			 */
-			
-			case TRIGGER:
-				Devices.toggleGear();
-				break;
-			
-			default:
-				break;
-			}
-		}
-
-		public void ButtonUp(JoyStickEvent joyStickEvent) 
-		{
-			//Util.consoleLog("%s", joyStickEvent.button.name());
-		}
-	}
-
-	// Handle Utility JoyStick Button events.
-
-	private class UtilityStickListener implements JoyStickEventListener 
-	{
-		public void ButtonDown(JoyStickEvent joyStickEvent) 
-		{
-			JoyStickButton	button = joyStickEvent.button;
-
-			Util.consoleLog("%s, latchedState=%b", button.id.name(),  button.latchedState);
-
-			switch(button.id)
-			{
-			//Example of Joystick Button case:
-			/*
-			case BUTTON_NAME_HERE:
-				if (button.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-			 */
-			
-			case TRIGGER: //Toggle Claw Pressure
+			case A: //Toggle claw
 				Lift.getInstance(robot).toggleClaw();
 				break;
 				
-			case TOP_MIDDLE:
-				if (Devices.grabberMotors.get() == 0) {
-					Devices.grabberMotors.set(-.5);
-				} else {
-					Devices.grabberMotors.set(0);
-				}
-				break;
-				
-			case TOP_BACK:
-				if (Devices.grabberMotors.get() == 0) {
-					Devices.grabberMotors.set(.5);
-				}  else {
-					Devices.grabberMotors.set(0);
-				}
-				break;
-				
-			case TOP_RIGHT:
+			case B: //Toggle Auto Intake
 				Lift.getInstance(robot).toggleIntakeCube();
 				break;
 				
-			case TOP_LEFT:
-				Util.consoleLog("TOP_LEFT");
-				if (Lift.getInstance(robot).isAutoLifting())
-					Lift.getInstance(robot).stopAutoLift();
+			case X: //Toggle Wrist
+				Lift.getInstance(robot).toggleWrist();
+				break;
+				
+			case Y: //Spit cube manually
+				if (control.latchedState)
+					Lift.getInstance(robot).setMotor(-.5);
 				else
-					Lift.getInstance(robot).setLiftHeight(LiftHeight.SWITCH);
+					Lift.getInstance(robot).setMotor(0);
 				
 			default:
+				Util.consoleLog("Unassigned button pressed: "+ control.id.name());
 				break;
 			}
 		}
 
-		public void ButtonUp(JoyStickEvent joyStickEvent) 
+		public void ButtonUp(GamePadEvent gamePadEvent) 
 		{
-			//Util.consoleLog("%s", joyStickEvent.button.id.name());
+			//Util.consoleLog("%s, latchedState=%b", launchPadEvent.control.name(),  launchPadEvent.control.latchedState);
 		}
 	}
 }

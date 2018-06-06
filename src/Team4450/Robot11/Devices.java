@@ -31,10 +31,7 @@ public class Devices
 	public static PWMTalonSRX			winchMotor = new PWMTalonSRX(0);
 	public static SpeedControllerGroup grabberMotors;
 
-	public final static Joystick      utilityStick = new Joystick(2);	
-	public final static Joystick      leftStick = new Joystick(0);	
-	public final static Joystick		rightStick = new Joystick(1);	
-	public final static Joystick		launchPad = new Joystick(3);
+	public final static Joystick      xboxController = new Joystick(4);	
 
 	public final static Compressor	compressor = new Compressor(0);	// Compressor class represents the PCM. There are 2.
 

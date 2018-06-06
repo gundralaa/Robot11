@@ -45,40 +45,19 @@ Port	Device			Description
 -----------------------------------------------------------------------------------
 0		Pressure Sensor	Report air pressure.
 
-Left Joystick
+Xbox Controller
 Button Name				Function
 -----------------------------------------------------------------------------------
-TRIGGER					Shift gear box low/high.
-
-Right Joystick
-Button Name				Function
------------------------------------------------------------------------------------
-TRIGGER					Toggle alternate driving mode.
-
-Utility Joystick
-Button Name				Function
------------------------------------------------------------------------------------
-TRIGGER					Toggle Claw Fingers gripping the Power Cube.
-TOP_MIDDLE				Manually toggle Claw motors in ejecting direction.
-TOP_BACK				Manually toggle Claw motors in the intake direction.
-
-Proposed:
-TOP_LEFT				Auto move lift to vault height.
-TOP_RIGHT				Auto move lift to switch height.
-
-LaunchPad
-Button Name				Function
------------------------------------------------------------------------------------
-BUTTON_BLUE				Deploy fork lift arms.
-BUTTON_RED_RIGHT		Toggle wrist folding in or out.
-BUTTON_RED				Shift gears.
-BUTTON_BLUE_RIGHT		Toggle Claw intake motors with auto shut off.
-BUTTON_YELLOW			Switch winches
-BUTTON_GREEN			Reset wheel encoder.
-BUTTON_BLACK			Deploy climb brace.
-ROCKER_LEFT_FRONT		Switch Cameras
-ROCKER_RIGHT			Switch Cameras
-ROCKER_LEFT_BACK		Toggle drive talon brake mode.
+A						Toggle Claw Fingers gripping the Power Cube.
+B						Toggle Auto Intake of the Power Cube.
+X						Toggle wrist folding in or out.
+Y						Manually toggle Claw motors in ejecting direction.
+RIGHT_STICK				Toggle Winch Break.
+LEFT_STICK				Shift gears.
+START					Toggle Limit Switch Override.
+BACK					Toggle Kid Mode.
+LEFT_BUMPER				Deploy Buddy Bar.
+RIGHT_BUMPER			Change Camera.
 
 Dashboard Indicators/Controls
 Name					Type			Description
