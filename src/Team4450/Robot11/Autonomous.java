@@ -390,7 +390,7 @@ public class Autonomous
 			Devices.SetCANTalonBrakeMode(false);
 			
 		Devices.wheelEncoder.reset();
-		Devices.wheelEncoder2.reset();
+		//Devices.wheelEncoder2.reset();
 		
 		if (robot.isClone) Timer.delay(0.3);
 		

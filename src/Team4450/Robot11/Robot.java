@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 @SuppressWarnings("deprecation")
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "RAC11ID-05.30.18-01";
+  static final String  	PROGRAM_NAME = "RAC11ID-06.08.18-01";
 
   public Properties		robotProperties;
   
@@ -111,7 +111,7 @@ public class Robot extends SampleRobot
    		Devices.InitializeCANTalonDrive();
 		
    		Devices.wheelEncoder.setReverseDirection(false);
-   		Devices.wheelEncoder2.setReverseDirection(false);
+   		//Devices.wheelEncoder2.setReverseDirection(false);
 
    		// Clone has reversed winch so we need invert the power so utility stick
 		// operation remains the same.

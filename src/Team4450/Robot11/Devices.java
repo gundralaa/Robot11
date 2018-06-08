@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.*;
 
 import Team4450.Lib.NavX;
+import Team4450.Lib.SRXMagneticEncoderRelative;
 import Team4450.Lib.Util;
 import Team4450.Lib.ValveDA;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -57,8 +58,10 @@ public class Devices
 
 	  // Wheel encoder is plugged into dio port 0 - orange=+5v blue=signal, dio port 1 black=gnd yellow=signal. 
 	  public final static Encoder		wheelEncoder = new Encoder(0, 1, true, EncodingType.k4X);
-	  public final static Encoder		wheelEncoder2 = new Encoder(2, 3, true, EncodingType.k4X);
+	  //public final static Encoder		wheelEncoder2 = new Encoder(2, 3, true, EncodingType.k4X);
 	  public final static Encoder		winchEncoder = new Encoder(4, 5, true, EncodingType.k4X);
+	  
+	  public static SRXMagneticEncoderRelative	leftEncoder, rightEncoder;
 	  
 	  public static boolean				winchEncoderEnabled = true;
 	  public static DigitalInput		winchSwitch = new DigitalInput(6);
@@ -77,7 +80,7 @@ public class Devices
 		  LRCanTalon = new WPI_TalonSRX(2);
 		  RFCanTalon = new WPI_TalonSRX(3);
 		  RRCanTalon = new WPI_TalonSRX(4);
-
+		  
 	      // Initialize CAN Talons and write status to log so we can verify
 	      // all the Talons are connected.
 	      InitializeCANTalon(LFCanTalon);
@@ -103,6 +106,11 @@ public class Devices
 	      // Setup the SpeedControllerGroups for the left and right set of motors.
 	      SpeedControllerGroup LeftGroup = new SpeedControllerGroup(LFCanTalon, LRCanTalon);
 		  SpeedControllerGroup RightGroup = new SpeedControllerGroup(RFCanTalon, RRCanTalon);
+		  
+		  rightEncoder = new SRXMagneticEncoderRelative(RFCanTalon, 5.8);
+		  leftEncoder = new SRXMagneticEncoderRelative(LRCanTalon, 5.8);
+		  leftEncoder.setScaleFactor(10);
+		  leftEncoder.setInverted(true);
 		  
 		  robotDrive = new DifferentialDrive(LeftGroup, RightGroup);
 	  }

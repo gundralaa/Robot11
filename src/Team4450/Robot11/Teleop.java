@@ -144,9 +144,10 @@ class Teleop
 		// Reset encoder.
 		//Devices.encoder.reset();
 		Devices.wheelEncoder.reset();
-		Devices.wheelEncoder2.reset();
+		Devices.leftEncoder.reset();
+		Devices.rightEncoder.reset();
 		//Devices.LRCanTalon.setSensorPhase(false);
-		Devices.LRCanTalon.getSensorCollection().setQuadraturePosition(0, 0);
+		//Devices.LRCanTalon.getSensorCollection().setQuadraturePosition(0, 0);
 		//Devices.LRCanTalon.getSensorCollection().setPulseWidthPosition(1000, 0);
 		
 		// Motor safety turned on.
@@ -171,18 +172,19 @@ class Teleop
 
 			LCD.printLine(3, "leftY=%.3f  rightY=%.3f  utilY=%.3f", leftStick.GetY(), rightStick.GetY(), utilY);
 			LCD.printLine(4, "leftY=%.3f  rightY=%.3f  utilY=%.3f", leftY, rightY, utilY);
-			LCD.printLine(5, "Wheel=%d  wheel2=%d  winch=%d  switch=%b", Devices.wheelEncoder.get(), 
-					Devices.wheelEncoder2.get(), Devices.winchEncoder.get(), Devices.winchSwitch.get());
+			LCD.printLine(5, "Wheel=%d  winch=%d  switch=%b", Devices.wheelEncoder.get(), 
+					Devices.winchEncoder.get(), Devices.winchSwitch.get());
 			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), 
 					Devices.navx.getTotalYaw(), Devices.navx.getYawRate(), Devices.navx.getHeading());
 			LCD.printLine(7, "intake current=%f", Devices.intakeMotorL.getOutputCurrent());
 			LCD.printLine(8, "pressureV=%.2f  psi=%d", robot.monitorCompressorThread.getVoltage(), 
 					robot.monitorCompressorThread.getPressure());
-			LCD.printLine(9, "talon enc pw=%d rot=%d - q=%d  rot=%d ", 
-					Devices.LRCanTalon.getSensorCollection().getPulseWidthPosition(),
-					Devices.LRCanTalon.getSensorCollection().getPulseWidthPosition() / 4096,
-					Devices.LRCanTalon.getSensorCollection().getQuadraturePosition(),
-					Devices.LRCanTalon.getSensorCollection().getQuadraturePosition() / 4096);
+			LCD.printLine(9, "srx l=%d rot=%.2f - r=%d rot=%.2f d=%.2f", 
+					Devices.leftEncoder.get(),
+					Devices.leftEncoder.getRotations(),
+					Devices.rightEncoder.get(),
+					Devices.rightEncoder.getRotations(),
+					Devices.rightEncoder.getDistance());
 
 			// Set wheel motors.
 			// Do not feed JS input to robotDrive if we are controlling the motors in automatic functions.
@@ -353,7 +355,8 @@ class Teleop
 					
 				case BUTTON_GREEN:
 					Devices.wheelEncoder.reset();
-					Devices.wheelEncoder2.reset();
+					Devices.leftEncoder.reset();
+					Devices.rightEncoder.reset();
 					break;
 					
 				default:
