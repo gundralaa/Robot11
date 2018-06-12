@@ -5,6 +5,7 @@ import java.lang.Math;
 
 import Team4450.Lib.*;
 import Team4450.Lib.GamePad.GamePadButton;
+import Team4450.Lib.GamePad.GamePadButtonIDs;
 import Team4450.Lib.GamePad.GamePadEvent;
 import Team4450.Lib.GamePad.GamePadEventListener;
 import Team4450.Lib.JoyStick.*;
@@ -242,8 +243,11 @@ class Teleop extends GamePhase
 					DoOtherThing();
 				break;
 			 */
-			case LEFT_BUMPER: //Trigger forklift drop
-				Lift.getInstance(robot).setBarRelease(BarReleaseState.EXTENDPIN);
+			case LEFT_BUMPER: //Toggle forklift drop
+				if (!control.latchedState)
+					Lift.getInstance(robot).setBarRelease(BarReleaseState.RETRACTPIN);
+				else
+					Lift.getInstance(robot).setBarRelease(BarReleaseState.EXTENDPIN);
 				break;
 				
 			case RIGHT_BUMPER: //Toggle Camera
@@ -280,10 +284,11 @@ class Teleop extends GamePhase
 				break;
 				
 			case Y: //Spit cube manually
-				if (control.latchedState)
-					Lift.getInstance(robot).setMotor(-.5);
+				if (Devices.grabberMotors.get() == 0)
+					Devices.grabberMotors.set(-.5);
 				else
-					Lift.getInstance(robot).setMotor(0);
+					Devices.grabberMotors.set(0);
+				break;
 				
 			default:
 				Util.consoleLog("Unassigned button pressed: "+ control.id.name());
