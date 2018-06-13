@@ -40,7 +40,7 @@ public class Robot extends SampleRobot
       
   // Constructor.
   
-  public Robot()
+  public Robot() //throws IOException
   {	
 	// Set up our custom logger.
 	 

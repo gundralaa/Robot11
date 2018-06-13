@@ -219,8 +219,6 @@ class Teleop extends GamePhase
 		return joystickValue;
 	}
 
-
-
 	// Handle GamePad control events.
 
 	public class GamePadListener implements GamePadEventListener 
