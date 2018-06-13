@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.XboxController;
 
 public class Devices
 {
@@ -29,7 +30,7 @@ public class Devices
 	public static PWMTalonSRX			winchMotor = new PWMTalonSRX(0);
 	public static SpeedControllerGroup grabberMotors;
 
-	public final static Joystick      xboxController = new Joystick(4);	
+	public final static XboxController      xboxController = new XboxController(4);
 
 	public final static Compressor	compressor = new Compressor(0);	// Compressor class represents the PCM. There are 2.
 

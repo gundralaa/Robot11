@@ -71,7 +71,6 @@ class Teleop extends GamePhase
 		
 		xboxController = new GamePad(Devices.xboxController, "XboxController", this);
 		xboxController.addGamePadEventListener(new GamePadListener());
-		xboxController.Start();
 		
 		Util.consoleLog("Joystick Setup Finished.");
 		
@@ -242,7 +241,7 @@ class Teleop extends GamePhase
 				break;
 			 */
 			case LEFT_BUMPER: //Toggle forklift drop
-				if (!control.latchedState)
+				if (control.latchedState)
 					Lift.getInstance(robot).setBarRelease(BarReleaseState.RETRACTPIN);
 				else
 					Lift.getInstance(robot).setBarRelease(BarReleaseState.EXTENDPIN);
