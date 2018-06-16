@@ -8,16 +8,18 @@ import edu.wpi.first.wpilibj.DriverStation.MatchType;
 import edu.wpi.first.wpilibj.Timer;
 //import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import jaci.pathfinder.Pathfinder;
+import jaci.pathfinder.Trajectory;
+import jaci.pathfinder.Trajectory.Segment;
+import jaci.pathfinder.Waypoint;
+import jaci.pathfinder.followers.EncoderFollower;
+import jaci.pathfinder.modifiers.TankModifier;
 
 public class Autonomous
 {
 	private final Robot		robot;
 	private final int		program = (int) SmartDashboard.getNumber("AutoProgramSelect",0);
-	private PlateStates		plateState;
-	private final Lift		lift;
-	private final Grabber	grabber;
 	private final GearBox	gearBox;
-	private final double	spitPower = .50;
 	
 	Autonomous(Robot robot)
 	{
@@ -26,10 +28,6 @@ public class Autonomous
 		this.robot = robot;
 		
 		gearBox = new GearBox(robot);
-		
-		lift = new Lift(robot);
-		
-		grabber = new Grabber(robot);
 	}
 
 	public void dispose()
@@ -37,8 +35,6 @@ public class Autonomous
 		Util.consoleLog();
 		
 		if (gearBox != null) gearBox.dispose();
-		if (lift != null) lift.dispose();
-		if (grabber != null) grabber.dispose();
 	}
 	
 	private boolean isAutoActive()
@@ -53,19 +49,13 @@ public class Autonomous
 		LCD.printLine(2, "Alliance=%s, Location=%d, FMS=%b, Program=%d, msg=%s", robot.alliance.name(), robot.location, 
 				Devices.ds.isFMSAttached(), program, robot.gameMessage);
 		
-		// Get the randomized scoring plate state.
-		
-		try
-		{
-			plateState = PlateStates.valueOf(robot.gameMessage);
-		}
-		catch (Exception e) { plateState = PlateStates.UNDEFINED; }
-		
 		Devices.robotDrive.setSafetyEnabled(false);
 
-		// Initialize encoder.
+		// Initialize encoders.
 		Devices.wheelEncoder.reset();
-        
+		Devices.rightEncoder.reset();
+		Devices.leftEncoder.reset();
+		
        // Set NavX yaw tracking to 0.
 		Devices.navx.resetYaw();
 
@@ -88,31 +78,7 @@ public class Autonomous
 				break;
 
 			case 1:		// Start outside (either side) no scoring.
-				startOutsideNoScore();
-				break;
-			
-			case 2:		// Start center no scoring.
-				startCenterNoScore();
-				break;
-			
-			case 3:		// Start center score cube.
-				startCenterScore();
-				break;
-			
-			case 4:		// Start left outside score cube.
-				startOutsideScore(true);
-				break;
-
-			case 5:		// Start right outside score cube.
-				startOutsideScore(false);
-				break;
-				
-			case 6:		// Start center score cube.
-				startCenterScoreFast();
-				break;
-				
-			case 7:		// Start center score cube.
-				startCenterScoreCurve();
+				pathFinderTest();
 				break;
 		}
 		
@@ -125,233 +91,133 @@ public class Autonomous
 		Util.consoleLog("end");
 	}
 
-	// Start from left or right and just drive across the line.
-	
-	private void startOutsideNoScore()
+	private void pathFinderTest()
 	{
 		Util.consoleLog();
 		
-		autoDrive(.50, 2490, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 1606
-	}
-
-	// Start from center (offset right). Drive forward to break the line and stop.
- 
-	private void startCenterNoScore()
-	{
-		Util.consoleLog();
-		
-		autoDrive(.50, 1970, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);
-	}
-
-	// Start from center (offset right). Evaluate game information. Determine which switch we
-	// should score on. Navigate by moving a bit off the wall, turn 90 in correct direction, 
-	// drive forward correct amount, turn 90 in correct direction, raise cube, drive forward 
-	// to the switch wall, dump cube.
-
-	private void startCenterScore()
-	{
-		Util.consoleLog(plateState.toString());
-		
-		// close, deploy grabber then lift.
-		
-		//grabber.close();
-		//grabber.deploy();
-		Timer.delay(0.5);
-		
-//		if (robot.isClone)
-//			lift.setHeight(9100);
-//		else
-//			lift.setHeight(7900);
-		
-		autoDrive(.40, 925, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 596
-		
-		switch (plateState)
+		// 3 Waypoints. Distances in meters. Working back from end point.
+		// Notes: PF see headings as starting a zero and proceeding to 1
+		// degree, 2 degrees, and so on, left (that is counter clockwise)
+		// comming around to 359 just right (clockwise) of zero. This is
+		// opposite the way we do it in our NavX headings.
+		//
+		// Next, angles are specified as negative to turn right (clockwise)
+		// and positive to turn left (counter clockwise).
+		Waypoint[] points = new Waypoint[] 
 		{
-			case UNDEFINED:
-				startCenterNoScore();
-				return;
-				
-			case LLL: case LRL:
-				autoRotate(.30, 270, true, true);
-				autoDrive(.60, 928, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 663
-				autoRotate(.30, 0, true, true);
-				autoDrive(.60, 880, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 567
-				break;
-				
-			case RRR: case RLR:
-				autoRotate(.30, 90, true, true);
-				autoDrive(.60, 900, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 857
-				autoRotate(.30, 0, true, true);
-				autoDrive(.60, 880, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 567
-				break;
+		    new Waypoint(-4, -1, Pathfinder.d2r(-45)),      // Waypoint @ x=-4, y=-1, exit angle=-45 degrees
+		    new Waypoint(-2, -2, 0),                        // Waypoint @ x=-2, y=-2, exit angle=0 radians
+		    new Waypoint(0, 0, 0)                           // Waypoint @ x=0, y=0,   exit angle=0 radians
+		};
+
+		// Create the Trajectory Configuration
+		//
+		// Arguments:
+		// Fit Method:          HERMITE_CUBIC or HERMITE_QUINTIC
+		// Sample Count:        SAMPLES_HIGH (100 000)
+		//                      SAMPLES_LOW  (10 000)
+		//                      SAMPLES_FAST (1 000)
+		// Time Step:           0.05 Seconds
+		// Max Velocity:        1.7 m/s
+		// Max Acceleration:    2.0 m/s/s
+		// Max Jerk:            60.0 m/s/s/s
+		
+		double max_velocity = 0.5;	//1.7;
+		double max_acceleration = 0.5;
+		double max_jerk = 60.0;
+		double time_step = .05;
+		
+		Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, 
+														 Trajectory.Config.SAMPLES_HIGH, 
+														 time_step, 
+														 max_velocity, 
+														 max_acceleration, 
+														 max_jerk);
+
+		// Generate the trajectory
+		Util.consoleLog("Start trajectory generation...");
+		
+		Trajectory trajectory = Pathfinder.generate(points, config);
+		
+		Util.consoleLog("trajectory points=%d", trajectory.length());
+		
+		// The distance between the left and right sides of the wheel base is 28 inches or 0.7112 meters.
+		// Wheel diameter is 5.8 inches or .14732 meters.
+		double wheelbase_width = Util.inchesToMeters(28);
+		double wheel_diameter = Util.inchesToMeters(5.8);
+
+		// Create the Modifier Object
+		TankModifier modifier = new TankModifier(trajectory);
+
+		// Generate the Left and Right trajectories using the original trajectory
+		// as the center.
+		modifier.modify(wheelbase_width);
+
+		Trajectory leftTrajectory = modifier.getLeftTrajectory();
+		Trajectory rightTrajectory = modifier.getRightTrajectory();
+		Segment seg;
+		
+		Util.consoleLog("left:");
+		
+		for (int i = 0; i < leftTrajectory.length(); i++)
+		{
+			seg = leftTrajectory.get(i);
+			Util.consoleLog("seg=%d x=%.2f y=%.2f pos=%.2f hdg=%.2f acc=%.2f", i, seg.x, seg.y, seg.position, 
+					 Pathfinder.r2d(seg.heading), seg.acceleration);
 		}
 		
-		// Dump cube.
+		Util.consoleLog("right:");
 		
-		//grabber.spit(spitPower);
-	}
-
-	private void startCenterScoreFast()
-	{
-		Util.consoleLog(plateState.toString());
-		
-		// close, deploy grabber then lift.
-		
-		//grabber.close();
-		//grabber.deploy();
-		Timer.delay(0.5);
-		
-//		if (robot.isClone)
-//			lift.setHeight(9100);
-//		else
-//			lift.setHeight(7900);
-		
-		autoDrive(.40, 100, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 596
-		
-		switch (plateState)
+		for (int i = 0; i < rightTrajectory.length(); i++)
 		{
-			case UNDEFINED:
-				startCenterNoScore();
-				return;
-				
-			case LLL: case LRL:
-				autoRotate(.50, 334, true, true);				// 26 -.50
-				autoDrive(.60, 2100, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 663
-				break;
-				
-			case RRR: case RLR:
-				autoRotate(.50, 18, true, true);
-				autoDrive(.60, 1900, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 857
-				break;
+			seg = rightTrajectory.get(i);
+			Util.consoleLog("seg=%d x=%.2f y=%.2f pos=%.2f hdg=%.2f acc=%.2f", i, seg.x, seg.y, seg.position, 
+					Pathfinder.r2d(seg.heading), seg.acceleration);
+		}
+
+		EncoderFollower left = new EncoderFollower(leftTrajectory, "left");
+		EncoderFollower right = new EncoderFollower(rightTrajectory, "right");
+		
+		// Encoder Position is the current, cumulative position of your encoder. 
+		// 4096 is the amount of encoder ticks per full revolution
+		// Wheel Diameter is the diameter of your wheels (or pulley for a track system) in meters
+		left.configureEncoder(Devices.leftEncoder.get(), 4096, wheel_diameter);
+		right.configureEncoder(Devices.rightEncoder.get(), 4096, wheel_diameter);
+		
+		// The first argument is the proportional gain. Usually this will be quite high
+		// The second argument is the integral gain. This is unused for motion profiling
+		// The third argument is the derivative gain. Tweak this if you are unhappy with the tracking of the trajectory
+		// The fourth argument is the velocity ratio. This is 1 over the maximum velocity you provided in the 
+		// trajectory configuration (it translates m/s to a -1 to 1 scale that your motors can read)
+		// The fifth argument is your acceleration gain. Tweak this if you want to get to a higher or lower speed quicker
+		left.configurePIDVA(1.0, 0.0, 0.0, 1 / max_velocity, 0);	
+		right.configurePIDVA(1.0, 0.0, 0.0, 1 / max_velocity, 0);	
+		
+		while (isAutoActive() && !left.isFinished())
+		{
+			double lPower = left.calculate(Devices.leftEncoder.get());
+			double rPower = right.calculate(Devices.rightEncoder.get());
+
+			double gyro_heading = Devices.navx.getHeadingR();			// degrees
+			double desired_heading = Pathfinder.r2d(left.getHeading()); // Should also be in degrees
+
+			double angleDifference = Pathfinder.boundHalfDegrees(desired_heading - gyro_heading);
+			double turn = 0.8 * (-1.0/80.0) * angleDifference;
+
+			Util.consoleLog("le=%d lp=%.2f  re=%d rp=%.2f  dhdg=%.0f  hdg=%.0f ad=%.2f  turn=%.2f  time=%.3f", 
+							Devices.leftEncoder.get(), lPower, Devices.rightEncoder.get(), rPower, 
+							desired_heading, gyro_heading, angleDifference, turn,  Util.getElaspedTime());
+			
+			//turn = 0;
+			
+			Devices.robotDrive.tankDrive(lPower + turn, rPower - turn);
+			
+			Timer.delay(time_step);
 		}
 		
-		// Dump cube.
+		Devices.robotDrive.stopMotor();
 		
-		//grabber.spit(spitPower);
-		
-	}
-
-	private void startCenterScoreCurve()
-	{
-		Util.consoleLog(plateState.toString());
-		
-		// close, deploy grabber then lift.
-		
-		grabber.close();
-		grabber.deploy();
-		Timer.delay(0.5);
-		
-		if (robot.isClone)
-			lift.setHeight(9100);
-		else
-			lift.setHeight(7900);
-		
-		switch (plateState)
-		{
-			case UNDEFINED:
-				startCenterNoScore();
-				return;
-				
-			case LLL: case LRL:
-				//autoSCurve(.50, -.3, 30, 900);
-				autoSCurve(.50, .30, 330, 900);
-
-				break;
-				
-			case RRR: case RLR:
-				//autoSCurve(.50, .3, 30, 950);
-				autoSCurve(.50, .30, 30, 950);
-				break;
-		}
-		
-		// Dump cube.
-		
-		grabber.spit(spitPower);
-	}
-
-	// Start left or right. Evaluate game information. Determine if we should score on the switch, 
-	// scale, or not at all. For not at all, drive forward until aligned with the platform area, 
-	// turn right 90, drive forward into the platform area as far as we can get toward the scale on 
-	// opposite side of the field. For score scale drive forward raising cube until aligned with scale
-	// front, turn right 90, drive to scale drop position, drop cube. For score switch drive forward
-	// raising cube until aligned with switch front, turn right 90, drive to switch wall, drop cube.
-
-	private void startOutsideScore(boolean startingLeft)
-	{
-		Util.consoleLog("start left=%b, plate=%s", startingLeft, plateState.toString());
-		
-		// close, deploy grabber then lift.
-		
-		grabber.close();
-		grabber.deploy();
-		Timer.delay(0.5);
-		
-		if (robot.isClone)
-			lift.setHeight(9100);
-		else
-			lift.setHeight(7900);
-		
-		if (startingLeft) 
-		{
-			switch (plateState)
-			{
-				case UNDEFINED:
-					return;
-					
-				//case LLL: case RLR:	// Scale available.
-					//autoDrive(.50, 1000, true);
-					//autoRotate(.50, -90);
-					//autoDrive(.50, 1000, true);
-					//break;
-					
-				case RRR:  case RLR:	// No plate available.
-					autoDrive(.50, 2500, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 4600/2967
-					
-					// Drop the lift.
-					lift.setHeight(-1);
-					return;
-					
-				case LRL: case LLL:		// Switch available.
-					autoDrive(.50, 3180, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 2051
-					autoRotate(.50, 90, true, true);
-					autoDrive(.30, 320, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 206
-					break;
-			}
-		}
-		else
-		{
-			switch (plateState)
-			{
-				case UNDEFINED:
-					return;
-					
-				case LLL: case LRL:	// No plate available.
-					autoDrive(.50, 2500, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 4600/2967
-					//autoRotate(.50, 90);
-					//autoDrive(-.50, 1470, true);	// 948
-					
-					// Drop the lift.
-					lift.setHeight(-1);
-					//Timer.delay(3.0);
-					return;
-					
-//				case RRR: case LRL:	// Scale available.
-//					autoDrive(.50, 1000, true);
-//					autoRotate(.50, 90);
-//					autoDrive(.50, 1000, true);
-//					break;
-//					
-				case RLR: case RRR:	// Switch available.
-					autoDrive(.50, 3180, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);	// 2051
-					autoRotate(.50, 270, true, true);
-					autoDrive(.30, 320, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);		// 206s
-					break;
-			}
-		}
-		
-		// Dump cube.
-		
-		grabber.spit(spitPower);
+		if (left.isFinished()) Util.consoleLog("reached end of trajectory");
 	}
 	
 	/**
@@ -372,7 +238,7 @@ public class Autonomous
 	private void autoDrive(double power, int encoderCounts, StopMotors stop, Brakes brakes, Pid pid, 
 						    Heading heading)
 	{
-		double			yaw, kSteeringGain = .10, elapsedTime = 0, lastPidCallTime = 0, pidCallTime = 0;
+		double			yaw, kSteeringGain = .10, elapsedTime = 0;
 		double			kP = .002, kI = 0.001, kD = 0.001;
 		
 		SynchronousPID	pidController = null;
@@ -422,7 +288,7 @@ public class Autonomous
 				pidController.setOutputRange(0, power);
 			}
 
-			lastPidCallTime = Timer.getFPGATimestamp();
+			Util.getElaspedTime();
 		}
 		
 		// Drive until we get there.
@@ -436,12 +302,9 @@ public class Autonomous
 			
 			if (pid == Pid.on)
 			{
-				pidCallTime = Timer.getFPGATimestamp();
-				elapsedTime = pidCallTime - lastPidCallTime;
+				elapsedTime = Util.getElaspedTime();
 				
 				pidController.calculate(Devices.wheelEncoder.get(), elapsedTime);
-				
-				lastPidCallTime = pidCallTime;
 				
 				power = pidController.get();
 				
@@ -493,7 +356,7 @@ public class Autonomous
 	private void autoRotate(double power, double target, boolean usePid, boolean useHeading)
 	{
 		double	kP = .02, kI = 0.003, kD = 0.001, kTolerance = 1.0;
-		double	elapsedTime, lastPidCallTime = 0, pidCallTime = 0, yaw = 0;
+		double	elapsedTime, yaw = 0;
 		
 		SynchronousPID	pid = null;
 
@@ -534,18 +397,17 @@ public class Autonomous
 			
 			// The PID class needs delta time between calls to calculate the I term.
 			
-			lastPidCallTime = Timer.getFPGATimestamp();
+			Util.getElaspedTime();
 			
 			while (isAutoActive() && !pid.onTarget(kTolerance)) 
 			{
-				pidCallTime = Timer.getFPGATimestamp();
-				elapsedTime = pidCallTime - lastPidCallTime;
-				
 				if (useHeading)
 					yaw = Devices.navx.getHeadingYaw();
 				else
 					yaw = Devices.navx.getYaw();
-
+				
+				elapsedTime = Util.getElaspedTime();
+				
 				// Our target is zero yaw so we determine the difference between
 				// current yaw and target and perform the PID calculation which
 				// results in the speed of turn, reducing power as the difference
@@ -553,8 +415,6 @@ public class Autonomous
 				// it does, the PID controller will reverse power and turn it back.
 				
 				pid.calculate(yaw, elapsedTime);
-				
-				lastPidCallTime = pidCallTime;
 				
 				power = pid.get();
 				
@@ -645,7 +505,7 @@ public class Autonomous
 						   Heading heading)
 	{
 		double	kP = .04, kI = 0.003, kD = 0.001, kTolerance= 1.0;
-		double	elapsedTime, lastPidCallTime = 0, pidCallTime = 0, yaw = 0, originalCurve, power2;
+		double	elapsedTime, yaw = 0, originalCurve, power2;
 		
 		SynchronousPID	pidController = null;
 
@@ -693,12 +553,11 @@ public class Autonomous
 			
 			// The PID class needs delta time between calls to calculate the I term.
 			
-			lastPidCallTime = Timer.getFPGATimestamp();
+			Util.getElaspedTime();
 			
 			while (isAutoActive() && !pidController.onTarget(kTolerance)) 
 			{
-				pidCallTime = Timer.getFPGATimestamp();
-				elapsedTime = pidCallTime - lastPidCallTime;
+				elapsedTime = Util.getElaspedTime();
 				
 				if (heading == Heading.heading)
 					yaw = Devices.navx.getHeadingYaw();
@@ -712,8 +571,6 @@ public class Autonomous
 				// it does, the PID controller will reverse curve and turn it back.
 				
 				pidController.calculate(yaw, elapsedTime);
-				
-				lastPidCallTime = pidCallTime;
 				
 				curve = pidController.get();
 				
@@ -817,15 +674,6 @@ public class Autonomous
 		
 		autoCurve(power, curve, saveHeading, StopMotors.stop, Brakes.on, Pid.on, Heading.heading);
 	}
-
-	private enum PlateStates
-	{
-		UNDEFINED,
-		LLL,
-		RRR,
-		LRL,
-		RLR
- 	}
 	
 	private enum Brakes
 	{

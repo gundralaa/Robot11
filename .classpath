@@ -15,6 +15,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/rcorn/wpilib/user/RobotLib/RobotLib-sources.jar" sourcepath="C:/Users/rcorn/wpilib/user/RobotLib/RobotLib-sources.jar"/>
-	<classpathentry kind="var" path="USERLIBS_DIR/navx_frc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/rcorn/workspace/FRC Java/Pathfinder/Pathfinder-Java/build/libs/Pathfinder-Java-1.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -109,7 +109,6 @@ public class Devices
 		  
 		  rightEncoder = new SRXMagneticEncoderRelative(RFCanTalon, 5.8);
 		  leftEncoder = new SRXMagneticEncoderRelative(LRCanTalon, 5.8);
-		  leftEncoder.setScaleFactor(10);
 		  leftEncoder.setInverted(true);
 		  
 		  robotDrive = new DifferentialDrive(LeftGroup, RightGroup);
