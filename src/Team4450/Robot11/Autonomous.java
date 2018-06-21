@@ -1,6 +1,8 @@
 
 package Team4450.Robot11;
 
+import java.io.File;
+
 import Team4450.Lib.*;
 import Team4450.Robot11.Devices;
 import edu.wpi.first.wpilibj.DriverStation.MatchType;
@@ -86,28 +88,39 @@ public class Autonomous
 
 		SmartDashboard.putNumber("Gyro", Devices.navx.getHeadingInt());
 		
-		Util.consoleLog("final heading=%.2f", Devices.navx.getHeading());
+		Util.consoleLog("final heading=%.2f  R=%.2f", Devices.navx.getHeading(), Devices.navx.getHeadingR());
 		
 		Util.consoleLog("end");
 	}
 
 	private void pathFinderTest()
 	{
+		File	file = new File("/home/lvuser/latest.trajectory");
+		
 		Util.consoleLog();
 		
+		// Rotate to starting heading of 45 degrees, 315 in Pathfinder orientation.
+		autoRotate(.50, 45, true, true);
+		
+		Pathfinder.setTrace(true);
+		
 		// 3 Waypoints. Distances in meters. Working back from end point.
-		// Notes: PF see headings as starting a zero and proceeding to 1
+		// Notes: PF sees headings as starting a zero and proceeding to 1
 		// degree, 2 degrees, and so on, left (that is counter clockwise)
-		// comming around to 359 just right (clockwise) of zero. This is
-		// opposite the way we do it in our NavX headings.
+		// coming around to 359 just right (clockwise) of zero. This is
+		// opposite the way we do it in our NavX headings. NavX class has
+		// a method to return the heading in this scheme.
 		//
 		// Next, angles are specified as negative to turn right (clockwise)
 		// and positive to turn left (counter clockwise).
 		Waypoint[] points = new Waypoint[] 
 		{
-		    new Waypoint(-4, -1, Pathfinder.d2r(-45)),      // Waypoint @ x=-4, y=-1, exit angle=-45 degrees
-		    new Waypoint(-2, -2, 0),                        // Waypoint @ x=-2, y=-2, exit angle=0 radians
-		    new Waypoint(0, 0, 0)                           // Waypoint @ x=0, y=0,   exit angle=0 radians
+//		    new Waypoint(-2, 0, Pathfinder.d2r(-45)),      	// Waypoint @ x=-4, y=-1, exit angle=-45 degrees
+//		    new Waypoint(-1, -1, 0),                        // Waypoint @ x=-2, y=-2, exit angle=0 radians
+//		    new Waypoint(0, 0, 0)                           // Waypoint @ x=0, y=0,   exit angle=0 radians
+			    new Waypoint(0, 0, Pathfinder.d2r(-45)),      	// Waypoint @ x=-4, y=-1, exit angle=-45 degrees
+			    new Waypoint(2, -1, 0),                        // Waypoint @ x=-2, y=-2, exit angle=0 radians
+			    new Waypoint(4, 0, 0)                           // Waypoint @ x=0, y=0,   exit angle=0 radians
 		};
 
 		// Create the Trajectory Configuration
@@ -135,11 +148,9 @@ public class Autonomous
 														 max_jerk);
 
 		// Generate the trajectory
-		Util.consoleLog("Start trajectory generation...");
+		Trajectory trajectory = Pathfinder.generate(points, config, file);
 		
-		Trajectory trajectory = Pathfinder.generate(points, config);
-		
-		Util.consoleLog("trajectory points=%d", trajectory.length());
+		//Trajectory trajectory = Pathfinder.readFromCSV(file);
 		
 		// The distance between the left and right sides of the wheel base is 28 inches or 0.7112 meters.
 		// Wheel diameter is 5.8 inches or .14732 meters.
@@ -155,26 +166,8 @@ public class Autonomous
 
 		Trajectory leftTrajectory = modifier.getLeftTrajectory();
 		Trajectory rightTrajectory = modifier.getRightTrajectory();
-		Segment seg;
 		
-		Util.consoleLog("left:");
-		
-		for (int i = 0; i < leftTrajectory.length(); i++)
-		{
-			seg = leftTrajectory.get(i);
-			Util.consoleLog("seg=%d x=%.2f y=%.2f pos=%.2f hdg=%.2f acc=%.2f", i, seg.x, seg.y, seg.position, 
-					 Pathfinder.r2d(seg.heading), seg.acceleration);
-		}
-		
-		Util.consoleLog("right:");
-		
-		for (int i = 0; i < rightTrajectory.length(); i++)
-		{
-			seg = rightTrajectory.get(i);
-			Util.consoleLog("seg=%d x=%.2f y=%.2f pos=%.2f hdg=%.2f acc=%.2f", i, seg.x, seg.y, seg.position, 
-					Pathfinder.r2d(seg.heading), seg.acceleration);
-		}
-
+		// Create encoder follower for each encoder.
 		EncoderFollower left = new EncoderFollower(leftTrajectory, "left");
 		EncoderFollower right = new EncoderFollower(rightTrajectory, "right");
 		
@@ -202,15 +195,19 @@ public class Autonomous
 			double desired_heading = Pathfinder.r2d(left.getHeading()); // Should also be in degrees
 
 			double angleDifference = Pathfinder.boundHalfDegrees(desired_heading - gyro_heading);
-			double turn = 0.8 * (-1.0/80.0) * angleDifference;
+			//double turn = 0.8 * (-1.0/80.0) * angleDifference;
+			double turn = -0.02 * angleDifference;
 
+			lPower = Util.clampValue(lPower + turn, 1.0);
+			rPower = Util.clampValue(rPower - turn, 1.0);
+			
 			Util.consoleLog("le=%d lp=%.2f  re=%d rp=%.2f  dhdg=%.0f  hdg=%.0f ad=%.2f  turn=%.2f  time=%.3f", 
 							Devices.leftEncoder.get(), lPower, Devices.rightEncoder.get(), rPower, 
 							desired_heading, gyro_heading, angleDifference, turn,  Util.getElaspedTime());
 			
 			//turn = 0;
 			
-			Devices.robotDrive.tankDrive(lPower + turn, rPower - turn);
+			Devices.robotDrive.tankDrive(lPower, rPower);
 			
 			Timer.delay(time_step);
 		}
