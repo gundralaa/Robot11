@@ -118,9 +118,21 @@ public class Autonomous
 //		    new Waypoint(-2, 0, Pathfinder.d2r(-45)),      	// Waypoint @ x=-4, y=-1, exit angle=-45 degrees
 //		    new Waypoint(-1, -1, 0),                        // Waypoint @ x=-2, y=-2, exit angle=0 radians
 //		    new Waypoint(0, 0, 0)                           // Waypoint @ x=0, y=0,   exit angle=0 radians
-			    new Waypoint(0, 0, Pathfinder.d2r(-45)),      	// Waypoint @ x=-4, y=-1, exit angle=-45 degrees
-			    new Waypoint(2, -1, 0),                        // Waypoint @ x=-2, y=-2, exit angle=0 radians
-			    new Waypoint(4, 0, 0)                           // Waypoint @ x=0, y=0,   exit angle=0 radians
+				
+			    new Waypoint(0, 0, Pathfinder.d2r(-45)),      // Waypoint @ x=0, y=0, exit angle=-45 degrees
+			    new Waypoint(2, -1, 0),                       // Waypoint @ x=2, y=-1, exit angle=0 radians
+			    new Waypoint(4, 0, 0)                         // Waypoint @ x=4, y=0,   exit angle=0 radians
+				
+//			    new Waypoint(0, 0, 0),      				// Waypoint @ x=0, y=0, exit angle=0 degrees
+//			    new Waypoint(1, 0, 0),                      // Waypoint @ x=2, y=0, exit angle=0 radians
+//			    new Waypoint(3, -1, Pathfinder.d2r(-45))                     // Waypoint @ x=2, y=-2 exit angle=0 radians
+			    //new Waypoint(0, -2, 0)
+
+//				new Waypoint(0, 0, 0),      				// Waypoint @ x=0, y=0, exit angle=0 degrees
+//			    new Waypoint(1, 0,  0),                      // Waypoint @ x=2, y=0, exit angle=0 radians
+//			    new Waypoint(2, -1, 0),                     // Waypoint @ x=2, y=-2 exit angle=0 radians
+//			    new Waypoint(-1, -2, 0),
+//			    new Waypoint(0, -2, 0)
 		};
 
 		// Create the Trajectory Configuration
@@ -131,7 +143,7 @@ public class Autonomous
 		//                      SAMPLES_LOW  (10 000)
 		//                      SAMPLES_FAST (1 000)
 		// Time Step:           0.05 Seconds
-		// Max Velocity:        1.7 m/s
+		// Max Velocity:        1.7 m/s @ 100% power
 		// Max Acceleration:    2.0 m/s/s
 		// Max Jerk:            60.0 m/s/s/s
 		
@@ -180,7 +192,7 @@ public class Autonomous
 		// The first argument is the proportional gain. Usually this will be quite high
 		// The second argument is the integral gain. This is unused for motion profiling
 		// The third argument is the derivative gain. Tweak this if you are unhappy with the tracking of the trajectory
-		// The fourth argument is the velocity ratio. This is 1 over the maximum velocity you provided in the 
+		// The fourth argument is the velocity ratio. This is 1 over the maximum velocity @ 100% power you provided in the 
 		// trajectory configuration (it translates m/s to a -1 to 1 scale that your motors can read)
 		// The fifth argument is your acceleration gain. Tweak this if you want to get to a higher or lower speed quicker
 		left.configurePIDVA(1.0, 0.0, 0.0, 1 / max_velocity, 0);	
