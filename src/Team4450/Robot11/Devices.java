@@ -1,10 +1,12 @@
 package Team4450.Robot11;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.*;
 
 import Team4450.Lib.NavX;
 import Team4450.Lib.SRXMagneticEncoderRelative;
+import Team4450.Lib.SRXMagneticEncoderRelative.PIDRateType;
 import Team4450.Lib.Util;
 import Team4450.Lib.ValveDA;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -12,6 +14,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Servo;
@@ -107,11 +110,27 @@ public class Devices
 	      SpeedControllerGroup LeftGroup = new SpeedControllerGroup(LFCanTalon, LRCanTalon);
 		  SpeedControllerGroup RightGroup = new SpeedControllerGroup(RFCanTalon, RRCanTalon);
 		  
-		  rightEncoder = new SRXMagneticEncoderRelative(RFCanTalon, 5.8);
+		  // Since encoder is on rear motor talon, set front talons to follow the rears so
+		  // we can do closed loop control using the rear talons. In closed loop control the
+		  // talon is set to some setpoint and will move to that point using the encoder. This
+		  // is onboard PID control.
+		  
+		  LFCanTalon.set(ControlMode.Follower, LRCanTalon.getDeviceID());
+		  RFCanTalon.set(ControlMode.Follower, RRCanTalon.getDeviceID());
+		  
+		  // Configure SRX encoders as needed for testing.
+		  rightEncoder = new SRXMagneticEncoderRelative(RRCanTalon, 5.8);
 		  leftEncoder = new SRXMagneticEncoderRelative(LRCanTalon, 5.8);
 		  leftEncoder.setInverted(true);
+		  leftEncoder.setMaxPeriod(1);
+		  rightEncoder.setMaxPeriod(1);
+		  leftEncoder.setPIDSourceType(PIDSourceType.kRate);
+		  leftEncoder.setPIDRateType(PIDRateType.velocityFPS);
+		  rightEncoder.setPIDSourceType(PIDSourceType.kRate);
+		  rightEncoder.setPIDRateType(PIDRateType.velocityFPS);
 		  
-		  robotDrive = new DifferentialDrive(LeftGroup, RightGroup);
+		  //robotDrive = new DifferentialDrive(LeftGroup, RightGroup);
+		  robotDrive = new DifferentialDrive(LRCanTalon, RRCanTalon);
 	  }
 
 	  // Initialize and Log status indication from CANTalon. If we see an exception

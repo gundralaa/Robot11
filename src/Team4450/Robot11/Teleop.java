@@ -6,6 +6,7 @@ import java.lang.Math;
 import Team4450.Lib.*;
 import Team4450.Lib.JoyStick.*;
 import Team4450.Lib.LaunchPad.*;
+import Team4450.Lib.SRXMagneticEncoderRelative.*;
 import Team4450.Robot11.Devices;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -146,6 +147,8 @@ class Teleop
 		Devices.wheelEncoder.reset();
 		Devices.leftEncoder.reset();
 		Devices.rightEncoder.reset();
+		Devices.leftEncoder.resetMaxRate();
+		Devices.rightEncoder.resetMaxRate();
 		//Devices.LRCanTalon.setSensorPhase(false);
 		//Devices.LRCanTalon.getSensorCollection().setQuadraturePosition(0, 0);
 		//Devices.LRCanTalon.getSensorCollection().setPulseWidthPosition(1000, 0);
@@ -185,6 +188,14 @@ class Teleop
 					Devices.rightEncoder.get(),
 					Devices.rightEncoder.getRotations(),
 					Devices.rightEncoder.getDistance());
+			LCD.printLine(10, "srx l v=%d r=%d r v=%d r=%d rm=%.0f d=%b st=%b",
+					Devices.leftEncoder.getRate(PIDRateType.ticksPer100ms),
+					Devices.leftEncoder.getMaxRate(PIDRateType.ticksPer100ms),
+					Devices.rightEncoder.getRate(PIDRateType.ticksPer100ms),
+					Devices.rightEncoder.getMaxRate(PIDRateType.ticksPer100ms),
+					Devices.rightEncoder.getMaxVelocity(PIDRateType.velocityFPS),
+					Devices.leftEncoder.getDirection(),
+					Devices.leftEncoder.getStopped());
 
 			// Set wheel motors.
 			// Do not feed JS input to robotDrive if we are controlling the motors in automatic functions.
