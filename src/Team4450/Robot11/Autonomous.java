@@ -82,6 +82,10 @@ public class Autonomous
 			case 1:		// Start outside (either side) no scoring.
 				pathFinderTest();
 				break;
+				
+			case 2:
+				velocityTest();
+				break;
 		}
 		
 		// Update the robot heading indicator on the DS.
@@ -184,17 +188,17 @@ public class Autonomous
 		EncoderFollower right = new EncoderFollower(rightTrajectory, "right");
 		
 		// Encoder Position is the current, cumulative position of your encoder. 
-		// 4096 is the amount of encoder ticks per full revolution
-		// Wheel Diameter is the diameter of your wheels (or pulley for a track system) in meters
+		// 4096 is the amount of encoder ticks per full revolution for SRX magnetic encoder.
+		// Wheel Diameter is the diameter of your wheels (or pulley for a track system) in meters.
 		left.configureEncoder(Devices.leftEncoder.get(), 4096, wheel_diameter);
 		right.configureEncoder(Devices.rightEncoder.get(), 4096, wheel_diameter);
 		
-		// The first argument is the proportional gain. Usually this will be quite high
-		// The second argument is the integral gain. This is unused for motion profiling
-		// The third argument is the derivative gain. Tweak this if you are unhappy with the tracking of the trajectory
+		// The first argument is the proportional gain. Usually this will be quite high.
+		// The second argument is the integral gain. This is unused for motion profiling.
+		// The third argument is the derivative gain. Tweak this if you are unhappy with the tracking of the trajectory.
 		// The fourth argument is the velocity ratio. This is 1 over the maximum velocity @ 100% power you provided in the 
-		// trajectory configuration (it translates m/s to a -1 to 1 scale that your motors can read)
-		// The fifth argument is your acceleration gain. Tweak this if you want to get to a higher or lower speed quicker
+		// trajectory configuration (it translates m/s to a -1 to 1 scale that your motors can read).
+		// The fifth argument is your acceleration gain. Tweak this if you want to get to a higher or lower speed quicker.
 		left.configurePIDVA(1.0, 0.0, 0.0, 1 / max_velocity, 0);	
 		right.configurePIDVA(1.0, 0.0, 0.0, 1 / max_velocity, 0);	
 		
@@ -227,6 +231,12 @@ public class Autonomous
 		Devices.robotDrive.stopMotor();
 		
 		if (left.isFinished()) Util.consoleLog("reached end of trajectory");
+	}
+	
+	private void velocityTest()
+	{
+		Util.consoleLog();
+		
 	}
 	
 	/**

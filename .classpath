@@ -7,14 +7,17 @@
 	<classpathentry kind="var" path="opencv" sourcepath="/opencv.sources"/>
 	<classpathentry kind="var" path="wpilib" sourcepath="/wpilib.sources"/>
 	<classpathentry kind="var" path="wpiutil" sourcepath="wpiutil.sources"/>
-	<classpathentry kind="var" path="USERLIBS_DIR/CTRE_Phoenix-sources.jar"/>
-	<classpathentry kind="var" path="USERLIBS_DIR/CTRE_Phoenix.jar" sourcepath="/USERLIBS_DIR/CTRE_Phoenix-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/rcorn/wpilib/user/RobotLib/RobotLib.jar" sourcepath="C:/Users/rcorn/wpilib/user/RobotLib/RobotLib-sources.jar">
+	<classpathentry kind="var" path="USERLIBS_DIR/CTRE_Phoenix.jar" sourcepath="/USERLIBS_DIR/CTRE_Phoenix-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/C:/Users/rcorn/wpilib/user/RobotLib/RobotLib.jar!/"/>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/rcorn/wpilib/user/java/docs/CTRE_Phoenix-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/rcorn/wpilib/user/RobotLib/RobotLib-sources.jar" sourcepath="C:/Users/rcorn/wpilib/user/RobotLib/RobotLib-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/rcorn/workspace/FRC Java/Pathfinder/Pathfinder-Java/build/libs/Pathfinder-Java-1.8.jar"/>
+	<classpathentry kind="lib" path="C:/Users/rcorn/wpilib/user/RobotLib/Pathfinder-Java-1.8.jar"/>
+	<classpathentry kind="lib" path="C:/Users/rcorn/wpilib/user/RobotLib/RobotLib.jar" sourcepath="C:/Users/rcorn/wpilib/user/RobotLib/RobotLib-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/rcorn/wpilib/user/RobotLib/RobotLib-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="USERLIBS_DIR/CTRE_Phoenix-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
