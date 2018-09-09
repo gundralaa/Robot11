@@ -3,6 +3,9 @@ package Team4450.Robot11;
 
 import java.io.File;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+
 import Team4450.Lib.*;
 import Team4450.Robot11.Devices;
 import edu.wpi.first.wpilibj.DriverStation.MatchType;
@@ -84,7 +87,11 @@ public class Autonomous
 				break;
 				
 			case 2:
-				velocityTest();
+				velocityTest1();
+				break;
+				
+			case 3:
+				VelocityTest2();
 				break;
 		}
 		
@@ -233,10 +240,109 @@ public class Autonomous
 		if (left.isFinished()) Util.consoleLog("reached end of trajectory");
 	}
 	
-	private void velocityTest()
+	private void velocityTest1()
 	{
+		double		kP = .10, kI = 0.0, kD = 0.0, kF = 0.10, elapsedTime = 0, power;
+		
+		SynchronousPID	pidController = null;
+
 		Util.consoleLog();
 		
+		pidController = new SynchronousPID(kP, kI, kD, kF);
+		
+		pidController.setOutputRange(0, 1);
+
+		Devices.rightEncoder.reset();
+		
+		pidController.setSetpoint(100 * 4096 / 600); 	// 100 rpm to ticks/100ms.
+
+		while (isAutoActive()) 
+		{
+			LCD.printLine(4, "wheel encoder=%d  rpm=%d", Devices.rightEncoder.get(), Devices.rightEncoder.pidGet());
+
+			// Use PID to determine the power applied. Should reduce power as we get close
+			// to the target encoder RPM.
+			
+			elapsedTime = Util.getElaspedTime();
+				
+			pidController.calculate(Devices.rightEncoder.pidGet(), elapsedTime);
+				
+			power = pidController.get();
+				
+			Util.consoleLog("error=%.2f  power=%.2f  rpm=%d  time=%f", pidController.getError(), power, 
+					Devices.rightEncoder.getRPM(), elapsedTime);
+			
+			Devices.RRCanTalon.set(power);
+			
+			Timer.delay(.100);
+		}
+	}
+	
+	private void VelocityTest2()
+	{
+		StringBuilder 	_sb = new StringBuilder();
+		
+		Util.consoleLog();		
+		
+		/* first choose the sensor */
+		Devices.RRCanTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
+		30);
+		
+		Devices.RRCanTalon.setSensorPhase(true);
+
+		 /* set the peak, nominal outputs, and deadband */
+		 Devices.RRCanTalon.configNominalOutputForward(0, 30);
+		 Devices.RRCanTalon.configNominalOutputReverse(0, 30);
+		 Devices.RRCanTalon.configPeakOutputForward(1, 30);
+		 Devices.RRCanTalon.configPeakOutputReverse(-1, 30);
+
+		 /* set closed loop gains in slot0 */
+		 Devices.RRCanTalon.config_kF(0, 0.34, 30);
+		 Devices.RRCanTalon.config_kP(0, 0.2, 30);
+		 Devices.RRCanTalon.config_kI(0, 0, 30);
+		 Devices.RRCanTalon.config_kD(0, 0, 30);
+
+		 while (isAutoActive())
+		 {
+			 /* get gamepad axis */
+			double leftYstick = Devices.leftStick.getY();
+			double motorOutput = Devices.RRCanTalon.getMotorOutputPercent();
+	
+			/* prepare line to print */
+			_sb.append("\tout:");
+			_sb.append(motorOutput);
+			_sb.append("\tspd:");
+			_sb.append(Devices.RRCanTalon.getSelectedSensorVelocity(0));
+	
+			if (Devices.leftStick.getRawButton(1)) 	// Trigger.
+			{
+				/* Speed mode 500 rpm max */
+				/*
+				* 4096 Units/Rev * 500 RPM / 600 100ms/min in either direction:
+				* velocity setpoint is in units/100ms
+				*/
+				double targetVelocity_UnitsPer100ms = leftYstick * 4096 * 500.0 / 600;
+				
+				Devices.RRCanTalon.set(ControlMode.Velocity, targetVelocity_UnitsPer100ms);
+				
+				/* append more signals to print when in speed mode. */
+				_sb.append("\terr:");
+				_sb.append(Devices.RRCanTalon.getClosedLoopError(0));
+				_sb.append("\ttrg:");
+				_sb.append(targetVelocity_UnitsPer100ms);
+			} 
+			else 
+			{
+			/* Percent output mode */
+				Devices.RRCanTalon.set(ControlMode.PercentOutput, leftYstick);
+			}
+	
+			Util.consoleLog(_sb.toString());
+			
+			_sb.setLength(0);
+		
+			Timer.delay(.100);
+		}
 	}
 	
 	/**

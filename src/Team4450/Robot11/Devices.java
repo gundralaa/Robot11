@@ -125,9 +125,9 @@ public class Devices
 		  leftEncoder.setMaxPeriod(1);
 		  rightEncoder.setMaxPeriod(1);
 		  leftEncoder.setPIDSourceType(PIDSourceType.kRate);
-		  leftEncoder.setPIDRateType(PIDRateType.velocityFPS);
+		  leftEncoder.setPIDRateType(PIDRateType.RPM);
 		  rightEncoder.setPIDSourceType(PIDSourceType.kRate);
-		  rightEncoder.setPIDRateType(PIDRateType.velocityFPS);
+		  rightEncoder.setPIDRateType(PIDRateType.RPM);
 		  
 		  //robotDrive = new DifferentialDrive(LeftGroup, RightGroup);
 		  robotDrive = new DifferentialDrive(LRCanTalon, RRCanTalon);
