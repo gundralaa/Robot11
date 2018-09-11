@@ -13,3 +13,6 @@ dist/
 
 # Gradle cache
 .gradle/
+
+# Eclipse settings
+.settings
