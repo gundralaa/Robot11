@@ -10,8 +10,9 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import Team4450.Lib.LCD;
+import Team4450.Lib.SRXMagneticEncoderRelative.PIDRateType;
 import Team4450.Lib.Util;
-import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -20,9 +21,12 @@ public class VelocityTeleop
 	private final Robot	robot;
 	
 	/** Hardware */
-	TalonSRX LRCanTalon = new TalonSRX(2);
-	TalonSRX RRCanTalon = new TalonSRX(1);
-	Joystick _gamepad = new Joystick(0);
+	TalonSRX LRCanTalon = Devices.LRCanTalon;
+	TalonSRX RRCanTalon = Devices.RRCanTalon;
+	TalonSRX LFCanTalon = Devices.LFCanTalon;
+	TalonSRX RFCanTalon = Devices.RFCanTalon;
+	
+	Joystick _gamepad = new Joystick(1);
 	
 	/** Latched values to detect on-press events for buttons and POV */
 	boolean[] _btns = new boolean[Constants.kNumButtonsPlusOne];
@@ -44,6 +48,10 @@ public class VelocityTeleop
 	
 	public void OperatorControl() throws Exception
 	{
+		int		count = 0, totalRpm = 0, avgRpm = 0, totalError = 0, avgError = 0;
+
+		final int MAX_RPM = 100;
+		
 		Util.consoleLog();
 		
 		/* Disable all motors */
@@ -82,10 +90,12 @@ public class VelocityTeleop
 														Constants.kTimeoutMs);		// Configuration Timeout
 		
 		/* Configure output and sensor direction */
-		LRCanTalon.setInverted(false);
-		LRCanTalon.setSensorPhase(true);
-		RRCanTalon.setInverted(true);
-		RRCanTalon.setSensorPhase(true);
+		//LRCanTalon.setInverted(false);
+		LRCanTalon.setSensorPhase(false);
+		
+		RRCanTalon.setInverted(false);
+		RRCanTalon.setSensorPhase(false);
+		RFCanTalon.setInverted(false);
 		
 		/* Set status frame periods to ensure we don't have stale data */
 		RRCanTalon.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20, Constants.kTimeoutMs);
@@ -136,7 +146,7 @@ public class VelocityTeleop
 
 		Util.consoleLog("enter driving loop");
 		
-		Devices.robotDrive.setSafetyEnabled(true);
+		//Devices.robotDrive.setSafetyEnabled(true);
 		
 		while (robot.isEnabled() && robot.isOperatorControl())
 		{
@@ -174,23 +184,54 @@ public class VelocityTeleop
 				if (_firstCall) 
 				{
 					System.out.println("This is Velocity Closed Loop with a custom Feed Forward.");
-					System.out.println("Travel [-500, 500] RPM while having the ability to add a FeedForward with joyX ");
+					System.out.printf("Travel %d rpm while having the ability to add a FeedForward with joyX\n",
+							MAX_RPM);
+					
 					zeroSensors();
 					
 					/* Determine which slot affects which PID */
 					RRCanTalon.selectProfileSlot(Constants.kSlot_Velocit, Constants.PID_PRIMARY);
 				}
 				
-				/* Calculate targets from JS inputs, 500 rpm max */
-				double target_RPM = forward * 500; /* +- 500 RPM */
+				/* Calculate targets from JS inputs * rpm max */
+				double target_RPM = forward * MAX_RPM; 
 				double target_unitsPer100ms = target_RPM * Constants.kSensorUnitsPerRotation / 600.0;
-				double feedFwdTerm = turn * 0.25; /* how much to add to the close loop output */
+				double feedFwdTerm = turn * 0.5; /* how much to add to the close loop output */
 				
 				/* Configured for Velocity Closed Loop on Quad Encoders' Sum and Arbitrary FeedForward on joyX */
 				RRCanTalon.set(ControlMode.Velocity, target_unitsPer100ms, DemandType.ArbitraryFeedForward, feedFwdTerm);
 				
 				LRCanTalon.follow(RRCanTalon);
+				
+				Util.consoleLog("ry=%.2f rx=%.2f  mo=%.2f  vel=%d  rpm=%d", forward, turn, 
+						Devices.RRCanTalon.getMotorOutputPercent(),
+						Devices.RRCanTalon.getSelectedSensorVelocity(0), Devices.rightEncoder.getRPM());
+				
+				LCD.printLine(4, "ry=%.2f rx=%.2f  mo=%.2f  vel=%d  rpm=%d", forward, turn,
+						Devices.RRCanTalon.getMotorOutputPercent(),
+						Devices.RRCanTalon.getSelectedSensorVelocity(0), Devices.rightEncoder.getRPM());
+				
+				LCD.printLine(6, "err=%d  targetVel=%.2f  turn=%.2f", Devices.RRCanTalon.getClosedLoopError(0),
+						target_unitsPer100ms, feedFwdTerm);
+				
+				LCD.printLine(8, "lmo=%.2f  LVel=%d", Devices.RRCanTalon.getMotorOutputPercent(),
+						Devices.RRCanTalon.getSelectedSensorVelocity(0));
 			}
+			
+			count++;
+			totalRpm += Devices.rightEncoder.getRPM();
+			avgRpm = totalRpm / count;
+			
+			totalError += Math.abs(Devices.RRCanTalon.getClosedLoopError(0));
+			avgError = totalError  / count;
+			
+			if (count > 100) totalRpm = count = totalError = 0;
+			
+			LCD.printLine(9, "avgerr=%d", avgError);
+			
+			LCD.printLine(10, "rpm=%d avg=%d  max=%d  maxrate=%d", Devices.rightEncoder.getRPM(),
+					avgRpm, Devices.rightEncoder.getMaxRPM(), 
+					Devices.rightEncoder.getMaxRate(PIDRateType.ticksPer100ms));
 			
 			/* Recreated variables */
 			_firstCall = false;

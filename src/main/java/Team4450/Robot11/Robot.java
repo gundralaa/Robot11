@@ -257,9 +257,13 @@ public class Robot extends SampleRobot
         
           // Start operator control process contained in the Teleop class.
         
-          teleOp = new Teleop(this);
+          //teleOp = new Teleop(this);
        
-          teleOp.OperatorControl();
+          //teleOp.OperatorControl();
+          
+          VelocityTeleop vTeleOp = new VelocityTeleop(this);
+          
+          vTeleOp.OperatorControl();
           
           lastRobotState = currentRobotState;
        }

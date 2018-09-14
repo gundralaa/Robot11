@@ -3,6 +3,9 @@ package Team4450.Robot11;
 
 import java.lang.Math;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+
 import Team4450.Lib.*;
 import Team4450.Lib.JoyStick.*;
 import Team4450.Lib.LaunchPad.*;
@@ -182,13 +185,13 @@ class Teleop
 			LCD.printLine(7, "intake current=%f", Devices.intakeMotorL.getOutputCurrent());
 			LCD.printLine(8, "pressureV=%.2f  psi=%d", robot.monitorCompressorThread.getVoltage(), 
 					robot.monitorCompressorThread.getPressure());
-			LCD.printLine(9, "srx l=%d rot=%.2f - r=%d rot=%.2f d=%.2f", 
+			LCD.printLine(9, "srx l=%d rpm=%d - r=%d rpm=%d d=%.2f", 
 					Devices.leftEncoder.get(),
-					Devices.leftEncoder.getRotations(),
+					Devices.leftEncoder.getRPM(),
 					Devices.rightEncoder.get(),
-					Devices.rightEncoder.getRotations(),
+					Devices.rightEncoder.getRPM(),
 					Devices.rightEncoder.getDistance());
-			LCD.printLine(10, "srx l v=%d r=%d r v=%d r=%d rm=%.0f d=%b st=%b",
+			LCD.printLine(10, "srx r v=%d r=%d r v=%d r=%d rm=%.0f d=%b st=%b",
 					Devices.leftEncoder.getRate(PIDRateType.ticksPer100ms),
 					Devices.leftEncoder.getMaxRate(PIDRateType.ticksPer100ms),
 					Devices.rightEncoder.getRate(PIDRateType.ticksPer100ms),
@@ -570,6 +573,65 @@ class Teleop
 		public void ButtonUp(JoyStickEvent joyStickEvent) 
 		{
 			//Util.consoleLog("%s", joyStickEvent.button.id.name());
+		}
+	}
+	
+	void OperatorControl2()
+	{
+		double targetVelocity_UnitsPer100ms = 0;
+		
+		Util.consoleLog();		
+		
+		/* first choose the sensor */
+		Devices.RRCanTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
+		
+		Devices.RRCanTalon.setSensorPhase(true);
+		Devices.RRCanTalon.setInverted(false);
+
+		 /* set the peak, nominal outputs, and deadband */
+		 Devices.RRCanTalon.configNominalOutputForward(0, 30);
+		 Devices.RRCanTalon.configNominalOutputReverse(0, 30);
+		 Devices.RRCanTalon.configPeakOutputForward(1, 30);
+		 Devices.RRCanTalon.configPeakOutputReverse(-1, 30);
+
+		 /* set closed loop gains in slot0 */
+		 Devices.RRCanTalon.config_kF(0, 0.62, 30);
+		 Devices.RRCanTalon.config_kP(0, 0.05, 30);
+		 Devices.RRCanTalon.config_kI(0, 0, 30);
+		 Devices.RRCanTalon.config_kD(0, 0, 30);
+
+		 while (robot.isEnabled() && robot.isOperatorControl())
+		 {
+			 /* get gamepad axis */
+			double rightYstick = Devices.rightStick.getY() * -1;
+	
+			if (Devices.rightStick.getRawButton(1)) 	// Trigger.
+			{
+				/* Speed mode 100 rpm max */
+				/*
+				* 4096 Units/Rev * 100 RPM / 600 100ms/min in either direction:
+				* velocity setpoint is in units/100ms
+				*/
+				targetVelocity_UnitsPer100ms = rightYstick * 4096 * 100.0 / 600;
+				
+				Devices.RRCanTalon.set(ControlMode.Velocity, targetVelocity_UnitsPer100ms);
+			} 
+			else 
+			{
+			/* Percent output mode */
+				Devices.RRCanTalon.set(ControlMode.PercentOutput, rightYstick);
+			}
+	
+			Util.consoleLog("ry=%.2f  mo=%.2f  vel=%d  rpm=%d", rightYstick, Devices.RRCanTalon.getMotorOutputPercent(),
+					Devices.RRCanTalon.getSelectedSensorVelocity(0), Devices.rightEncoder.getRPM());
+			
+			LCD.printLine(4, "ry=%.2f  mo=%.2f  vel=%d  rpm=%d", rightYstick, Devices.RRCanTalon.getMotorOutputPercent(),
+					Devices.RRCanTalon.getSelectedSensorVelocity(0), Devices.rightEncoder.getRPM());
+			
+			LCD.printLine(6, "err=%d  targetVel=%.2f", Devices.RRCanTalon.getClosedLoopError(0),
+					targetVelocity_UnitsPer100ms);
+		
+			Timer.delay(.100);
 		}
 	}
 }

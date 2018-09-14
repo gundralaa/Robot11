@@ -81,8 +81,8 @@ public class Devices
 
 		  LFCanTalon = new WPI_TalonSRX(1);
 		  LRCanTalon = new WPI_TalonSRX(2);
-		  RFCanTalon = new WPI_TalonSRX(3);
-		  RRCanTalon = new WPI_TalonSRX(4);
+		  RFCanTalon = new WPI_TalonSRX(4);
+		  RRCanTalon = new WPI_TalonSRX(3);
 		  
 	      // Initialize CAN Talons and write status to log so we can verify
 	      // all the Talons are connected.
@@ -121,6 +121,7 @@ public class Devices
 		  // Configure SRX encoders as needed for testing.
 		  rightEncoder = new SRXMagneticEncoderRelative(RRCanTalon, 5.8);
 		  leftEncoder = new SRXMagneticEncoderRelative(LRCanTalon, 5.8);
+		  
 		  leftEncoder.setInverted(true);
 		  leftEncoder.setMaxPeriod(1);
 		  rightEncoder.setMaxPeriod(1);

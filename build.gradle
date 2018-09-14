@@ -27,26 +27,29 @@ deploy {
 
 // Setup eclipse classpath settings, so the javadoc and sources are available in eclipse
 eclipse {
-    classpath{
+    classpath {
         downloadJavadoc = true
         downloadSources = true
     }
 }
 
+// Look in local maven cache first then jitpack for dependant libraries.
 repositories {
+	mavenLocal()
 	maven { url 'https://jitpack.io' }
 }
 
-// Defining my dependencies. In this case, WPILib (+ friends), CTRE Phoenix (Talon SRX), and NavX.
+// Defining dependencies. In this case, WPILib (+ friends), CTRE Phoenix (Talon SRX), NavX, RobotLib
+// and the local pathfinder project jar. RobotLib is downloaded from Jitpack by version number or
+// commit id.
 dependencies {
     compile wpilib()
-    compile ctre()
-    compile navx()
-    compile "com.github.ORF-4450:RobotLib:v2.0.0"
+    compile "com.github.ORF-4450:RobotLib:3da18e29aa"
+    //compile files("C:\\Users\\rcorn\\wpilib\\user\\RobotLib\\RobotLib.jar")
     compile files("C:\\Users\\rcorn\\wpilib\\user\\RobotLib\\Pathfinder-java-1.8.jar")
 }
 
-// Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
+// Setting up robot program Jar File. In this case, adding all libraries into the main jar ('fat jar')
 // in order to make them all available at runtime. Also adding the manifest so WPILib
 // knows where to look for our Robot Class.
 jar {

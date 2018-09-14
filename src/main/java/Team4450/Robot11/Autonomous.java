@@ -5,6 +5,7 @@ import java.io.File;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import Team4450.Lib.*;
 import Team4450.Robot11.Devices;
@@ -242,107 +243,133 @@ public class Autonomous
 	
 	private void velocityTest1()
 	{
-		double		kP = .10, kI = 0.0, kD = 0.0, kF = 0.10, elapsedTime = 0, power;
+		double		kP = .00125, kI = 0.0, kD = 0.0, kF = 0.0040, elapsedTime = 0, power = 0;
+		int			count = 0, totalRpm = 0, avgRpm = 0, totalError = 0, avgError = 0;
 		
 		SynchronousPID	pidController = null;
 
 		Util.consoleLog();
 		
+		Devices.RRCanTalon.setSensorPhase(false);
+		Devices.RRCanTalon.setInverted(false);
+		Devices.RFCanTalon.setInverted(false);
+		
 		pidController = new SynchronousPID(kP, kI, kD, kF);
 		
-		pidController.setOutputRange(0, 1);
+		pidController.setOutputRange(-1, 1);
 
 		Devices.rightEncoder.reset();
 		
-		pidController.setSetpoint(100 * 4096 / 600); 	// 100 rpm to ticks/100ms.
+		pidController.setSetpoint(100);	// rpm as configured in Devices.
 
 		while (isAutoActive()) 
 		{
-			LCD.printLine(4, "wheel encoder=%d  rpm=%d", Devices.rightEncoder.get(), Devices.rightEncoder.pidGet());
+			LCD.printLine(4, "wheel encoder=%d  rpm=%.0f  avgrpm=%d", Devices.rightEncoder.get(), 
+					Devices.rightEncoder.pidGet(), avgRpm);
+			
+			LCD.printLine(5, "avg error=%d  pwr=%.2f", avgError, power);
 
 			// Use PID to determine the power applied. Should reduce power as we get close
-			// to the target encoder RPM.
+			// to the target encoder RPM. Note that as the error (difference between the
+			// setpoint and actual RPM) goes to zero, the output (power) goes to zero. Left
+			// alone, the robot would stop and then start, stop and then start as the error
+			// fluctuated around zero. So the feed forward term applies the power required
+			// to run at the setpoint when error is zero. The pid loop applies + or - 
+			// additional power to the feed forward power to keep the speed steady.
 			
 			elapsedTime = Util.getElaspedTime();
 				
-			pidController.calculate(Devices.rightEncoder.pidGet(), elapsedTime);
+			power = pidController.calculate(Devices.rightEncoder.pidGet(), elapsedTime);
 				
-			power = pidController.get();
+			//power = pidController.get();
+			
+			// pidGet configured to return rate of rotation in RPM in Devices.
 				
-			Util.consoleLog("error=%.2f  power=%.2f  rpm=%d  time=%f", pidController.getError(), power, 
-					Devices.rightEncoder.getRPM(), elapsedTime);
+			count++;
+			totalRpm += Devices.rightEncoder.pidGet();
+			avgRpm = totalRpm / count;
+			
+			totalError += Math.abs(pidController.getError());
+			avgError = totalError  / count;
+			
+			if (count > 100) totalRpm = count = totalError = 0;
+			
+			Util.consoleLog("error=%.2f  power=%.2f  rpm=%.0f  time=%f", pidController.getError(), power, 
+					Devices.rightEncoder.pidGet(), elapsedTime);
 			
 			Devices.RRCanTalon.set(power);
 			
 			Timer.delay(.100);
 		}
+		 
+		Devices.RRCanTalon.stopMotor();
 	}
-	
+
 	private void VelocityTest2()
 	{
-		StringBuilder 	_sb = new StringBuilder();
+		double	targetVelocity_UnitsPer100ms = 0;
+		int		count = 0, totalRpm = 0, avgRpm = 0, totalError = 0, avgError = 0;
 		
+		WPI_TalonSRX				RCanTalon, FCanTalon;
+		SRXMagneticEncoderRelative	encoder;
+				
 		Util.consoleLog();		
 		
-		/* first choose the sensor */
-		Devices.RRCanTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
-		30);
+		RCanTalon = Devices.RRCanTalon;
+		FCanTalon = Devices.RFCanTalon;
 		
-		Devices.RRCanTalon.setSensorPhase(true);
-
+		encoder = Devices.rightEncoder;
+		
+		encoder.setInverted(false);
+		
+		/* first choose the sensor */
+		RCanTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
+		
+		RCanTalon.setSensorPhase(false);
+		RCanTalon.setInverted(false);
+		FCanTalon.setInverted(false);
+		
 		 /* set the peak, nominal outputs, and deadband */
-		 Devices.RRCanTalon.configNominalOutputForward(0, 30);
-		 Devices.RRCanTalon.configNominalOutputReverse(0, 30);
-		 Devices.RRCanTalon.configPeakOutputForward(1, 30);
-		 Devices.RRCanTalon.configPeakOutputReverse(-1, 30);
+		 RCanTalon.configNominalOutputForward(0, 30);
+		 RCanTalon.configNominalOutputReverse(0, 30);
+		 RCanTalon.configPeakOutputForward(1, 30);
+		 RCanTalon.configPeakOutputReverse(-1, 30);
 
 		 /* set closed loop gains in slot0 */
-		 Devices.RRCanTalon.config_kF(0, 0.34, 30);
-		 Devices.RRCanTalon.config_kP(0, 0.2, 30);
-		 Devices.RRCanTalon.config_kI(0, 0, 30);
-		 Devices.RRCanTalon.config_kD(0, 0, 30);
+		 RCanTalon.config_kF(0, 0.57, 30);
+		 RCanTalon.config_kP(0, 0.08, 30);	// .065
+		 RCanTalon.config_kI(0, 0.0, 30);
+		 RCanTalon.config_kD(0, 0.0, 30);
+
+		 targetVelocity_UnitsPer100ms = 4096 * 100.0 / 600;
+			
+		 RCanTalon.set(ControlMode.Velocity, targetVelocity_UnitsPer100ms);
 
 		 while (isAutoActive())
 		 {
-			 /* get gamepad axis */
-			double leftYstick = Devices.leftStick.getY();
-			double motorOutput = Devices.RRCanTalon.getMotorOutputPercent();
-	
-			/* prepare line to print */
-			_sb.append("\tout:");
-			_sb.append(motorOutput);
-			_sb.append("\tspd:");
-			_sb.append(Devices.RRCanTalon.getSelectedSensorVelocity(0));
-	
-			if (Devices.leftStick.getRawButton(1)) 	// Trigger.
-			{
-				/* Speed mode 500 rpm max */
-				/*
-				* 4096 Units/Rev * 500 RPM / 600 100ms/min in either direction:
-				* velocity setpoint is in units/100ms
-				*/
-				double targetVelocity_UnitsPer100ms = leftYstick * 4096 * 500.0 / 600;
-				
-				Devices.RRCanTalon.set(ControlMode.Velocity, targetVelocity_UnitsPer100ms);
-				
-				/* append more signals to print when in speed mode. */
-				_sb.append("\terr:");
-				_sb.append(Devices.RRCanTalon.getClosedLoopError(0));
-				_sb.append("\ttrg:");
-				_sb.append(targetVelocity_UnitsPer100ms);
-			} 
-			else 
-			{
-			/* Percent output mode */
-				Devices.RRCanTalon.set(ControlMode.PercentOutput, leftYstick);
-			}
-	
-			Util.consoleLog(_sb.toString());
+			Util.consoleLog("mo=%.2f  vel=%d  rpm=%d  err=%d", RCanTalon.getMotorOutputPercent(),
+					RCanTalon.getSelectedSensorVelocity(0), encoder.getRPM(), 
+					RCanTalon.getClosedLoopError(0));
 			
-			_sb.setLength(0);
+		count++;
+		totalRpm += encoder.getRPM();
+		avgRpm = totalRpm / count;
 		
+		totalError += Math.abs(RCanTalon.getClosedLoopError(0));
+		avgError = totalError  / count;
+		
+		if (count > 100) totalRpm = count = totalError = 0;
+		
+		LCD.printLine(4, "mo=%.2f  vel=%d  rpm=%d  avgrpm=%d", RCanTalon.getMotorOutputPercent(),
+				RCanTalon.getSelectedSensorVelocity(0), encoder.getRPM(), avgRpm);
+		
+		LCD.printLine(6, "err=%d  avgerr=%d  targetVel=%.2f", RCanTalon.getClosedLoopError(0),
+				avgError, targetVelocity_UnitsPer100ms);
+			
 			Timer.delay(.100);
 		}
+		 
+		RCanTalon.stopMotor();
 	}
 	
 	/**
