@@ -16,6 +16,20 @@ public class Constants
 	public final static int kSensorUnitsPerRotation = 4096;
 	
 	/**
+	 * Using the configSelectedFeedbackCoefficient() function, scale units to 3600 per rotation.
+	 * This is nice as it keeps 0.1 degrees of resolution, and is fairly intuitive.
+	 */
+	public final static double kTurnTravelUnitsPerRotation = 3600;
+	
+	/**
+	 * Empirically measure the encoder units per 360' rotation.
+	 * Drive the robot in clockwise rotations and measure the units per rotation.
+	 * Drive the robot in counter clockwise rotations and measure the units per rotation.
+	 * Take the average of the two.
+	 */
+	public final static int kEncoderUnitsPerRotation = 51711;	
+	
+	/**
 	 * Set to zero to skip waiting for confirmation.
 	 * Set to nonzero to wait and report to DS if action fails.
 	 */
@@ -27,7 +41,7 @@ public class Constants
 	public final static double kNeutralDeadband = 0.001;
 	
 	/**
-	 * PID Gains may have to be adjusted based on the responsiveness of control loo6
+	 * PID Gains may have to be adjusted based on the responsiveness of control loops.
 	 * 	                                    			  kP   kI   kD   kF               Iz    PeakOut */
 	public final static Gains kGains_Distanc = new Gains( 0.1, 0.0,  0.0, 0.0,            100,  0.50 );
 	public final static Gains kGains_Turning = new Gains( 2.0, 0.0,  4.0, 0.0,            200,  1.00 );

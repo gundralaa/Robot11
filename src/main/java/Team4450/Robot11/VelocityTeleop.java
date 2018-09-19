@@ -26,7 +26,7 @@ public class VelocityTeleop
 	TalonSRX LFCanTalon = Devices.LFCanTalon;
 	TalonSRX RFCanTalon = Devices.RFCanTalon;
 	
-	Joystick _gamepad = new Joystick(1);
+	//Joystick _gamepad = new Joystick(1);
 	
 	/** Latched values to detect on-press events for buttons and POV */
 	boolean[] _btns = new boolean[Constants.kNumButtonsPlusOne];
@@ -157,7 +157,7 @@ public class VelocityTeleop
 			turn = Deadband(turn);
 		
 			/* Button processing for state toggle and sensor zeroing */
-			getButtons(btns, _gamepad);
+			getButtons(btns, Devices.rightStick);
 			
 			if(btns[2] && !_btns[2])
 			{
@@ -184,8 +184,7 @@ public class VelocityTeleop
 				if (_firstCall) 
 				{
 					System.out.println("This is Velocity Closed Loop with a custom Feed Forward.");
-					System.out.printf("Travel %d rpm while having the ability to add a FeedForward with joyX\n",
-							MAX_RPM);
+					System.out.println("Travel up to max rpm while having the ability to add a FeedForward with joyX.");
 					
 					zeroSensors();
 					
@@ -204,30 +203,31 @@ public class VelocityTeleop
 				LRCanTalon.follow(RRCanTalon);
 				
 				Util.consoleLog("ry=%.2f rx=%.2f  mo=%.2f  vel=%d  rpm=%d", forward, turn, 
-						Devices.RRCanTalon.getMotorOutputPercent(),
-						Devices.RRCanTalon.getSelectedSensorVelocity(0), Devices.rightEncoder.getRPM());
+						RRCanTalon.getMotorOutputPercent(),
+						RRCanTalon.getSelectedSensorVelocity(0), Devices.rightEncoder.getRPM());
 				
 				LCD.printLine(4, "ry=%.2f rx=%.2f  mo=%.2f  vel=%d  rpm=%d", forward, turn,
-						Devices.RRCanTalon.getMotorOutputPercent(),
-						Devices.RRCanTalon.getSelectedSensorVelocity(0), Devices.rightEncoder.getRPM());
+						RRCanTalon.getMotorOutputPercent(),
+						RRCanTalon.getSelectedSensorVelocity(0), Devices.rightEncoder.getRPM());
 				
-				LCD.printLine(6, "err=%d  targetVel=%.2f  turn=%.2f", Devices.RRCanTalon.getClosedLoopError(0),
+				LCD.printLine(6, "err=%d  targetVel=%.2f  turn=%.2f", RRCanTalon.getClosedLoopError(0),
 						target_unitsPer100ms, feedFwdTerm);
 				
 				LCD.printLine(8, "lmo=%.2f  LVel=%d", Devices.RRCanTalon.getMotorOutputPercent(),
-						Devices.RRCanTalon.getSelectedSensorVelocity(0));
+						RRCanTalon.getSelectedSensorVelocity(0));
 			}
 			
 			count++;
 			totalRpm += Devices.rightEncoder.getRPM();
 			avgRpm = totalRpm / count;
 			
-			totalError += Math.abs(Devices.RRCanTalon.getClosedLoopError(0));
+			totalError += Math.abs(RRCanTalon.getClosedLoopError(0));
 			avgError = totalError  / count;
 			
 			if (count > 100) totalRpm = count = totalError = 0;
 			
-			LCD.printLine(9, "avgerr=%d", avgError);
+			LCD.printLine(9, "avgerr=%d  maxrateMps=%.2f", avgError, 
+					Devices.rightEncoder.getMaxVelocity(PIDRateType.velocityMPS));
 			
 			LCD.printLine(10, "rpm=%d avg=%d  max=%d  maxrate=%d", Devices.rightEncoder.getRPM(),
 					avgRpm, Devices.rightEncoder.getMaxRPM(), 

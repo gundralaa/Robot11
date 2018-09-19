@@ -159,7 +159,7 @@ public class Autonomous
 		// Max Acceleration:    2.0 m/s/s
 		// Max Jerk:            60.0 m/s/s/s
 		
-		double max_velocity = 0.5;	//1.7;
+		double max_velocity = 2.0;	//1.7;
 		double max_acceleration = 0.5;
 		double max_jerk = 60.0;
 		double time_step = .05;
@@ -565,6 +565,7 @@ public class Autonomous
 				// results in the speed of turn, reducing power as the difference
 				// approaches zero. So our turn should slow and not overshoot. If
 				// it does, the PID controller will reverse power and turn it back.
+				// This continues until the error is within tolerance.
 				
 				pid.calculate(yaw, elapsedTime);
 				

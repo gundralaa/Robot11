@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 @SuppressWarnings("deprecation")
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "RAC11PF-09.08.18-01";
+  static final String  	PROGRAM_NAME = "RAC11PF-09.17.18-01";
 
   public Properties		robotProperties;
   
@@ -261,7 +261,7 @@ public class Robot extends SampleRobot
        
           //teleOp.OperatorControl();
           
-          VelocityTeleop vTeleOp = new VelocityTeleop(this);
+          VelocityTeleop2 vTeleOp = new VelocityTeleop2(this);
           
           vTeleOp.OperatorControl();
           
