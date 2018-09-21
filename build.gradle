@@ -40,8 +40,8 @@ repositories {
 }
 
 // Defining dependencies. In this case, WPILib (+ friends), CTRE Phoenix (Talon SRX), NavX, RobotLib
-// and the local pathfinder project jar. RobotLib is downloaded from Jitpack by version number or
-// commit id. Change local to RobotLib version or commit id.
+// and the local pathfinder project jar. RobotLib is downloaded from Jitpack by version number or commit id. 
+// Change 'local' to RobotLib version or commit id.
 dependencies {
     compile wpilib()
     compile "com.github.ORF-4450:RobotLib:local"

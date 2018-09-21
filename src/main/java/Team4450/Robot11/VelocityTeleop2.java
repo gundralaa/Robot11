@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import Team4450.Lib.LCD;
 import Team4450.Lib.Util;
@@ -22,8 +23,8 @@ public class VelocityTeleop2
 	Robot	robot;
 	
 	/** Hardware */
-	TalonSRX _leftMaster = Devices.LRCanTalon;
-	TalonSRX _rightMaster = Devices.RRCanTalon;
+	WPI_TalonSRX _leftMaster = Devices.LRCanTalon;
+	WPI_TalonSRX _rightMaster = Devices.RRCanTalon;
 	
 	Joystick _gamepad = new Joystick(1);
 	
@@ -209,8 +210,8 @@ public class VelocityTeleop2
 				if (_firstCall)
 					System.out.println("This is a basic arcade drive.\n");
 				
-				_leftMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, +turn);
-				_rightMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn);
+				_leftMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn);
+				_rightMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, +turn);
 			}
 			else
 			{
@@ -227,7 +228,7 @@ public class VelocityTeleop2
 				/* Calculate targets from gamepad inputs */
 				double target_RPM = forward * MAX_RPM; 
 				target_unitsPer100ms = target_RPM * Constants.kSensorUnitsPerRotation / 600.0;
-				_targetAngle += turn * 100;
+				_targetAngle += turn * 50;
 				
 				/* So the velocity pid control on the primary pid loop controls the speed trying to 
 				 * vary motor output to keep speed at the target set below. The steering is done by
@@ -286,7 +287,8 @@ public class VelocityTeleop2
 			LCD.printLine(8, "lmo=%.2f  LVel=%d", _rightMaster.getMotorOutputPercent(),
 					_rightMaster.getSelectedSensorVelocity(0));			
 			
-			LCD.printLine(9, "avgerr=%d", avgError);
+			LCD.printLine(9, "avgerr=%d  lenc=%d renc=%d", avgError, 
+					Devices.leftEncoder.get(), Devices.rightEncoder.get());
 			
 			LCD.printLine(10, "rpm=%d avg=%d  max=%d  maxrate=%d", Devices.rightEncoder.getRPM(),
 					avgRpm, Devices.rightEncoder.getMaxRPM(), 
