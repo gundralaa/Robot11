@@ -44,7 +44,7 @@ repositories {
 // Change 'local' to RobotLib version or commit id.
 dependencies {
     compile wpilib()
-    compile "com.github.ORF-4450:RobotLib:local"
+    compile "com.github.ORF-4450:RobotLib:v2.0.1"
     //compile files("C:\\Users\\rcorn\\wpilib\\user\\RobotLib\\RobotLib.jar")
     compile files("C:\\Users\\rcorn\\wpilib\\user\\RobotLib\\Pathfinder-java-1.8.jar")
 }
