@@ -20,9 +20,12 @@ Operates the robot "Odyssey" for FRC game "FIRST POWER UP".
 Version 11.4
 
 *	Extensive after season testing of new ideas.
+*	Pathfinder.
+*	Velocity motor control.
+*	Using PID loops onboard Talon SRX controllers.
 
 R. Corn
-June 2018
+June-September 2018
 
 Version 11.3
 

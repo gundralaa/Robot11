@@ -22,12 +22,12 @@ public class Constants
 	public final static double kTurnTravelUnitsPerRotation = 3600;
 	
 	/**
-	 * Empirically measure the encoder units per 360' rotation.
+	 * Empirically measure the encoder units per 360' robot rotation.
 	 * Drive the robot in clockwise rotations and measure the units per rotation.
 	 * Drive the robot in counter clockwise rotations and measure the units per rotation.
-	 * Take the average of the two.
+	 * Take the average of the two. This affects the speed of turn.
 	 */
-	public final static int kEncoderUnitsPerRotation = 51711;	
+	public final static int kEncoderUnitsPerRotation = 21000;	//51711;	
 	
 	/**
 	 * Set to zero to skip waiting for confirmation.
