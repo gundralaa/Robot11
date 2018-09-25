@@ -13,6 +13,7 @@ class Teleop
 {
 	private final Robot 		robot;
 	public  JoyStick			rightStick, leftStick, utilityStick;
+	public  GamePad             gamePad;
 	public  LaunchPad			launchPad;
 	private boolean				autoTarget, invertDrive, altDriveMode;
 	private Vision				vision;
@@ -38,6 +39,7 @@ class Teleop
 		if (rightStick != null) rightStick.dispose();
 		if (utilityStick != null) utilityStick.dispose();
 		if (launchPad != null) launchPad.dispose();
+		if (gamePad != null) gamePad.dispose();
 	}
 
 	void OperatorControl()
@@ -87,9 +89,12 @@ class Teleop
 		//utilityStick.AddButton(JoyStickButtonIDs.BUTTON_NAME_HERE);
 		utilityStick.addJoyStickEventListener(new UtilityStickListener());
 		utilityStick.Start();
+		
+		gamePad = new GamePad(Devices.gamePad, "GamePad", this);
+		gamePad.Start();
 
 		// Tighten up dead zone for smoother climber movement.
-		utilityStick.deadZone = .05;
+		//utilityStick.deadZone = .05;
 
 		// Set CAN Talon brake mode by rocker switch setting.
 		// We do this here so that the Utility stick thread has time to read the initial state
@@ -115,11 +120,11 @@ class Teleop
 			// Get joystick deflection and feed to robot drive object
 			// using calls to our JoyStick class.
 
-			rightY = stickLogCorrection(rightStick.GetY());	// fwd/back
-			leftY = stickLogCorrection(leftStick.GetY());	// fwd/back
+			rightY = stickLogCorrection(gamePad.GetRightY());	// fwd/back
+			leftY = stickLogCorrection(gamePad.GetLeftY());	// fwd/back
 
-			rightX = stickLogCorrection(rightStick.GetX());	// left/right
-			leftX = stickLogCorrection(leftStick.GetX());	// left/right
+			rightX = stickLogCorrection(gamePad.GetRightX());	// left/right
+			leftX = stickLogCorrection(gamePad.GetRightX());	// left/right
 
 			utilX = utilityStick.GetX();
 

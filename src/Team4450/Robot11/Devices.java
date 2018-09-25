@@ -21,9 +21,10 @@ public class Devices
 	  public static DifferentialDrive	robotDrive;
 
 	  public final static Joystick      utilityStick = new Joystick(2);	
-	  public final static Joystick      leftStick = new Joystick(0);	
+	  public final static Joystick      leftStick = new Joystick(4);	
 	  public final static Joystick		rightStick = new Joystick(1);	
 	  public final static Joystick		launchPad = new Joystick(3);
+	  public final static Joystick      gamePad = new Joystick(0);       
 
 	  public final static Compressor	compressor = new Compressor(0);	// Compressor class represents the PCM. There are 2.
 	  
@@ -34,6 +35,8 @@ public class Devices
 	  public final static DriverStation				ds = DriverStation.getInstance();
 
 	  public static NavX				navx;
+	 
+	  
 
 	  // Create RobotDrive object for CAN Talon controllers.
 	  
@@ -47,6 +50,9 @@ public class Devices
 		  RRCanTalon = new WPI_TalonSRX(4);
 		  LSlaveCanTalon = new WPI_TalonSRX(5);
 		  RSlaveCanTalon = new WPI_TalonSRX(6);
+		  // Magnetic Encoders
+		  
+		  
 
 	      // Initialize CAN Talons and write status to log so we can verify
 	      // all the Talons are connected.
