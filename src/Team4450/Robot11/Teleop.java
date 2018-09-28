@@ -4,6 +4,9 @@ package Team4450.Robot11;
 import java.lang.Math;
 
 import Team4450.Lib.*;
+import Team4450.Lib.GamePad.GamePadButtonIDs;
+import Team4450.Lib.GamePad.GamePadEvent;
+import Team4450.Lib.GamePad.GamePadEventListener;
 import Team4450.Lib.JoyStick.*;
 import Team4450.Lib.LaunchPad.*;
 import edu.wpi.first.wpilibj.Timer;
@@ -12,9 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 class Teleop
 {
 	private final Robot 		robot;
-	public  JoyStick			rightStick, leftStick, utilityStick;
 	public  GamePad             gamePad;
-	public  LaunchPad			launchPad;
 	private boolean				autoTarget, invertDrive, altDriveMode;
 	private Vision				vision;
 
@@ -34,11 +35,6 @@ class Teleop
 	void dispose()
 	{
 		Util.consoleLog();
-
-		if (leftStick != null) leftStick.dispose();
-		if (rightStick != null) rightStick.dispose();
-		if (utilityStick != null) utilityStick.dispose();
-		if (launchPad != null) launchPad.dispose();
 		if (gamePad != null) gamePad.dispose();
 	}
 
@@ -57,40 +53,11 @@ class Teleop
 		LCD.printLine(1, "Mode: OperatorControl");
 		LCD.printLine(2, "All=%s, Start=%d, FMS=%b", robot.alliance.name(), robot.location, Devices.ds.isFMSAttached());
 
-		// Configure LaunchPad and Joystick event handlers.
-
-		launchPad = new LaunchPad(Devices.launchPad, LaunchPadControlIDs.BUTTON_BLUE, this);
-
-		LaunchPadControl lpControl = launchPad.AddControl(LaunchPadControlIDs.ROCKER_LEFT_BACK);
-		lpControl.controlType = LaunchPadControlTypes.SWITCH;
-
-		lpControl = launchPad.AddControl(LaunchPadControlIDs.ROCKER_LEFT_FRONT);
-		lpControl.controlType = LaunchPadControlTypes.SWITCH;
-
-		//Example on how to track button:
-		//launchPad.AddControl(LaunchPadControlIDs.BUTTON_COLOR_HERE);
-		launchPad.addLaunchPadEventListener(new LaunchPadListener());
-		launchPad.Start();
-
-		leftStick = new JoyStick(Devices.leftStick, "LeftStick", JoyStickButtonIDs.TRIGGER, this);
-		//Example on how to track button:
-		//leftStick.AddButton(JoyStickButtonIDs.BUTTON_NAME_HERE);
-		leftStick.addJoyStickEventListener(new LeftStickListener());
-		leftStick.Start();
-
-		rightStick = new JoyStick(Devices.rightStick, "RightStick", JoyStickButtonIDs.TRIGGER, this);
-		//Example on how to track button:
-		//rightStick.AddButton(JoyStickButtonIDs.BUTTON_NAME_HERE);
-		rightStick.addJoyStickEventListener(new RightStickListener());
-		rightStick.Start();
-
-		utilityStick = new JoyStick(Devices.utilityStick, "UtilityStick", JoyStickButtonIDs.TRIGGER, this);
-		//Example on how to track button:
-		//utilityStick.AddButton(JoyStickButtonIDs.BUTTON_NAME_HERE);
-		utilityStick.addJoyStickEventListener(new UtilityStickListener());
-		utilityStick.Start();
 		
 		gamePad = new GamePad(Devices.gamePad, "GamePad", this);
+		gamePad.AddButton(GamePadButtonIDs.A);
+		gamePad.AddButton(GamePadButtonIDs.B);
+		gamePad.addGamePadEventListener(new GamePadListener());
 		gamePad.Start();
 
 		// Tighten up dead zone for smoother climber movement.
@@ -99,7 +66,7 @@ class Teleop
 		// Set CAN Talon brake mode by rocker switch setting.
 		// We do this here so that the Utility stick thread has time to read the initial state
 		// of the rocker switch.
-		if (robot.isComp) Devices.SetCANTalonBrakeMode(lpControl.latchedState);
+		//if (robot.isComp) Devices.SetCANTalonBrakeMode(lpControl.latchedState);
 
 		// Set gyro/Navx to heading 0.
 		//robot.gyro.reset();
@@ -112,6 +79,7 @@ class Teleop
 
 		// Motor safety turned on.
 		Devices.robotDrive.setSafetyEnabled(true);
+		GearTrain.setLow();
 
 		// Driving loop runs until teleop is over.
 
@@ -120,13 +88,11 @@ class Teleop
 			// Get joystick deflection and feed to robot drive object
 			// using calls to our JoyStick class.
 
-			rightY = stickLogCorrection(gamePad.GetRightY());	// fwd/back
-			leftY = stickLogCorrection(gamePad.GetLeftY());	// fwd/back
+			rightY = - stickLogCorrection(gamePad.GetRightY());	// fwd/back
+			leftY =  - stickLogCorrection(gamePad.GetLeftY());	// fwd/back
 
 			rightX = stickLogCorrection(gamePad.GetRightX());	// left/right
 			leftX = stickLogCorrection(gamePad.GetRightX());	// left/right
-
-			utilX = utilityStick.GetX();
 
 			LCD.printLine(4, "leftY=%.4f  rightY=%.4f  utilX=%.4f", leftY, rightY, utilX);
 			LCD.printLine(6, "yaw=%.2f, total=%.2f, rate=%.2f, hdng=%.2f", Devices.navx.getYaw(), Devices.navx.getTotalYaw(), 
@@ -142,45 +108,7 @@ class Teleop
 
 			if (!autoTarget) 
 			{
-				if (altDriveMode)
-				{	// normal tank with straight drive assist when sticks within 10% of each other.
-					if (leftRightEqual(leftY, rightY, 10) && Math.abs(rightY) > .50)
-					{
-						if (!steeringAssistMode) Devices.navx.resetYaw();
-
-						// Angle is negative if robot veering left, positive if veering right when going forward.
-						// It is opposite when going backward. Note that for this robot, - power means forward and
-						// + power means backward.
-
-						angle = (int) Devices.navx.getYaw();
-
-						LCD.printLine(5, "angle=%d", angle);
-
-						// Invert angle for backwards.
-
-						if (rightY > 0) angle = -angle;
-
-						//Util.consoleLog("angle=%d", angle);
-
-						// Note we invert sign on the angle because we want the robot to turn in the opposite
-						// direction than it is currently going to correct it. So a + angle says robot is veering
-						// right so we set the turn value to - because - is a turn left which corrects our right
-						// drift.
-
-						Devices.robotDrive.curvatureDrive(rightY, -angle * gain, true);
-
-						steeringAssistMode = true;
-					}
-					else
-					{
-						steeringAssistMode = false;
-						Devices.robotDrive.tankDrive(leftY, rightY);		// Normal tank drive.
-					}
-
-					SmartDashboard.putBoolean("Overload", steeringAssistMode);
-				}
-				else
-					Devices.robotDrive.tankDrive(leftY, rightY);		// Normal tank drive.
+				Devices.robotDrive.tankDrive(leftY, rightY);		// Normal tank drive.
 			}
 
 			// Update the robot heading indicator on the DS.
@@ -205,6 +133,8 @@ class Teleop
 
 		return false;
 	}
+	
+	
 
 	// Custom base logarithm.
 	// Returns logarithm base of the value.
@@ -228,161 +158,35 @@ class Teleop
 
 		return joystickValue;
 	}
-
 	
+	public static class GamePadListener implements GamePadEventListener{
 
-	// Handle LaunchPad control events.
-
-	public class LaunchPadListener implements LaunchPadEventListener 
-	{
-		public void ButtonDown(LaunchPadEvent launchPadEvent) 
-		{
-			LaunchPadControl	control = launchPadEvent.control;
-
-			Util.consoleLog("%s, latchedState=%b", control.id.name(),  control.latchedState);
-
-			switch(control.id)
+		@Override
+		public void ButtonDown(GamePadEvent arg0) {
+			// TODO Auto-generated method stub
+			switch(arg0.button.id) 
 			{
-			//Example of case:
-			/*
-			case BUTTON_NAME_HERE:
-				if (launchPadEvent.control.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-			*/
-			default:
-				break;
+				case A:
+					if(GearTrain.isLowSpeed()) {
+						GearTrain.setHigh();
+					} else {
+					}
+				case B:
+					if(GearTrain.isHighSpeed()) {
+						GearTrain.setLow();
+					} else {
+					}
 			}
+			
+			
 		}
 
-		public void ButtonUp(LaunchPadEvent launchPadEvent) 
-		{
-			//Util.consoleLog("%s, latchedState=%b", launchPadEvent.control.name(),  launchPadEvent.control.latchedState);
+		@Override
+		public void ButtonUp(GamePadEvent arg0) {
+			// TODO Auto-generated method stub
+			
 		}
-
-		public void SwitchChange(LaunchPadEvent launchPadEvent) 
-		{
-			LaunchPadControl	control = launchPadEvent.control;
-
-			Util.consoleLog("%s", control.id.name());
-
-			switch(control.id)
-			{
-			// Example of Rocker:
-			/*
-			case ROCKER_NAME_HERE:
-				if (control.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-			*/
-			default:
-				break;
-			}
-		}
+		
 	}
 
-	// Handle Right JoyStick Button events.
-
-	private class RightStickListener implements JoyStickEventListener 
-	{
-
-		public void ButtonDown(JoyStickEvent joyStickEvent) 
-		{
-			JoyStickButton	button = joyStickEvent.button;
-
-			Util.consoleLog("%s, latchedState=%b", button.id.name(),  button.latchedState);
-
-			switch(button.id)
-			{
-			case TRIGGER:
-				altDriveMode = !altDriveMode;
-				break;
-				
-			//Example of Joystick Button case:
-			/*
-			case BUTTON_NAME_HERE:
-				if (button.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-			 */
-			default:
-				break;
-			}
-		}
-
-		public void ButtonUp(JoyStickEvent joyStickEvent) 
-		{
-			//Util.consoleLog("%s", joyStickEvent.button.name());
-		}
-	}
-
-	// Handle Left JoyStick Button events.
-
-	private class LeftStickListener implements JoyStickEventListener 
-	{
-		public void ButtonDown(JoyStickEvent joyStickEvent) 
-		{
-			JoyStickButton	button = joyStickEvent.button;
-
-			Util.consoleLog("%s, latchedState=%b", button.id.name(),  button.latchedState);
-
-			switch(button.id)
-			{
-			//Example of Joystick Button case:
-			/*
-			case BUTTON_NAME_HERE:
-				if (button.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-			 */
-			default:
-				break;
-			}
-		}
-
-		public void ButtonUp(JoyStickEvent joyStickEvent) 
-		{
-			//Util.consoleLog("%s", joyStickEvent.button.name());
-		}
-	}
-
-	// Handle Utility JoyStick Button events.
-
-	private class UtilityStickListener implements JoyStickEventListener 
-	{
-		public void ButtonDown(JoyStickEvent joyStickEvent) 
-		{
-			JoyStickButton	button = joyStickEvent.button;
-
-			Util.consoleLog("%s, latchedState=%b", button.id.name(),  button.latchedState);
-
-			switch(button.id)
-			{
-			//Example of Joystick Button case:
-			/*
-			case BUTTON_NAME_HERE:
-				if (button.latchedState)
-					DoOneThing();
-				else
-					DoOtherThing();
-				break;
-			 */
-			default:
-				break;
-			}
-		}
-
-		public void ButtonUp(JoyStickEvent joyStickEvent) 
-		{
-			//Util.consoleLog("%s", joyStickEvent.button.id.name());
-		}
-	}
 }

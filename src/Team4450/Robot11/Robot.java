@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "RAC11-01.12.18-01";
+  static final String  	PROGRAM_NAME = "AG11-01.12.18-01";
 
   public Properties		robotProperties;
   
@@ -114,6 +114,7 @@ public class Robot extends SampleRobot
    		monitorCompressorThread.setDelay(1.0);
    		monitorCompressorThread.SetLowPressureAlarm(50);
    		monitorCompressorThread.start();
+   		
    		
    		//monitorPDPThread = MonitorPDP.getInstance(ds, PDP);
    		//monitorPDPThread.start();

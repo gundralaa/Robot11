@@ -7,11 +7,29 @@ import Team4450.Robot11.Devices;
 import edu.wpi.first.wpilibj.Timer;
 //import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import jaci.pathfinder.Pathfinder;
+import jaci.pathfinder.followers.EncoderFollower;
+import jaci.pathfinder.modifiers.TankModifier;
+import jaci.pathfinder.*;
+
+/*
+ * Main Method of this testing robot
+ * Use Pathfinder library to create adaptive way points usable for
+ * Competition
+ * 
+ * Use Vision to Autonomously find blocks and navigate using
+ * Waypoints or heading values
+ */
 
 public class Autonomous
 {
 	private final Robot	robot;
 	private final int	program = (int) SmartDashboard.getNumber("AutoProgramSelect",0);
+	
+	Waypoint [] points = {
+			new Waypoint(0,0,0),
+			new Waypoint(1,0,0)
+	};
 	
 	Autonomous(Robot robot)
 	{
@@ -38,95 +56,110 @@ public class Autonomous
 				Devices.ds.isFMSAttached(), program, robot.gameMessage);
 
 		Devices.robotDrive.setSafetyEnabled(false);
+		
+		// Encoders Reset.
+		Devices.rightEncoder.reset();
+	    Devices.leftEncoder.reset();
+				
+		// Set NavX yaw tracking to 0.
+	    Devices.navx.resetYaw();
 
-		//TODO Encoder likely used, so just commenting out.
-		// Initialize encoder.
-		//Devices.encoder.reset();
-        
-		//TODO NavX likely used, so just commenting out.
-        // Set gyro/NavX to heading 0.
-        //robot.gyro.reset();
-		//Devices.navx.resetYaw();
+		Devices.navx.getAHRS().resetDisplacement();
+				
+		//Reset Heading Value
+		Devices.navx.setHeading(0);
+		
+		// Target Heading Change
+		Devices.navx.setTargetHeading(0);
 		
         // Wait to start motors so gyro will be zero before first movement.
-        //Timer.delay(.50);
+        Timer.delay(.50);
 
 		switch (program)
 		{
 			case 0:		// No auto program.
 				break;
+			
+			case 1:
+				wayPointAutonTest();
+				break;
 		}
 		
 		Util.consoleLog("end");
 	}
-
-	//TODO May likely be used, will need modification to work.
-	/*
-	// Auto drive in set direction and power for specified encoder count. Stops
-	// with or without brakes on CAN bus drive system. Uses gyro/NavX to go straight.
 	
-	private void autoDrive(double power, int encoderCounts, boolean enableBrakes)
-	{
-		int		angle;
-		double	gain = .03;
+	private void wayPointAutonTest() {
+		// Use Pathfinder Library
 		
-		Util.consoleLog("pwr=%.2f, count=%d, brakes=%b", power, encoderCounts, enableBrakes);
-
-		if (robot.isComp) Devices.SetCANTalonBrakeMode(enableBrakes);
-
-		Devices.encoder.reset();
-		Devices.navx.resetYaw();
 		
-		while (isAutoActive() && Math.abs(Devices.encoder.get()) < encoderCounts) 
+		// Trajectory Configuration Values
+		double max_velocity = 1.0;	//1.7;
+		double max_acceleration = 0.3;
+		double max_jerk = 60.0;
+		double time_step = .05;
+		
+		// Create a Trajectory Config Object
+		Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, 
+														 Trajectory.Config.SAMPLES_HIGH, 
+														 time_step, 
+														 max_velocity, 
+														 max_acceleration, 
+														 max_jerk);
+		// Generate the trajectory
+		// Using Waypoints define above
+		Trajectory trajectory = Pathfinder.generate(points, config);
+		
+		// The distance in meters between the wheel sides
+		double distanceBetweenLR = Util.inchesToMeters(28);
+		double wheelDiameter = Util.inchesToMeters(5.8);
+		
+		// Allow to divide between the wheel sides
+		TankModifier modification = new TankModifier(trajectory);
+		modification.modify(distanceBetweenLR);
+		
+		Trajectory leftTrajectory = modification.getLeftTrajectory();
+		Trajectory rightTrajectory = modification.getRightTrajectory();
+		
+		// Create encoder follower for each encoder.
+		EncoderFollower left = new EncoderFollower(leftTrajectory);
+		EncoderFollower right = new EncoderFollower(rightTrajectory);
+		
+		// 4096 Ticks per Revolution
+		left.configureEncoder(Devices.leftEncoder.get(), 4096,wheelDiameter);
+		right.configureEncoder(Devices.rightEncoder.get(), 4096, wheelDiameter);
+		
+		// Configure PID Controller
+		left.configurePIDVA(1.0, 0.0, 0.0, 1 / max_velocity, 0);	
+		right.configurePIDVA(1.0, 0.0, 0.0, 1 / max_velocity, 0);
+		
+		while (isAutoActive() && !left.isFinished())
 		{
-			LCD.printLine(4, "encoder=%d", Devices.encoder.get());
-			
-			// Angle is negative if robot veering left, positive if veering right when going forward.
-			// It is opposite when going backward. Note that for this robot, - power means forward and
-			// + power means backward.
-			
-			//angle = (int) robot.gyro.getAngle();
-			angle = (int) Devices.navx.getYaw();
+			double lPower = left.calculate(Devices.leftEncoder.get());
+			double rPower = right.calculate(Devices.rightEncoder.get());
 
-			LCD.printLine(5, "angle=%d", angle);
+			double gyro_heading = Devices.navx.getHeadingR();			// degrees
+			double desired_heading = Pathfinder.r2d(left.getHeading()); // Should also be in degrees
+
+			double angleDifference = Pathfinder.boundHalfDegrees(desired_heading - gyro_heading);
+			double turn = -0.02 * angleDifference;
+
+			lPower = Util.clampValue(lPower + turn, 1.0);
+			rPower = Util.clampValue(rPower - turn, 1.0);
 			
-			// Invert angle for backwards.
+			Util.consoleLog("le=%d lp=%.2f  re=%d rp=%.2f  dhdg=%.0f  hdg=%.0f ad=%.2f  turn=%.2f  time=%.3f", 
+							Devices.leftEncoder.get(), lPower, Devices.rightEncoder.get(), rPower, 
+							desired_heading, gyro_heading, angleDifference, turn,  Util.getElaspedTime());
 			
-			if (power > 0) angle = -angle;
+			//turn = 0;
 			
-			//Util.consoleLog("angle=%d", angle);
+			Devices.robotDrive.tankDrive(lPower, rPower);
 			
-			// Note we invert sign on the angle because we want the robot to turn in the opposite
-			// direction than it is currently going to correct it. So a + angle says robot is veering
-			// right so we set the turn value to - because - is a turn left which corrects our right
-			// drift.
-			
-			Devices.robotDrive.drive(power, -angle * gain);
-			
-			Timer.delay(.020);
+			Timer.delay(time_step);
 		}
-
-		Devices.robotDrive.tankDrive(0, 0, true);				
 		
-		Util.consoleLog("end: actual count=%d", Math.abs(Devices.encoder.get()));
+		Devices.robotDrive.stopMotor();
+		
 	}
 	
-	// Auto rotate left or right the specified angle. Left/right from robots forward view.
-	// Turn right, power is -
-	// Turn left, power is +
-	// angle of rotation is always +.
 	
-	private void autoRotate(double power, int angle)
-	{
-		Util.consoleLog("pwr=%.2f  angle=%d", power, angle);
-		
-		Devices.navx.resetYaw();
-		
-		Devices.robotDrive.tankDrive(power, -power);
-
-		while (isAutoActive() && Math.abs((int) Devices.navx.getYaw()) < angle) {Timer.delay(.020);} 
-		
-		Devices.robotDrive.tankDrive(0, 0);
-	}
-	*/
 }
