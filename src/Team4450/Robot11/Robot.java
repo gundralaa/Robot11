@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import Team4450.Lib.*;
 import Team4450.Robot11.Devices;
+import Team4450.Robot11.Libs.CameraFeed;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SampleRobot;
@@ -24,9 +25,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot 
 {
-  static final String  	PROGRAM_NAME = "AG11-01.12.18-01";
+  static final String  	PROGRAM_NAME = "AG11-11.14.18-01";
 
   public Properties		robotProperties;
+  
+  static final GripPowerUpBlockPipeline pipeline = new GripPowerUpBlockPipeline();
   
   public boolean		isClone = false, isComp = false;
     	
@@ -120,8 +123,9 @@ public class Robot extends SampleRobot
    		//monitorPDPThread.start();
 
    		// Start camera server using our class for usb cameras.
-      
-       	cameraThread = CameraFeed.getInstance(); 
+        
+       	cameraThread = CameraFeed.getInstance();
+       	cameraThread.setPipeline(pipeline);
        	cameraThread.start();
    		
    		Util.consoleLog("end");

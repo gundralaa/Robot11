@@ -26,10 +26,6 @@ public class Autonomous
 	private final Robot	robot;
 	private final int	program = (int) SmartDashboard.getNumber("AutoProgramSelect",0);
 	
-	Waypoint [] points = {
-			new Waypoint(0,0,0),
-			new Waypoint(1,0,0)
-	};
 	
 	Autonomous(Robot robot)
 	{
@@ -105,6 +101,12 @@ public class Autonomous
 														 max_velocity, 
 														 max_acceleration, 
 														 max_jerk);
+		Waypoint [] points = {
+				new Waypoint(0,0,0),
+				new Waypoint(2,0,0),
+				new Waypoint(2,2,0)
+		};
+		
 		// Generate the trajectory
 		// Using Waypoints define above
 		Trajectory trajectory = Pathfinder.generate(points, config);

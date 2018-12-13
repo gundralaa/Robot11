@@ -1,10 +1,18 @@
 package Team4450.Robot11;
 
+import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.imgproc.Imgproc;
+
 import Team4450.Lib.Util;
 
 public class Vision 
 {
 	private Robot robot;
+	private Mat currentImage;
+	private GripPowerUpBlockPipeline pipeline = new GripPowerUpBlockPipeline();
+	private double blockOffset;
+	private double distanceOffset;
 	
 	// This variable and method make sure this class is a singleton.
 	
@@ -25,4 +33,21 @@ public class Vision
 		
 		Util.consoleLog("Vision created!");
 	}
+	
+	boolean findBlockContours() {
+		Rect blockBound = null;
+		
+		currentImage = robot.cameraThread.getCurrentImage();
+		pipeline.process(currentImage);
+		
+		if(pipeline.findContoursOutput().size() > 1) {
+			blockBound = Imgproc.boundingRect(pipeline.findContoursOutput().get(0));
+		}
+		else {
+			Util.consoleLog("No Image Found");
+		}
+		
+		return true;
+	}
+
 }
